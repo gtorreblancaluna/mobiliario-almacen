@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MapperWarehouse">
+  
+    <resultMap id="resultMapWarehouse" type="warehouse.orders.models.OrderWarehouseVO">        
+        
+        <result property="eventId" column="event_id"/>
+        <result property="folio" column="folio"/>
+        <result property="eventDate" column="event_date"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="deliveryHour" column="delivery_hour"/>
+        <result property="addressEvent" column="address_event"/>
+        <result property="status" column="status"/>
+        <result property="customer" column="customer"/>
+                
+    </resultMap>
+    
+    <select id="getByParameters" resultMap="resultMapWarehouse" parameterType="java.util.Map">
+        SELECT 
+         renta.id_renta AS event_id,
+         renta.folio AS folio,
+         renta.fecha_evento AS event_date,
+         renta.fecha_entrega AS delivery_date,
+         renta.hora_entrega AS delivery_hour,
+         renta.descripcion AS address_event,
+         CONCAT(c.nombre," ",c.apellidos) AS customer
+         FROM renta renta
+         INNER JOIN clientes c ON (c.id_clientes = renta.id_clientes) 
+            <if test="systemDate != null and systemDate != '' ">
+                AND STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') <![CDATA[ >= ]]> STR_TO_DATE(#{systemDate}, '%d/%m/%Y' )
+            </if>
+            <if test="folio != null and folio != '' ">
+                AND r.folio = #{folio}
+            </if>
+            <if test="initEventDate != null and endEventDate != null ">
+                AND STR_TO_DATE(renta.fecha_evento,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initEventDate},'%d/%m/%Y') AND STR_TO_DATE(#{endEventDate},'%d/%m/%Y')
+            </if>
+            <if test="initCreatedDate != null and endCreatedDate != null ">
+                AND STR_TO_DATE(renta.fecha_pedido,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initCreatedDate},'%d/%m/%Y') AND STR_TO_DATE(#{endCreatedDate},'%d/%m/%Y')
+            </if>
+            <if test="initDeliveryDate != null and endDeliveryDate != null ">
+                AND STR_TO_DATE(renta.fecha_entrega,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initDeliveryDate},'%d/%m/%Y') AND STR_TO_DATE(#{endDeliveryDate},'%d/%m/%Y')
+            </if>
+            <if test="statusId != null and statusId != '' and statusId != 0 ">
+                AND renta.id_estado = #{statusId}
+            </if>
+            <if test="driverId != null and driverId != '' and driverId != 0 ">
+                AND renta.id_usuario_chofer = #{driverId}
+            </if>
+            <if test="type != null and type != '' and type != 0 ">
+                AND t.id_tipo = #{type}
+            </if>
+            <if test="customer != null and customer != '' ">
+                AND CONCAT(c.nombre," ",c.apellidos) LIKE CONCAT('%',#{customer},'%')
+            </if>
+            ORDER BY STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') LIMIT #{limit}
+    </select>
+</mapper>

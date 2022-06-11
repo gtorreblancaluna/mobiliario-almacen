@@ -1,26 +1,38 @@
 
 package warehouse.index.forms;
 
+import common.constants.ApplicationConstants;
+import common.exceptions.DataOriginException;
+import common.model.Usuario;
 import javax.swing.JOptionPane;
+import org.apache.log4j.Logger;
+import warehouse.services.UserService;
+import warehouse.index.forms.IndexForm;
 
 public class LoginForm extends javax.swing.JFrame {
+    
+    private static final UserService userService = UserService.getInstance();
+    private static final Logger LOGGER = Logger.getLogger(LoginForm.class.getName());
 
+    
     public LoginForm() {
         initComponents();
+        this.setLocationRelativeTo(null);
+        this.txtPassword.requestFocus();
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        lblInfo = new javax.swing.JLabel();
         txtPassword = new javax.swing.JPasswordField();
         btnLogin = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel1.setText("Introduce tu contraseña:");
+        lblInfo.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        lblInfo.setText("Introduce tu contraseña:");
 
         txtPassword.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtPassword.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -44,20 +56,18 @@ public class LoginForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 228, Short.MAX_VALUE))
                     .addComponent(txtPassword)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnLogin)))
+                        .addGap(0, 220, Short.MAX_VALUE)
+                        .addComponent(btnLogin))
+                    .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(lblInfo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -70,9 +80,24 @@ public class LoginForm extends javax.swing.JFrame {
 
     
     private void login () {
+        txtPassword.setEnabled(false);
         String pass = String.valueOf(txtPassword.getPassword());
-        new IndexForm().setVisible(true);
-        this.dispose();
+        try {
+            Usuario user = userService.getByPassword(pass.trim());
+            if(user == null){
+                JOptionPane.showMessageDialog(this, ApplicationConstants.DS_MESSAGE_FAIL_LOGIN, ApplicationConstants.TITLE_MESSAGE_FAIL_LOGIN, JOptionPane.ERROR_MESSAGE);
+                this.txtPassword.requestFocus();
+                txtPassword.setEnabled(true);
+                return;
+            }
+            new IndexForm(user).setVisible(true);
+            this.dispose();
+        } catch (DataOriginException e) {
+            JOptionPane.showMessageDialog(this, e, "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.error(e);
+        }
+        
+        
     }
     
     private void checkLogin () {
@@ -134,7 +159,7 @@ public class LoginForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lblInfo;
     private javax.swing.JPasswordField txtPassword;
     // End of variables declaration//GEN-END:variables
 }

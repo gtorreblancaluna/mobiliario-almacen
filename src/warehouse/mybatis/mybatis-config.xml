@@ -20,7 +20,8 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         </environment>
     </environments>    
     <mappers>
-        <mapper resource="data/MapperUsuarios.xml"/>        
+        <mapper resource="warehouse/mappers/MapperUsuarios.xml"/>
+        <mapper resource="warehouse/orders/mappers/MapperOrderWarehouse.xml"/>
     </mappers>
     
     
