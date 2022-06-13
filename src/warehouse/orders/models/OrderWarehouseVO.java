@@ -10,6 +10,27 @@ public class OrderWarehouseVO {
     private String status;
     private String deliveryHour;
     private String customer;
+    private String eventType;
+    private String eventStatus;
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public String getEventStatus() {
+        return eventStatus;
+    }
+
+    public void setEventStatus(String eventStatus) {
+        this.eventStatus = eventStatus;
+    }
+    
+    
+    
 
     public String getCustomer() {
         return customer;

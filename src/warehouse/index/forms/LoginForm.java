@@ -7,7 +7,6 @@ import common.model.Usuario;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import warehouse.services.UserService;
-import warehouse.index.forms.IndexForm;
 
 public class LoginForm extends javax.swing.JFrame {
     

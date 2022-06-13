@@ -5,6 +5,7 @@ import common.model.EstadoEvento;
 import common.model.Tipo;
 import common.model.Usuario;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +59,18 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
         cmbDriver.addItem(
                 new Usuario(0, ApplicationConstants.CMB_SELECCIONE)
         );
+        
+        
         choferes.stream().forEach(t -> {
             cmbDriver.addItem(t);
+        });
+        
+        statusListGlobal.stream().forEach(t -> {
+            cmbStatus.addItem(t);
+        });
+        
+        typesGlobal.stream().forEach(t -> {
+            cmbEventType.addItem(t);
         });
         
     }
@@ -359,6 +370,7 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             final String FORMAT_DATE = "dd/MM/yyyy";
             Usuario chofer = (Usuario) cmbDriver.getModel().getSelectedItem();
             EstadoEvento estadoEvento = (EstadoEvento) cmbStatus.getModel().getSelectedItem();
+            
            
             Tipo eventType = (Tipo) cmbEventType.getModel().getSelectedItem();
             
@@ -374,14 +386,20 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             parameters.put(INIT_CREATED_DATE.getValue(), initCreatedDate);
             parameters.put(END_CREATED_DATE.getValue(), endCreatedDate);
             parameters.put(LIMIT.getValue(), 1000);
-            parameters.put(OrdersForm.Filter.TYPE.getValue(), eventType.getTipoId());
             parameters.put(OrdersForm.Filter.CUSTOMER.getValue(), customer);
             parameters.put(OrdersForm.Filter.INIT_DELIVERY_DATE.getValue(), initDeliveryDate);
             parameters.put(OrdersForm.Filter.END_DELIVERY_DATE.getValue(), endDeliveryDate);
             parameters.put(OrdersForm.Filter.INIT_EVENT_DATE.getValue(), initEventDate);
             parameters.put(OrdersForm.Filter.END_EVENT_DATE.getValue(), endEventDate);
-            parameters.put(OrdersForm.Filter.STATUS.getValue(), estadoEvento.getEstadoId());
-            parameters.put(OrdersForm.Filter.DRIVER_ID.getValue(), chofer.getUsuarioId());
+            
+            if (!customer.isEmpty() && customer.length()>1000) {
+                JOptionPane.showMessageDialog(null, "Valor no permitido para el nombre del cliente", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            if (IndexForm.globalUser.getAdministrador().equals("1")) {
+                parameters.put(OrdersForm.Filter.TYPE.getValue(), Arrays.asList(eventType.getTipoId()));
+                parameters.put(OrdersForm.Filter.STATUS.getValue(), Arrays.asList(estadoEvento.getEstadoId()));
+            }
 
             OrdersForm.searchAndFillTable(parameters);
             this.dispose();

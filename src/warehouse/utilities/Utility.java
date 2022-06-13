@@ -2,6 +2,9 @@ package warehouse.utilities;
 
 import common.constants.ApplicationConstants;
 import common.utilities.RequestFocusListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
@@ -49,6 +52,15 @@ public abstract class Utility {
         }else{
             return false;
         }
+    }
+    
+    public static String getPathLocation()throws IOException,URISyntaxException{
+   
+        File file = new File(Utility.class.getProtectionDomain().getCodeSource().getLocation()
+                .toURI()).getParentFile();
+        
+        return file+"";
+    
     }
 
 }

@@ -2,13 +2,24 @@
 package warehouse.orders.forms;
 
 import common.constants.ApplicationConstants;
+import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
+import static common.constants.ApplicationConstants.ESTADO_APARTADO;
+import static common.constants.ApplicationConstants.ESTADO_EN_RENTA;
+import static common.constants.ApplicationConstants.MESSAGE_UNEXPECTED_ERROR;
+import static common.constants.ApplicationConstants.PUESTO_CHOFER;
+import static common.constants.ApplicationConstants.SELECT_A_ROW_TO_GENERATE_REPORT;
+import static common.constants.ApplicationConstants.TIPO_PEDIDO;
 import common.exceptions.DataOriginException;
 import common.model.EstadoEvento;
 import common.model.Tipo;
 import common.model.Usuario;
 import common.services.UtilityService;
 import common.utilities.UtilityCommon;
+import java.awt.Desktop;
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,20 +29,32 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.util.JRLoader;
+import org.apache.log4j.Logger;
 import warehouse.index.forms.IndexForm;
 import static warehouse.index.forms.IndexForm.rootPanel;
 import warehouse.orders.models.OrderWarehouseVO;
 import warehouse.orders.services.OrderWarehouseService;
+import warehouse.utilities.ConnectionDB;
+import warehouse.utilities.Utility;
 
 public class OrdersForm extends javax.swing.JInternalFrame {
 
     private static OrderWarehouseService orderWarehouseService;
     // variables gloables para reutilizar en los filtros y combos
-    private List<Tipo> typesGlobal = new ArrayList<>();
-    private List<EstadoEvento> statusListGlobal = new ArrayList<>();
-    private List<Usuario> choferes = new ArrayList<>();
+    private final List<Tipo> typesGlobal = new ArrayList<>();
+    private final List<EstadoEvento> statusListGlobal = new ArrayList<>();
+    private final List<Usuario> choferes = new ArrayList<>();
     private OrdersFilterForm ordersFilterForm;
     private final UtilityService utilityService = UtilityService.getInstance();
+    private ConnectionDB connectionDB;
+    private static final Logger LOGGER = Logger.getLogger(OrdersForm.class.getName());
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE dd MMM yyyy");
+    private static final String PATTERN_STRING_DATE = "dd/MM/yyyy";
 
     public OrdersForm() {
         initComponents();
@@ -40,25 +63,55 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         init();
     }
     
-    
-    private void init () {
+    private Map<String, Object> getInitParameters () {
         String puestoUserId = IndexForm.globalUser.getPuesto().getPuestoId()+"";
-        String puestoChoferId = ApplicationConstants.PUESTO_CHOFER+"";
+        String puestoChoferId = PUESTO_CHOFER+"";
+        Map<String,Object> map = new HashMap<>();
        
         if (puestoUserId.equals(puestoChoferId) && !IndexForm.globalUser.getAdministrador().equals("1")) {
             btnReport.setVisible(false);
+            map.put(Filter.DRIVER_ID.getValue(), IndexForm.globalUser.getUsuarioId());
         } else if (!IndexForm.globalUser.getAdministrador().equals("1")) {
             btnDeliveryReport.setVisible(false);
         }
-        Map<String,Object> map = new HashMap<>();
+        List<String> status = new ArrayList<>();
+        status.add(ESTADO_APARTADO);
+        status.add(ESTADO_EN_RENTA);
+        
+        List<String> types = new ArrayList<>();
+        types.add(TIPO_PEDIDO);
+        
+        
         map.put(Filter.SYSTEM_DATE.getValue(), UtilityCommon.getSystemDate("/") );
         map.put(Filter.LIMIT.getValue(), 1000);
+        map.put(Filter.TYPE.getValue(), types);
+        map.put(Filter.STATUS.getValue(), status);
+        
+        return map;
+    }
+    
+    private void init () {
+        Map<String, Object> map = getInitParameters();
         searchAndFillTable(map);
     }
     
        
     public static void searchAndFillTable (Map<String,Object> map) {
-         formatTable();
+        formatTable();
+         
+         
+        String puestoUserId = IndexForm.globalUser.getPuesto().getPuestoId()+"";
+        String puestoChoferId = PUESTO_CHOFER+"";
+        
+        if (!IndexForm.globalUser.getAdministrador().equals("1")) {
+            map.put(OrdersForm.Filter.STATUS.getValue(), Arrays.asList(ESTADO_APARTADO,ESTADO_EN_RENTA));  
+            map.put(OrdersForm.Filter.TYPE.getValue(), Arrays.asList(TIPO_PEDIDO));
+            if (puestoUserId.equals(puestoChoferId)) {
+                map.put(OrdersForm.Filter.DRIVER_ID.getValue(), IndexForm.globalUser.getUsuarioId());
+            } else {
+                map.put(OrdersForm.Filter.FILTER_BY_CATEGORY_USER.getValue(), IndexForm.globalUser.getUsuarioId());
+            }
+        }
          
          List<OrderWarehouseVO> orders;
          try {
@@ -70,40 +123,56 @@ public class OrdersForm extends javax.swing.JInternalFrame {
              }
              
          } catch (DataOriginException e) {
-             JOptionPane.showMessageDialog(null, e, ApplicationConstants.MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
+             JOptionPane.showMessageDialog(null, e, MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
              return;
          }
-         DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-         for (OrderWarehouseVO order : orders) {
-             Object row[] = {
-                 order.getEventId(),
-                 order.getFolio(),
-                 order.getAddressEvent(),
-                 order.getEventDate(),
-                 order.getDeliveryDate() + " " + order.getDeliveryHour(),
-                 order.getCustomer(),
-                 ""
-             };
-             tableModel.addRow(row);
+         
+         try {
+            
+             DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+            for (OrderWarehouseVO order : orders) {
+                Object row[] = {
+                    order.getEventId(),
+                    order.getFolio(),
+                    order.getAddressEvent(),
+                    simpleDateFormat.format(UtilityCommon.getFromString(order.getEventDate(), PATTERN_STRING_DATE)),
+                    simpleDateFormat.format(UtilityCommon.getFromString(order.getDeliveryDate(), PATTERN_STRING_DATE)) + " - " + order.getDeliveryHour(),
+                    order.getCustomer(),
+                    order.getEventType(),
+                    order.getEventStatus()
+                };
+                tableModel.addRow(row);
+            }
+         } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
          }
          
     }
     
     private enum Colum{
-        ID(0),
-        FOLIO(1),
-        DESCRIPTION_EVENT(2),
-        EVENT_DATE(3),
-        DELIVERY_DATE(4),
-        CUSTOMER(5);
+        ID(0,"id"),
+        FOLIO(1,"Folio"),
+        DESCRIPTION_EVENT(2,"Dirección"),
+        EVENT_DATE(3,"Fecha evento"),
+        DELIVERY_DATE(4,"Fecha entrega"),
+        CUSTOMER(5,"Cliente"),
+        EVENT_TYPE(6,"Tipo"),
+        EVENT_STATUS(7,"Estatus Pedido")
+        ;
         
-        Colum (Integer number) {
+        Colum (Integer number, String description) {
             this.number = number;
+            this.description = description;
         }
         private final Integer number;
+        private final String description;
 
         public Integer getNumber() {
             return number;
+        }
+        
+        public String getDescription () {
+            return description;
         }
     }
     
@@ -122,6 +191,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         END_CREATED_DATE("endCreatedDate"),
         INIT_EVENT_DATE("initEventDate"),
         END_EVENT_DATE("endEventDate"),
+        FILTER_BY_CATEGORY_USER("filterByCategoryUser"),
         FOLIO("folio");
         
         Filter (String value) {
@@ -136,16 +206,16 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     }
     
     private static void formatTable() {
-        Object[][] data = {{"","","","","",""}};
+        Object[][] data = {{"","","","","","","",""}};
         String[] columnNames = {          
-                        "id",
-                        "Folio", 
-                        "Dirección",
-                        "Fecha evento", 
-                        "Fecha entrega",                        
-                        "Cliente",
-                        "Status"
-                       
+                        Colum.ID.getDescription(),
+                        Colum.FOLIO.getDescription(), 
+                        Colum.DESCRIPTION_EVENT.getDescription(),
+                        Colum.EVENT_DATE.getDescription(), 
+                        Colum.DELIVERY_DATE.getDescription(),                        
+                        Colum.CUSTOMER.getDescription(),
+                        Colum.EVENT_TYPE.getDescription(),
+                        Colum.EVENT_STATUS.getDescription(),
         };
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
         table.setModel(tableModel);
@@ -153,7 +223,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(tableModel); 
         table.setRowSorter(ordenarTabla);
 
-        int[] anchos = {20,60,180,140,140,140,80};
+        int[] anchos = {20,60,180,140,140,140,80,80};
 
         for (int inn = 0; inn < table.getColumnCount(); inn++) {
             table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);
@@ -173,7 +243,8 @@ public class OrdersForm extends javax.swing.JInternalFrame {
 
         table.getColumnModel().getColumn(Colum.ID.getNumber()).setMaxWidth(0);
         table.getColumnModel().getColumn(Colum.ID.getNumber()).setMinWidth(0);
-        table.getColumnModel().getColumn(Colum.ID.getNumber()).setPreferredWidth(0);    
+        table.getColumnModel().getColumn(Colum.ID.getNumber()).setPreferredWidth(0);
+        
         
     }
 
@@ -193,7 +264,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         lblInfo = new javax.swing.JLabel();
         lblDescriptionFilters = new javax.swing.JLabel();
 
-        table.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        table.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -205,7 +276,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        table.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        table.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         table.setRowHeight(14);
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -235,14 +306,29 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         btnSearchByFolio.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnSearchByFolio.setText("Buscar por folio");
         btnSearchByFolio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnSearchByFolio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchByFolioActionPerformed(evt);
+            }
+        });
 
         btnReport.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnReport.setText("Reporte");
         btnReport.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportActionPerformed(evt);
+            }
+        });
 
         btnDeliveryReport.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnDeliveryReport.setText("Reporte entregas");
         btnDeliveryReport.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnDeliveryReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeliveryReportActionPerformed(evt);
+            }
+        });
 
         jButton1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jButton1.setText("Exportar Excel");
@@ -258,13 +344,13 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(7, 7, 7)
                 .addComponent(btnReport)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnDeliveryReport)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 422, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnSearchByFolio)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSearch)
@@ -297,13 +383,12 @@ public class OrdersForm extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1085, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -340,13 +425,106 @@ public class OrdersForm extends javax.swing.JInternalFrame {
             rootPanel.add(ordersFilterForm);
             ordersFilterForm.show();
         } else {
-            JOptionPane.showMessageDialog(this, "La ventana ya se encuentra disponible");
+            JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
         }
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         utilityService.exportarExcel(table);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnDeliveryReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeliveryReportActionPerformed
+        // TODO add your handling code here:
+        if (!verifyIfOneRowIsSelected()) {return;}
+        
+        String rentaId = table.getValueAt(table.getSelectedRow(), Colum.ID.getNumber()).toString();
+        
+        try {      
+            connectionDB = ConnectionDB.getInstance();
+            JasperPrint jasperPrint;
+            String pathLocation = Utility.getPathLocation();
+           
+            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_ENTREGAS);  
+            // enviamos los parametros
+            Map<String,Object> map = new HashMap<>();
+            map.put("id_renta", rentaId);
+            map.put("chofer", IndexForm.globalUser.getNombre() + " " + IndexForm.globalUser.getApellidos());
+            map.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
+
+            jasperPrint = JasperFillManager.fillReport(masterReport, map, connectionDB.getConnection());
+            JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS);
+            File file2 = new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS);
+            
+            Desktop.getDesktop().open(file2);
+
+        } catch (Exception e) {
+            LOGGER.error(e);
+            JOptionPane.showMessageDialog(rootPane, e);
+        }
+    }//GEN-LAST:event_btnDeliveryReportActionPerformed
+
+    private boolean verifyIfOneRowIsSelected () {
+        
+        if (table.getSelectedRow() == - 1){
+            JOptionPane.showMessageDialog(null, SELECT_A_ROW_TO_GENERATE_REPORT, "Reporte", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        
+        return true;
+    }
+    private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
+        // TODO add your handling code here:
+        if (!verifyIfOneRowIsSelected()) {return;}
+        
+        String rentaId = table.getValueAt(table.getSelectedRow(), Colum.ID.getNumber()).toString();
+        
+        try {
+            connectionDB = ConnectionDB.getInstance();
+            JasperPrint jasperPrint;
+            String archivo = ApplicationConstants.RUTA_REPORTE_CATEGORIAS;
+            String pathLocation = Utility.getPathLocation();
+            System.out.println("Cargando desde: " + archivo);
+            if (archivo == null) {
+                JOptionPane.showMessageDialog(rootPane, "No se encuentra el Archivo jasper");
+              
+            }
+            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+archivo);
+            
+            Map<String,Object> parametro = new HashMap<>();
+            //guardamos el parametro
+
+            parametro.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
+            parametro.put("ID_RENTA",rentaId);
+            parametro.put("ID_USUARIO",IndexForm.globalUser.getUsuarioId());
+            parametro.put("NOMBRE_ENCARGADO_AREA",IndexForm.globalUser.getNombre() + " " + IndexForm.globalUser.getApellidos());
+            
+            jasperPrint = JasperFillManager.fillReport(masterReport, parametro, connectionDB.getConnection());
+            JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS);
+            File file2 = new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS);
+            
+            Desktop.getDesktop().open(file2);
+          
+
+        } catch (Exception e) {
+            System.out.println("Mensaje de Error:" + e.toString());
+            JOptionPane.showMessageDialog(rootPane, e);
+        }
+    }//GEN-LAST:event_btnReportActionPerformed
+
+    private void btnSearchByFolioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchByFolioActionPerformed
+        String folio = JOptionPane.showInputDialog("Ingresa el folio");
+        if (folio == null) {
+            return;
+        }
+        try {
+            Integer number = Integer.parseInt(folio);
+            Map<String, Object> parameters = getInitParameters();
+            parameters.put("folio", number);
+            searchAndFillTable(parameters);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Folio no válido, ingresa un número válido para continuar ", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnSearchByFolioActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
