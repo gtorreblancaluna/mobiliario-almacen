@@ -1,6 +1,8 @@
 
 package almacen.orders.forms;
 
+import almacen.commons.service.EstadoEventoService;
+import almacen.commons.service.TipoEventoService;
 import almacen.commons.service.UserService;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
@@ -47,9 +49,9 @@ public class OrdersForm extends javax.swing.JInternalFrame {
 
     private static OrderWarehouseService orderWarehouseService;
     // variables gloables para reutilizar en los filtros y combos
-    private final List<Tipo> typesGlobal = new ArrayList<>();
-    private final List<EstadoEvento> statusListGlobal = new ArrayList<>();
-    private final List<Usuario> choferes = new ArrayList<>();
+    private List<Tipo> typesGlobal = new ArrayList<>();
+    private List<EstadoEvento> statusListGlobal = new ArrayList<>();
+    private List<Usuario> choferes = new ArrayList<>();
     private OrdersFilterForm ordersFilterForm;
     private final UtilityService utilityService = UtilityService.getInstance();
     private static ConnectionDB connectionDB;
@@ -57,6 +59,8 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE dd MMM yyyy");
     private static final String PATTERN_STRING_DATE = "dd/MM/yyyy";
     private static final UserService userService = UserService.getInstance();
+    private final EstadoEventoService estadoEventoService = EstadoEventoService.getInstance();
+    private final TipoEventoService tipoEventoService = TipoEventoService.getInstance();
     
     public OrdersForm() {
         initComponents();
@@ -425,10 +429,26 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         init();
     }//GEN-LAST:event_btnReloadActionPerformed
 
+    private void checkGlobalList(){
+        try {
+            if (typesGlobal.isEmpty()) {
+                typesGlobal = tipoEventoService.get();
+            }
+            if (statusListGlobal.isEmpty()) {
+                statusListGlobal = estadoEventoService.get();
+            }
+            if (choferes.isEmpty()) {
+                choferes = userService.getChoferes();
+            }
+        } catch (DataOriginException e) {
+            JOptionPane.showMessageDialog(this, e,"ERROR",JOptionPane.ERROR_MESSAGE);
+        }
+    }
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         // TODO add your handling code here:
         if (UtilityCommon.verifyIfInternalFormIsOpen(ordersFilterForm,IndexForm.rootPanel)) {
             
+            checkGlobalList();
             ordersFilterForm = new OrdersFilterForm(typesGlobal,statusListGlobal,choferes);
             ordersFilterForm.setLocation(this.getWidth() / 2 - ordersFilterForm.getWidth() / 2, this.getHeight() / 2 - ordersFilterForm.getHeight() / 2 - 20);
             rootPanel.add(ordersFilterForm);
