@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MapperWarehouse">
+  
+    <resultMap id="resultMapWarehouse" type="almacen.orders.models.OrderWarehouseVO">
+        <result property="eventId" column="event_id"/>
+        <result property="folio" column="folio"/>
+        <result property="eventDate" column="event_date"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="deliveryHour" column="delivery_hour"/>
+        <result property="addressEvent" column="address_event"/>
+        <result property="status" column="status"/>
+        <result property="customer" column="customer"/>
+        <result property="eventStatus" column="event_status"/>
+        <result property="eventType" column="event_type"/>
+        <result property="choferName" column="chofer_name"/>
+    </resultMap>
+    
+    <select id="getByParameters" resultMap="resultMapWarehouse" parameterType="java.util.Map">
+        SELECT 
+         renta.id_renta AS event_id,
+         renta.folio AS folio,
+         renta.fecha_evento AS event_date,
+         renta.fecha_entrega AS delivery_date,
+         renta.hora_entrega AS delivery_hour,
+         renta.descripcion AS address_event,
+         CONCAT(c.nombre," ",c.apellidos) AS customer,
+         estado.descripcion AS event_status,
+         tipo.tipo AS event_type,
+         CONCAT(chofer.nombre," ",chofer.apellidos) AS chofer_name
+         FROM renta renta
+         INNER JOIN tipo tipo ON (tipo.id_tipo = renta.id_tipo)
+         INNER JOIN estado estado ON (estado.id_estado = renta.id_estado)
+         INNER JOIN clientes c ON (c.id_clientes = renta.id_clientes)
+         INNER JOIN usuarios chofer ON (chofer.id_usuarios = renta.id_usuario_chofer)
+            <if test="systemDate != null and systemDate != '' ">
+                AND STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') <![CDATA[ >= ]]> STR_TO_DATE(#{systemDate}, '%d/%m/%Y' )
+            </if>
+            <if test="folio != null and folio != '' ">
+                AND renta.folio = #{folio}
+            </if>
+            <if test="initEventDate != null and endEventDate != null ">
+                AND STR_TO_DATE(renta.fecha_evento,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initEventDate},'%d/%m/%Y') AND STR_TO_DATE(#{endEventDate},'%d/%m/%Y')
+            </if>
+            <if test="initCreatedDate != null and endCreatedDate != null ">
+                AND STR_TO_DATE(renta.fecha_pedido,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initCreatedDate},'%d/%m/%Y') AND STR_TO_DATE(#{endCreatedDate},'%d/%m/%Y')
+            </if>
+            <if test="initDeliveryDate != null and endDeliveryDate != null ">
+                AND STR_TO_DATE(renta.fecha_entrega,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initDeliveryDate},'%d/%m/%Y') AND STR_TO_DATE(#{endDeliveryDate},'%d/%m/%Y')
+            </if>
+            <if test="statusId != null">
+                <foreach item="item" index="index" collection="statusId"
+                    open="AND renta.id_estado IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+            </if>
+            <if test="driverId != null and driverId != '' and driverId != 0 ">
+                AND renta.id_usuario_chofer = #{driverId}
+            </if>
+            <if test="type != null">
+                <foreach item="item" index="index" collection="type"
+                    open="AND tipo.id_tipo IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+            </if>
+            <if test="customer != null and customer != '' ">
+                AND CONCAT(c.nombre," ",c.apellidos) LIKE CONCAT('%',#{customer},'%')
+            </if>
+            <if test="filterByCategoryUser != null and filterByCategoryUser != '' ">
+                AND renta.id_usuarios = (SELECT DISTINCT(r.id_usuarios) FROM renta r
+                    INNER JOIN detalle_renta detalle ON (detalle.id_renta = r.id_renta)
+                    INNER JOIN articulo articulo ON (articulo.id_articulo = detalle.id_articulo)
+                    WHERE r.id_renta = renta.id_renta AND articulo.id_categoria IN (SELECT asigna.id_categoria FROM asigna_categoria asigna WHERE asigna.id_usuarios = #{filterByCategoryUser} ))
+            </if>
+            ORDER BY STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') LIMIT #{limit}
+    </select>
+</mapper>
