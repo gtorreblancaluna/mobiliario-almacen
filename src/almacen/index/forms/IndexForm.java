@@ -8,8 +8,12 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import almacen.orders.forms.OrdersForm;
-import almacen.commons.service.UserService;
 import almacen.commons.utilities.Utility;
+import static almacen.commons.utilities.Utility.getCloseWindowAction;
+import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
+import common.services.PropertiesService;
+import common.services.UserService;
+import common.utilities.InactivityListener;
 
 public class IndexForm extends javax.swing.JFrame {
 
@@ -18,11 +22,12 @@ public class IndexForm extends javax.swing.JFrame {
     private OrdersForm ordersForm;
 
     private static final UserService userService = UserService.getInstance();
+    private static final PropertiesService propertiesService = PropertiesService.getInstance();
     private static final Logger LOGGER = Logger.getLogger(IndexForm.class.getName());
     
     public IndexForm() {
         initComponents();
-       
+        
     }
     
     public IndexForm(Usuario user) {
@@ -30,6 +35,8 @@ public class IndexForm extends javax.swing.JFrame {
         initComponents();
         init();
         Utility.pushNotification("Inicio de sesión "+user.getNombre() + " " + user.getApellidos());
+        this.setTitle("MOBILIARIO ALMACEN");
+        new InactivityListener(this, getCloseWindowAction(), Integer.parseInt(propertiesService.getProperty("time.sessiont.timeout"))).start();
     }
     
     private void init () {
@@ -79,6 +86,8 @@ public class IndexForm extends javax.swing.JFrame {
         jSeparator10 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtAreaNotifications = new javax.swing.JTextArea();
+        quickAccessPanel = new javax.swing.JPanel();
+        btnShowOrdersForm = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuIndex = new javax.swing.JMenu();
         menuItemView = new javax.swing.JMenuItem();
@@ -131,8 +140,35 @@ public class IndexForm extends javax.swing.JFrame {
         txtAreaNotifications.setEnabled(false);
         jScrollPane1.setViewportView(txtAreaNotifications);
 
+        btnShowOrdersForm.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnShowOrdersForm.setText("Ver eventos");
+        btnShowOrdersForm.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnShowOrdersForm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShowOrdersFormActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout quickAccessPanelLayout = new javax.swing.GroupLayout(quickAccessPanel);
+        quickAccessPanel.setLayout(quickAccessPanelLayout);
+        quickAccessPanelLayout.setHorizontalGroup(
+            quickAccessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(quickAccessPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnShowOrdersForm, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(184, Short.MAX_VALUE))
+        );
+        quickAccessPanelLayout.setVerticalGroup(
+            quickAccessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(quickAccessPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnShowOrdersForm, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         rootPanel.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         rootPanel.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        rootPanel.setLayer(quickAccessPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
@@ -141,21 +177,28 @@ public class IndexForm extends javax.swing.JFrame {
             .addGroup(rootPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 625, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                    .addGroup(rootPanelLayout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1241, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 9, Short.MAX_VALUE))
+                    .addGroup(rootPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(quickAccessPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         rootPanelLayout.setVerticalGroup(
             rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, rootPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                    .addComponent(quickAccessPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        menuIndex.setText("Ordenes");
+        menuIndex.setText("Eventos");
 
         menuItemView.setText("Ver");
         menuItemView.addActionListener(new java.awt.event.ActionListener() {
@@ -192,7 +235,7 @@ public class IndexForm extends javax.swing.JFrame {
     public void openOrdersForm () {
         
         if (UtilityCommon.verifyIfInternalFormIsOpen(ordersForm,IndexForm.rootPanel)) {
-             if(!Utility.showWindowDataUpdateSession()){
+            if(!Utility.showWindowDataUpdateSession()){
                 return;
             }
             ordersForm = new OrdersForm();
@@ -200,13 +243,17 @@ public class IndexForm extends javax.swing.JFrame {
             rootPanel.add(ordersForm);
             ordersForm.show();
         } else {
-            JOptionPane.showMessageDialog(this, "La ventana ya se encuentra disponible");
+            JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
         }
     }
     
     private void menuItemViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemViewActionPerformed
         openOrdersForm();
     }//GEN-LAST:event_menuItemViewActionPerformed
+
+    private void btnShowOrdersFormActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowOrdersFormActionPerformed
+        openOrdersForm();
+    }//GEN-LAST:event_btnShowOrdersFormActionPerformed
 
     /**
      * @param args the command line arguments
@@ -244,6 +291,7 @@ public class IndexForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnShowOrdersForm;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -261,6 +309,7 @@ public class IndexForm extends javax.swing.JFrame {
     public static javax.swing.JLabel lbl_logueo;
     private javax.swing.JMenu menuIndex;
     private javax.swing.JMenuItem menuItemView;
+    private javax.swing.JPanel quickAccessPanel;
     public static javax.swing.JDesktopPane rootPanel;
     public static javax.swing.JTextArea txtAreaNotifications;
     // End of variables declaration//GEN-END:variables

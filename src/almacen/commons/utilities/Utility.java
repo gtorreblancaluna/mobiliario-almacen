@@ -1,5 +1,6 @@
 package almacen.commons.utilities;
 
+import almacen.commons.forms.UpdateSessionDialogForm;
 import common.constants.ApplicationConstants;
 import common.utilities.RequestFocusListener;
 import java.io.File;
@@ -10,12 +11,16 @@ import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import almacen.index.forms.IndexForm;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.WindowConstants;
 
 
 public abstract class Utility {
     
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
+
     
     public static void pushNotification(final String notification){
         StringBuilder messages = new StringBuilder();
@@ -31,7 +36,23 @@ public abstract class Utility {
         IndexForm.txtAreaNotifications.setText(null);
         IndexForm.txtAreaNotifications.setText(messages+"");
     }     
-    
+         public static Action getCloseWindowAction () {
+         return new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {        
+                    showWindowDataForceUpdateSession();
+                }
+            };
+     }
+         
+    public static void showWindowDataForceUpdateSession(){
+        UpdateSessionDialogForm win = new UpdateSessionDialogForm(null,true);
+        win.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        win.setLocationRelativeTo(null);
+        win.setVisible(true);
+    }
    
     public static boolean showWindowDataUpdateSession(){
         

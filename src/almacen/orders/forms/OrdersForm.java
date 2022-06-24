@@ -1,9 +1,8 @@
 
 package almacen.orders.forms;
 
-import almacen.commons.service.EstadoEventoService;
-import almacen.commons.service.TipoEventoService;
-import almacen.commons.service.UserService;
+import common.services.EstadoEventoService;
+import common.services.TipoEventoService;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
 import static common.constants.ApplicationConstants.ESTADO_APARTADO;
@@ -44,9 +43,10 @@ import almacen.orders.models.OrderWarehouseVO;
 import almacen.orders.services.OrderWarehouseService;
 import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
+import common.services.UserService;
 
 public class OrdersForm extends javax.swing.JInternalFrame {
-
+    
     private static OrderWarehouseService orderWarehouseService;
     // variables gloables para reutilizar en los filtros y combos
     private List<Tipo> typesGlobal = new ArrayList<>();
@@ -65,8 +65,10 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     public OrdersForm() {
         initComponents();
         this.setClosable(true);
+        this.setTitle("EVENTOS");
         orderWarehouseService = OrderWarehouseService.getInstance();
         init();
+        
     }
     
     private Map<String, Object> getInitParameters () {
@@ -135,7 +137,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
          
          try {
             
-             DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+            DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
             for (OrderWarehouseVO order : orders) {
                 Object row[] = {
                     order.getEventId(),
@@ -395,12 +397,13 @@ public class OrdersForm extends javax.swing.JInternalFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1085, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())))
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -447,7 +450,6 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         // TODO add your handling code here:
         if (UtilityCommon.verifyIfInternalFormIsOpen(ordersFilterForm,IndexForm.rootPanel)) {
-            
             checkGlobalList();
             ordersFilterForm = new OrdersFilterForm(typesGlobal,statusListGlobal,choferes);
             ordersFilterForm.setLocation(this.getWidth() / 2 - ordersFilterForm.getWidth() / 2, this.getHeight() / 2 - ordersFilterForm.getHeight() / 2 - 20);
@@ -473,24 +475,21 @@ public class OrdersForm extends javax.swing.JInternalFrame {
             connectionDB = ConnectionDB.getInstance();
             JasperPrint jasperPrint;
             String pathLocation = Utility.getPathLocation();
-           
             JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_ENTREGAS);  
             // enviamos los parametros
             Map<String,Object> map = new HashMap<>();
             map.put("id_renta", rentaId);
             map.put("chofer", chofer);
             map.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA);
-
             jasperPrint = JasperFillManager.fillReport(masterReport, map, connectionDB.getConnection());
             JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS);
-            File file2 = new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS);
-            
-            Desktop.getDesktop().open(file2);
+            Desktop.getDesktop().open(
+                    new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS)
+            );
             generateLogGeneratePDFPush("reporte de entregas");
-
         } catch (Exception e) {
             LOGGER.error(e);
-            JOptionPane.showMessageDialog(rootPane, e);
+            JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnDeliveryReportActionPerformed
 
@@ -512,34 +511,26 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         
         try {
             connectionDB = ConnectionDB.getInstance();
-            JasperPrint jasperPrint;
-            String archivo = ApplicationConstants.RUTA_REPORTE_CATEGORIAS;
             String pathLocation = Utility.getPathLocation();
-            System.out.println("Cargando desde: " + archivo);
-            if (archivo == null) {
-                JOptionPane.showMessageDialog(null, "No se encuentra el Archivo jasper");
-            }
-            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+archivo);
+            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_CATEGORIAS);
             
-            Map<String,Object> parametro = new HashMap<>();
-            //guardamos el parametro
-
-            parametro.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
-            parametro.put("ID_RENTA",rentaId);
-            parametro.put("ID_USUARIO",user.getUsuarioId());
-            parametro.put("NOMBRE_ENCARGADO_AREA",user.getNombre() + " " + user.getApellidos());
+            Map<String,Object> parameters = new HashMap<>();
+            parameters.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
+            parameters.put("ID_RENTA",rentaId);
+            parameters.put("ID_USUARIO",user.getUsuarioId());
+            parameters.put("NOMBRE_ENCARGADO_AREA",user.getNombre() + " " + user.getApellidos());
             
-            jasperPrint = JasperFillManager.fillReport(masterReport, parametro, connectionDB.getConnection());
+            JasperPrint jasperPrint = JasperFillManager.fillReport(masterReport, parameters, connectionDB.getConnection());
             JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS);
-            File file2 = new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS);
-            
-            Desktop.getDesktop().open(file2);
-            
+
+            Desktop.getDesktop().open(
+                    new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS)
+            );
             generateLogGeneratePDFPush("reporte por categorías");
 
         } catch (Exception e) {
-            System.out.println("Mensaje de Error:" + e.toString());
-            JOptionPane.showMessageDialog(null, e);
+            LOGGER.error(e);
+            JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -576,7 +567,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnReportActionPerformed
 
     private static void generateLogGeneratePDFPush (String report) {
-        String logMessage = IndexForm.globalUser.getNombre() + " " + IndexForm.globalUser.getApellidos()+", generó con éxito PDF ["+report+"] ";
+        String logMessage = IndexForm.globalUser.getNombre() + " " + IndexForm.globalUser.getApellidos()+", a creado el PDF ["+report+"] ";
         LOGGER.info(logMessage);
         Utility.pushNotification(logMessage);
     }

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.log4j.Logger;
-import almacen.mybatis.MyBatisConnectionFactory;
+import common.utilities.MyBatisConnectionFactory;
 import almacen.orders.models.OrderWarehouseVO;
 
 
@@ -38,7 +38,7 @@ public class OrderWarehouseDAO {
         
         try {
             return (List<OrderWarehouseVO>) session.selectList("MapperOrderWarehouse.getByParameters",parameters);
-        }catch(Exception e){           
+        }catch(Exception e){
             LOGGER.error(e);
             throw new DataOriginException(e.getMessage(),e);
         } finally {

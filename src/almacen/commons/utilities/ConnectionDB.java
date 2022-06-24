@@ -3,7 +3,7 @@ package almacen.commons.utilities;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
-import almacen.commons.service.PropertiesService;
+import common.services.PropertiesService;
 
 public class ConnectionDB {
     

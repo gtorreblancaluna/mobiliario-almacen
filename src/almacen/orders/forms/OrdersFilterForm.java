@@ -28,6 +28,7 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
         this.typesGlobal = typesGlobal;
         this.statusListGlobal = statusListGlobal;
         this.choferes = choferes;
+        this.setTitle("FILTROS DE BUSQUEDA");
         if (!IndexForm.globalUser.getAdministrador().equals("1")) {
             lblStatus.setVisible(false);
             lblDriver.setVisible(false);
@@ -370,10 +371,7 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             final String FORMAT_DATE = "dd/MM/yyyy";
             Usuario chofer = (Usuario) cmbDriver.getModel().getSelectedItem();
             EstadoEvento estadoEvento = (EstadoEvento) cmbStatus.getModel().getSelectedItem();
-            
-           
-            Tipo eventType = (Tipo) cmbEventType.getModel().getSelectedItem();
-            
+            Tipo eventType = (Tipo) cmbEventType.getModel().getSelectedItem();  
             String customer = txtCustomer.getText().trim();
             String initDeliveryDate = txtDeliveryInitDate.getDate() != null ? new SimpleDateFormat(FORMAT_DATE).format(txtDeliveryInitDate.getDate()) : null;
             String endDeliveryDate = txtDeliveryEndDate.getDate() != null ? new SimpleDateFormat(FORMAT_DATE).format(txtDeliveryEndDate.getDate()) : null;
@@ -394,11 +392,13 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             
             if (!customer.isEmpty() && customer.length()>1000) {
                 JOptionPane.showMessageDialog(null, "Valor no permitido para el nombre del cliente", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             
             if (IndexForm.globalUser.getAdministrador().equals("1")) {
                 parameters.put(OrdersForm.Filter.TYPE.getValue(), eventType.getTipoId().equals(0) ? null : Arrays.asList(eventType.getTipoId()));
                 parameters.put(OrdersForm.Filter.STATUS.getValue(), estadoEvento.getEstadoId().equals(0) ? null : Arrays.asList(estadoEvento.getEstadoId()));
+                parameters.put(OrdersForm.Filter.DRIVER_ID.getValue(), chofer.getUsuarioId());
             }
 
             OrdersForm.searchAndFillTable(parameters);

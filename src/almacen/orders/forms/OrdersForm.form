@@ -21,12 +21,13 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="32767" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="jScrollPane2" alignment="0" min="-2" pref="1085" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="lblInfo" min="-2" pref="481" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="lblDescriptionFilters" min="-2" pref="481" max="-2" attributes="0"/>
+                      <Component id="lblDescriptionFilters" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>

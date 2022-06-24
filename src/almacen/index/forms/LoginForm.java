@@ -6,7 +6,7 @@ import common.exceptions.DataOriginException;
 import common.model.Usuario;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
-import almacen.commons.service.UserService;
+import common.services.UserService;
 
 public class LoginForm extends javax.swing.JFrame {
     
@@ -18,6 +18,7 @@ public class LoginForm extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.txtPassword.requestFocus();
+        this.setTitle("INICIO DE SESIÓN");
     }
 
     @SuppressWarnings("unchecked")
