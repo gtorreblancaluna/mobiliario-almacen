@@ -25,18 +25,19 @@ public class IndexForm extends javax.swing.JFrame {
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
     private static final Logger LOGGER = Logger.getLogger(IndexForm.class.getName());
     
-    public IndexForm() {
-        initComponents();
-        
+    private IndexForm() {
+        throw new RuntimeException("Deprecated constructor, please do use constructor with POJO Usuario arguments");
     }
     
     public IndexForm(Usuario user) {
         globalUser = user;
         initComponents();
         init();
+        Integer timeToEndSession = Integer.parseInt(propertiesService.getProperty("time.to.end.session"));
         Utility.pushNotification("Inicio de sesión "+user.getNombre() + " " + user.getApellidos());
+        Utility.pushNotification("Minutos para finalizar la sesión: "+timeToEndSession);
         this.setTitle("MOBILIARIO ALMACEN");
-        new InactivityListener(this, getCloseWindowAction(), Integer.parseInt(propertiesService.getProperty("time.sessiont.timeout"))).start();
+        new InactivityListener(this, getCloseWindowAction(), timeToEndSession ).start();
     }
     
     private void init () {

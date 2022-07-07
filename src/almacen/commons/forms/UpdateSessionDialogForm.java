@@ -18,7 +18,7 @@ public class UpdateSessionDialogForm extends javax.swing.JDialog {
         Utility.pushNotification("Sesión de "
                 +IndexForm.globalUser.getNombre()+" "+IndexForm.globalUser.getApellidos()
                 + ", a expirado por inactividad en el sistema, "
-                        + "tiempo inactivo en minutos: "+propertiesService.getProperty("time.sessiont.timeout"));
+                        + "tiempo inactivo en minutos: "+propertiesService.getProperty("time.to.end.session"));
     }
 
     /**
