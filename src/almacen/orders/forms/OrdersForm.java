@@ -44,6 +44,11 @@ import almacen.orders.services.OrderWarehouseService;
 import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import common.services.UserService;
+import common.utilities.CheckBoxHeader;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import javax.swing.AbstractButton;
+import javax.swing.table.TableColumn;
 
 public class OrdersForm extends javax.swing.JInternalFrame {
     
@@ -67,6 +72,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         this.setClosable(true);
         this.setTitle("EVENTOS");
         orderWarehouseService = OrderWarehouseService.getInstance();
+        formatTable();
         init();
         
     }
@@ -105,9 +111,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     
        
     public static void searchAndFillTable (Map<String,Object> map) {
-        formatTable();
-         
-         
+        
         String puestoUserId = IndexForm.globalUser.getPuesto().getPuestoId()+"";
         String puestoChoferId = PUESTO_CHOFER+"";
         
@@ -140,6 +144,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
             DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
             for (OrderWarehouseVO order : orders) {
                 Object row[] = {
+                    false,
                     order.getEventId(),
                     order.getFolio(),
                     order.getAddressEvent(),
@@ -148,7 +153,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
                     order.getCustomer(),
                     order.getEventType(),
                     order.getEventStatus(),
-                    order.getChoferName()
+                    order.getChoferName()                    
                 };
                 tableModel.addRow(row);
             }
@@ -159,23 +164,36 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     }
     
     private enum Colum{
-        ID(0,"id"),
-        FOLIO(1,"Folio"),
-        DESCRIPTION_EVENT(2,"Dirección"),
-        EVENT_DATE(3,"Fecha evento"),
-        DELIVERY_DATE(4,"Fecha entrega"),
-        CUSTOMER(5,"Cliente"),
-        EVENT_TYPE(6,"Tipo"),
-        EVENT_STATUS(7,"Estatus Pedido"),
-        CHOFER(8,"Chofer")
+        BOOLEAN(0,"",Boolean.class, true),
+        ID(1,"id",String.class, false),
+        FOLIO(2,"Folio",String.class, false),
+        DESCRIPTION_EVENT(3,"Dirección",String.class, false),
+        EVENT_DATE(4,"Fecha evento",String.class, false),
+        DELIVERY_DATE(5,"Fecha entrega",String.class, false),
+        CUSTOMER(6,"Cliente",String.class, false),
+        EVENT_TYPE(7,"Tipo",String.class, false),
+        EVENT_STATUS(8,"Estatus Pedido",String.class, false),
+        CHOFER(9,"Chofer",String.class, false)
         ;
         
-        Colum (Integer number, String description) {
+        Colum (Integer number, String description, Class clazz, Boolean isEditable) {
             this.number = number;
             this.description = description;
+            this.clazz = clazz;
+            this.isEditable = isEditable;
         }
         private final Integer number;
         private final String description;
+        private final Class clazz;
+        private final Boolean isEditable;
+        
+        public Boolean getIsEditable() {
+            return isEditable;
+        }
+        
+        public Class getClazz () {
+            return clazz;
+        }
 
         public Integer getNumber() {
             return number;
@@ -184,6 +202,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         public String getDescription () {
             return description;
         }
+        
     }
     
     
@@ -215,60 +234,124 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         }
     }
     
-    private static void formatTable() {
-        Object[][] data = {{"","","","","","","",""}};
-        String[] columnNames = {          
-                        Colum.ID.getDescription(),
-                        Colum.FOLIO.getDescription(), 
-                        Colum.DESCRIPTION_EVENT.getDescription(),
-                        Colum.EVENT_DATE.getDescription(), 
-                        Colum.DELIVERY_DATE.getDescription(),                        
-                        Colum.CUSTOMER.getDescription(),
-                        Colum.EVENT_TYPE.getDescription(),
-                        Colum.EVENT_STATUS.getDescription(),
-                        Colum.CHOFER.getDescription()
+    private void formatTable() {
+        
+        String[] columnNames = {    
+            Colum.BOOLEAN.getDescription(),
+            Colum.ID.getDescription(),
+            Colum.FOLIO.getDescription(), 
+            Colum.DESCRIPTION_EVENT.getDescription(),
+            Colum.EVENT_DATE.getDescription(), 
+            Colum.DELIVERY_DATE.getDescription(),                        
+            Colum.CUSTOMER.getDescription(),
+            Colum.EVENT_TYPE.getDescription(),
+            Colum.EVENT_STATUS.getDescription(),
+            Colum.CHOFER.getDescription()
+            
         };
-        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
-        table.setModel(tableModel);
+        Class[] types = {
+            Colum.BOOLEAN.getClazz(),
+            Colum.ID.getClazz(),
+            Colum.FOLIO.getClazz(), 
+            Colum.DESCRIPTION_EVENT.getClazz(),
+            Colum.EVENT_DATE.getClazz(), 
+            Colum.DELIVERY_DATE.getClazz(),                        
+            Colum.CUSTOMER.getClazz(),
+            Colum.EVENT_TYPE.getClazz(),
+            Colum.EVENT_STATUS.getClazz(),
+            Colum.CHOFER.getClazz()
+            
+        };
         
-        TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(tableModel); 
-        table.setRowSorter(ordenarTabla);
+        boolean[] editable = {
+            Colum.BOOLEAN.getIsEditable(),
+            Colum.ID.getIsEditable(),
+            Colum.FOLIO.getIsEditable(), 
+            Colum.DESCRIPTION_EVENT.getIsEditable(),
+            Colum.EVENT_DATE.getIsEditable(),
+            Colum.DELIVERY_DATE.getIsEditable(),                        
+            Colum.CUSTOMER.getIsEditable(),
+            Colum.EVENT_TYPE.getIsEditable(),
+            Colum.EVENT_STATUS.getIsEditable(),
+            Colum.CHOFER.getIsEditable()
+            
+        };
+        
+        // customize column types
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0){
+            @Override
+            public Class getColumnClass(int column) {
+                return types[column];
+            }
+            
+            @Override
+            public boolean isCellEditable (int row, int column) {
+                return editable[column];
+            }
+        };
+       
+       table.setModel(tableModel);
 
-        int[] anchos = {20,60,180,140,140,140,80,80,70};
+       TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(tableModel); 
+       table.setRowSorter(ordenarTabla);
+       
+     
+       int[] anchos = {20,60,180,140,140,140,80,80,70,70};
 
-        for (int inn = 0; inn < table.getColumnCount(); inn++) {
-            table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);
-        }
+       for (int inn = 0; inn < table.getColumnCount(); inn++) {
+           table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);
+       }
 
-        try {
-            DefaultTableModel temp = (DefaultTableModel) table.getModel();
-            temp.removeRow(temp.getRowCount() - 1);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            ;
-        }
-        DefaultTableCellRenderer centrar = new DefaultTableCellRenderer();
-        centrar.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        DefaultTableCellRenderer right = new DefaultTableCellRenderer();
-        right.setHorizontalAlignment(SwingConstants.RIGHT);
+       try {
+           DefaultTableModel temp = (DefaultTableModel) table.getModel();
+           temp.removeRow(temp.getRowCount() - 1);
+       } catch (ArrayIndexOutOfBoundsException e) {
+           ;
+       }
+       DefaultTableCellRenderer centrar = new DefaultTableCellRenderer();
+       centrar.setHorizontalAlignment(SwingConstants.CENTER);
 
-        table.getColumnModel().getColumn(Colum.ID.getNumber()).setMaxWidth(0);
-        table.getColumnModel().getColumn(Colum.ID.getNumber()).setMinWidth(0);
-        table.getColumnModel().getColumn(Colum.ID.getNumber()).setPreferredWidth(0);
-        
-        table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setMaxWidth(0);
-        table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setMinWidth(0);
-        table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setPreferredWidth(0);
-        
-        
+       DefaultTableCellRenderer right = new DefaultTableCellRenderer();
+       right.setHorizontalAlignment(SwingConstants.RIGHT);
+
+       table.getColumnModel().getColumn(Colum.ID.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Colum.ID.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Colum.ID.getNumber()).setPreferredWidth(0);
+
+       table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setPreferredWidth(0);
+       
+       // adding checkbox in header table
+       TableColumn tc = table.getColumnModel().getColumn(Colum.BOOLEAN.getNumber());
+       tc.setCellEditor(table.getDefaultEditor(Boolean.class)); 
+       tc.setHeaderRenderer(new CheckBoxHeader(new MyItemListener())); 
+       
     }
+    
+   private class MyItemListener implements ItemListener
+   {
+
+      @Override
+      public void itemStateChanged(ItemEvent e)
+      {
+         Object source = e.getSource();
+         if (source instanceof AbstractButton == false)
+         {
+            return;
+         }
+         boolean checked = e.getStateChange() == ItemEvent.SELECTED;
+         System.out.println("IN EVENT LISTENER");
+         table.getRowSorter().modelStructureChanged();
+      }
+   }
+    
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane2 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable(){public boolean isCellEditable(int rowIndex,int colIndex){return false;}};
         jPanel1 = new javax.swing.JPanel();
         btnReload = new javax.swing.JButton();
         btnSearch = new javax.swing.JButton();
@@ -276,29 +359,12 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         btnReport = new javax.swing.JButton();
         btnDeliveryReport = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
         lblInfo = new javax.swing.JLabel();
         lblDescriptionFilters = new javax.swing.JLabel();
-
-        table.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        table.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        table.setRowHeight(14);
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableMouseClicked(evt);
-            }
-        });
-        jScrollPane2.setViewportView(table);
 
         btnReload.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnReload.setText("Recargar");
@@ -387,45 +453,85 @@ public class OrdersForm extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
+        table.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(table);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1129, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
         lblInfo.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
         lblDescriptionFilters.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 86, Short.MAX_VALUE)
+                .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.PREFERRED_SIZE, 574, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1085, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblDescriptionFilters, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 448, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
-        // TODO add your handling code here:
-        
-    }//GEN-LAST:event_tableMouseClicked
 
     private void btnReloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadActionPerformed
         // TODO add your handling code here:
@@ -595,7 +701,9 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnSearchByFolio;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblDescriptionFilters;
     public static javax.swing.JLabel lblInfo;
     public static javax.swing.JTable table;

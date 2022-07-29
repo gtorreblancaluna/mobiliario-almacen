@@ -7,11 +7,17 @@ import common.model.Usuario;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import common.services.UserService;
+import java.time.Duration;
+import java.time.Instant;
 
 public class LoginForm extends javax.swing.JFrame {
     
     private static final UserService userService = UserService.getInstance();
     private static final Logger LOGGER = Logger.getLogger(LoginForm.class.getName());
+    private static int attemps;
+    private static final int ATTEMPT_LIMIT = 3;
+    private static final int MINUTES_TO_TRY_AGAIN = 1;
+    private static Instant startTime;
 
     
     public LoginForm() {
@@ -78,10 +84,24 @@ public class LoginForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    private void login () {
-        txtPassword.setEnabled(false);
+        
+    private void checkLogin () {
         String pass = String.valueOf(txtPassword.getPassword());
+        if (pass.equals("") || pass.length() >= 50) {
+            JOptionPane.showMessageDialog(this, "Contraseña invalida","ERROR",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (startTime != null && Duration.between(startTime, Instant.now()).toMinutes() < MINUTES_TO_TRY_AGAIN) {
+            int seconds = (MINUTES_TO_TRY_AGAIN * 60) - Duration.between(startTime, Instant.now()).toSecondsPart();
+            JOptionPane.showMessageDialog(this, "Tiempo para intentar nuevamente: "+ seconds +" segundos","ERROR",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (attemps > ATTEMPT_LIMIT) {
+            JOptionPane.showMessageDialog(this, "Excedido el límite de intentos","ERROR",JOptionPane.ERROR_MESSAGE);
+            startTime = Instant.now();
+            attemps = 0;
+            return;
+        }
         try {
             Usuario user = userService.getByPassword(pass.trim());
             if(user == null){
@@ -95,23 +115,9 @@ public class LoginForm extends javax.swing.JFrame {
         } catch (DataOriginException e) {
             JOptionPane.showMessageDialog(this, e, "Error", JOptionPane.ERROR_MESSAGE);
             LOGGER.error(e);
+        } finally {
+            attemps++;
         }
-        
-        
-    }
-    
-    private void checkLogin () {
-        String pass = String.valueOf(txtPassword.getPassword());
-        if (pass.equals("") && pass.length() >= 50) {
-            JOptionPane.showMessageDialog(this, "Contraseña invalida");
-            return;
-        }
-        if (pass.equals("")){
-            JOptionPane.showMessageDialog(this, "Contraseña vacia");
-            return;
-        }
-        
-        login();
     }
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:

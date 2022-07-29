@@ -36,18 +36,19 @@ public abstract class Utility {
         IndexForm.txtAreaNotifications.setText(null);
         IndexForm.txtAreaNotifications.setText(messages+"");
     }     
-         public static Action getCloseWindowAction () {
-         return new AbstractAction()
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {        
-                    showWindowDataForceUpdateSession();
-                }
-            };
+    public static Action getCloseWindowAction () {
+        return new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {        
+                showWindowDataForceUpdateSession();
+            }
+        };
      }
          
     public static void showWindowDataForceUpdateSession(){
+        System.out.println("SHOW showWindowDataForceUpdateSession");
         UpdateSessionDialogForm win = new UpdateSessionDialogForm(null,true);
         win.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         win.setLocationRelativeTo(null);

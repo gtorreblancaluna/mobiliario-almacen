@@ -87,14 +87,14 @@ public class IndexForm extends javax.swing.JFrame {
         jSeparator10 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtAreaNotifications = new javax.swing.JTextArea();
-        quickAccessPanel = new javax.swing.JPanel();
-        btnShowOrdersForm = new javax.swing.JButton();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        menuIndex = new javax.swing.JMenu();
-        menuItemView = new javax.swing.JMenuItem();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/img/Admin-icon_48.png"))); // NOI18N
@@ -104,12 +104,12 @@ public class IndexForm extends javax.swing.JFrame {
         jPanel1.add(lbl_logueo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, 328, 22));
 
         jSeparator6.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        jPanel1.add(jSeparator6, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 0, -1, 64));
+        jPanel1.add(jSeparator6, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 0, -1, 90));
         jPanel1.add(jSeparator7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 420, 10));
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/img/Apps-preferences-system-windows-actions-icon_48.png"))); // NOI18N
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 10, -1, -1));
-        jPanel1.add(jSeparator8, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 760, 10));
+        jPanel1.add(jSeparator8, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 900, 10));
 
         jLabel3.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel3.setText("gtorreblancaluna@gmail.com");
@@ -119,7 +119,7 @@ public class IndexForm extends javax.swing.JFrame {
         jPanel1.add(lblPuesto, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 14, 330, 20));
 
         jSeparator9.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        jPanel1.add(jSeparator9, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 0, 10, 60));
+        jPanel1.add(jSeparator9, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 0, 10, 90));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel5.setText("Versión 1.0.0");
@@ -130,104 +130,80 @@ public class IndexForm extends javax.swing.JFrame {
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 300, 20));
 
         jSeparator10.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        jPanel1.add(jSeparator10, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 0, 10, 60));
+        jPanel1.add(jSeparator10, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 0, 10, 90));
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
 
         txtAreaNotifications.setEditable(false);
-        txtAreaNotifications.setBackground(new java.awt.Color(226, 224, 224));
         txtAreaNotifications.setColumns(20);
         txtAreaNotifications.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtAreaNotifications.setRows(5);
         txtAreaNotifications.setBorder(null);
+        txtAreaNotifications.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txtAreaNotifications.setEnabled(false);
         jScrollPane1.setViewportView(txtAreaNotifications);
 
-        btnShowOrdersForm.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnShowOrdersForm.setText("Ver eventos");
-        btnShowOrdersForm.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnShowOrdersForm.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnShowOrdersFormActionPerformed(evt);
+        jPanel2.setBackground(new java.awt.Color(102, 102, 102));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jPanel3.setOpaque(false);
+        jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jPanel3MouseClicked(evt);
             }
         });
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        javax.swing.GroupLayout quickAccessPanelLayout = new javax.swing.GroupLayout(quickAccessPanel);
-        quickAccessPanel.setLayout(quickAccessPanelLayout);
-        quickAccessPanelLayout.setHorizontalGroup(
-            quickAccessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(quickAccessPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnShowOrdersForm, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(184, Short.MAX_VALUE))
-        );
-        quickAccessPanelLayout.setVerticalGroup(
-            quickAccessPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(quickAccessPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnShowOrdersForm, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Ver eventos");
+        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 100, 30));
+
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/lista-de-quehaceres-24.png"))); // NOI18N
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
+
+        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 150, 30));
 
         rootPanel.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         rootPanel.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        rootPanel.setLayer(quickAccessPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        rootPanel.setLayer(jPanel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
         rootPanelLayout.setHorizontalGroup(
             rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(rootPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(3, 3, 3)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(rootPanelLayout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 9, Short.MAX_VALUE))
-                    .addGroup(rootPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(quickAccessPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(2, 2, 2)
+                        .addComponent(jScrollPane1))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1310, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
         rootPanelLayout.setVerticalGroup(
             rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, rootPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
-                    .addComponent(quickAccessPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addGroup(rootPanelLayout.createSequentialGroup()
+                .addGap(2, 2, 2)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 531, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(4, 4, 4)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-
-        menuIndex.setText("Eventos");
-
-        menuItemView.setText("Ver");
-        menuItemView.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemViewActionPerformed(evt);
-            }
-        });
-        menuIndex.add(menuItemView);
-
-        jMenuBar1.add(menuIndex);
-
-        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(rootPanel)
-                .addContainerGap())
+            .addComponent(rootPanel)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(rootPanel)
-                .addContainerGap())
+                .addComponent(rootPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -248,13 +224,9 @@ public class IndexForm extends javax.swing.JFrame {
         }
     }
     
-    private void menuItemViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemViewActionPerformed
+    private void jPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseClicked
         openOrdersForm();
-    }//GEN-LAST:event_menuItemViewActionPerformed
-
-    private void btnShowOrdersFormActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowOrdersFormActionPerformed
-        openOrdersForm();
-    }//GEN-LAST:event_btnShowOrdersFormActionPerformed
+    }//GEN-LAST:event_jPanel3MouseClicked
 
     /**
      * @param args the command line arguments
@@ -292,14 +264,16 @@ public class IndexForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnShowOrdersForm;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator6;
@@ -308,9 +282,6 @@ public class IndexForm extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator9;
     public static javax.swing.JLabel lblPuesto;
     public static javax.swing.JLabel lbl_logueo;
-    private javax.swing.JMenu menuIndex;
-    private javax.swing.JMenuItem menuItemView;
-    private javax.swing.JPanel quickAccessPanel;
     public static javax.swing.JDesktopPane rootPanel;
     public static javax.swing.JTextArea txtAreaNotifications;
     // End of variables declaration//GEN-END:variables
