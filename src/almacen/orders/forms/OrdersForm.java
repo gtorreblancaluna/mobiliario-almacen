@@ -1,4 +1,3 @@
-
 package almacen.orders.forms;
 
 import common.services.EstadoEventoService;
@@ -9,7 +8,6 @@ import static common.constants.ApplicationConstants.ESTADO_APARTADO;
 import static common.constants.ApplicationConstants.ESTADO_EN_RENTA;
 import static common.constants.ApplicationConstants.MESSAGE_UNEXPECTED_ERROR;
 import static common.constants.ApplicationConstants.PUESTO_CHOFER;
-import static common.constants.ApplicationConstants.SELECT_A_ROW_TO_GENERATE_REPORT;
 import static common.constants.ApplicationConstants.TIPO_PEDIDO;
 import common.exceptions.DataOriginException;
 import common.model.EstadoEvento;
@@ -45,9 +43,7 @@ import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import common.services.UserService;
 import common.utilities.CheckBoxHeader;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import javax.swing.AbstractButton;
+import common.utilities.ItemListenerHeaderCheckbox;
 import javax.swing.table.TableColumn;
 
 public class OrdersForm extends javax.swing.JInternalFrame {
@@ -74,7 +70,6 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         orderWarehouseService = OrderWarehouseService.getInstance();
         formatTable();
         init();
-        
     }
     
     private Map<String, Object> getInitParameters () {
@@ -94,7 +89,6 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         
         List<String> types = new ArrayList<>();
         types.add(TIPO_PEDIDO);
-        
         
         map.put(Filter.SYSTEM_DATE.getValue(), UtilityCommon.getSystemDate("/") );
         map.put(Filter.LIMIT.getValue(), 1000);
@@ -131,7 +125,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
              if (orders.isEmpty()) {
                 lblInfo.setText("No se obtuvieron resultados :( ");
              } else {
-                 lblInfo.setText("Total de eventos: "+orders.size());
+                lblInfo.setText("Total de eventos: "+orders.size());
              }
              
          } catch (DataOriginException e) {
@@ -163,7 +157,8 @@ public class OrdersForm extends javax.swing.JInternalFrame {
          
     }
     
-    private enum Colum{
+    private enum Column{
+        
         BOOLEAN(0,"",Boolean.class, true),
         ID(1,"id",String.class, false),
         FOLIO(2,"Folio",String.class, false),
@@ -176,7 +171,7 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         CHOFER(9,"Chofer",String.class, false)
         ;
         
-        Colum (Integer number, String description, Class clazz, Boolean isEditable) {
+        Column (Integer number, String description, Class clazz, Boolean isEditable) {
             this.number = number;
             this.description = description;
             this.clazz = clazz;
@@ -236,44 +231,47 @@ public class OrdersForm extends javax.swing.JInternalFrame {
     
     private void formatTable() {
         
-        String[] columnNames = {    
-            Colum.BOOLEAN.getDescription(),
-            Colum.ID.getDescription(),
-            Colum.FOLIO.getDescription(), 
-            Colum.DESCRIPTION_EVENT.getDescription(),
-            Colum.EVENT_DATE.getDescription(), 
-            Colum.DELIVERY_DATE.getDescription(),                        
-            Colum.CUSTOMER.getDescription(),
-            Colum.EVENT_TYPE.getDescription(),
-            Colum.EVENT_STATUS.getDescription(),
-            Colum.CHOFER.getDescription()
+        String[] columnNames = {
+            
+            Column.BOOLEAN.getDescription(),
+            Column.ID.getDescription(),
+            Column.FOLIO.getDescription(), 
+            Column.DESCRIPTION_EVENT.getDescription(),
+            Column.EVENT_DATE.getDescription(), 
+            Column.DELIVERY_DATE.getDescription(),                        
+            Column.CUSTOMER.getDescription(),
+            Column.EVENT_TYPE.getDescription(),
+            Column.EVENT_STATUS.getDescription(),
+            Column.CHOFER.getDescription()
             
         };
         Class[] types = {
-            Colum.BOOLEAN.getClazz(),
-            Colum.ID.getClazz(),
-            Colum.FOLIO.getClazz(), 
-            Colum.DESCRIPTION_EVENT.getClazz(),
-            Colum.EVENT_DATE.getClazz(), 
-            Colum.DELIVERY_DATE.getClazz(),                        
-            Colum.CUSTOMER.getClazz(),
-            Colum.EVENT_TYPE.getClazz(),
-            Colum.EVENT_STATUS.getClazz(),
-            Colum.CHOFER.getClazz()
+            
+            Column.BOOLEAN.getClazz(),
+            Column.ID.getClazz(),
+            Column.FOLIO.getClazz(), 
+            Column.DESCRIPTION_EVENT.getClazz(),
+            Column.EVENT_DATE.getClazz(), 
+            Column.DELIVERY_DATE.getClazz(),                        
+            Column.CUSTOMER.getClazz(),
+            Column.EVENT_TYPE.getClazz(),
+            Column.EVENT_STATUS.getClazz(),
+            Column.CHOFER.getClazz()
             
         };
         
         boolean[] editable = {
-            Colum.BOOLEAN.getIsEditable(),
-            Colum.ID.getIsEditable(),
-            Colum.FOLIO.getIsEditable(), 
-            Colum.DESCRIPTION_EVENT.getIsEditable(),
-            Colum.EVENT_DATE.getIsEditable(),
-            Colum.DELIVERY_DATE.getIsEditable(),                        
-            Colum.CUSTOMER.getIsEditable(),
-            Colum.EVENT_TYPE.getIsEditable(),
-            Colum.EVENT_STATUS.getIsEditable(),
-            Colum.CHOFER.getIsEditable()
+            
+            Column.BOOLEAN.getIsEditable(),
+            Column.ID.getIsEditable(),
+            Column.FOLIO.getIsEditable(), 
+            Column.DESCRIPTION_EVENT.getIsEditable(),
+            Column.EVENT_DATE.getIsEditable(),
+            Column.DELIVERY_DATE.getIsEditable(),                        
+            Column.CUSTOMER.getIsEditable(),
+            Column.EVENT_TYPE.getIsEditable(),
+            Column.EVENT_STATUS.getIsEditable(),
+            Column.CHOFER.getIsEditable()
             
         };
         
@@ -314,40 +312,35 @@ public class OrdersForm extends javax.swing.JInternalFrame {
        DefaultTableCellRenderer right = new DefaultTableCellRenderer();
        right.setHorizontalAlignment(SwingConstants.RIGHT);
 
-       table.getColumnModel().getColumn(Colum.ID.getNumber()).setMaxWidth(0);
-       table.getColumnModel().getColumn(Colum.ID.getNumber()).setMinWidth(0);
-       table.getColumnModel().getColumn(Colum.ID.getNumber()).setPreferredWidth(0);
+       table.getColumnModel().getColumn(Column.ID.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.ID.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.ID.getNumber()).setPreferredWidth(0);
 
-       table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setMaxWidth(0);
-       table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setMinWidth(0);
-       table.getColumnModel().getColumn(Colum.CHOFER.getNumber()).setPreferredWidth(0);
+       table.getColumnModel().getColumn(Column.CHOFER.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.CHOFER.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.CHOFER.getNumber()).setPreferredWidth(0);
        
        // adding checkbox in header table
-       TableColumn tc = table.getColumnModel().getColumn(Colum.BOOLEAN.getNumber());
+       TableColumn tc = table.getColumnModel().getColumn(Column.BOOLEAN.getNumber());
        tc.setCellEditor(table.getDefaultEditor(Boolean.class)); 
-       tc.setHeaderRenderer(new CheckBoxHeader(new MyItemListener())); 
+       tc.setHeaderRenderer(new CheckBoxHeader(new ItemListenerHeaderCheckbox(Column.BOOLEAN.getNumber(),table)));
        
+       table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                // int row = table.rowAtPoint(evt.getPoint());
+                int col = table.columnAtPoint(evt.getPoint());
+                if (col == Column.BOOLEAN.getNumber()) {
+                    checkSelectRowsInTable();
+                }
+            }
+        });
     }
     
-   private class MyItemListener implements ItemListener
-   {
-
-      @Override
-      public void itemStateChanged(ItemEvent e)
-      {
-         Object source = e.getSource();
-         if (source instanceof AbstractButton == false)
-         {
-            return;
-         }
-         boolean checked = e.getStateChange() == ItemEvent.SELECTED;
-         System.out.println("IN EVENT LISTENER");
-         table.getRowSorter().modelStructureChanged();
-      }
+   private void checkSelectRowsInTable () {
+       // when all checkbox selected, then check in true checkbox header table
    }
-    
-
-
+   
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -570,54 +563,56 @@ public class OrdersForm extends javax.swing.JInternalFrame {
         utilityService.exportarExcel(table);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void btnDeliveryReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeliveryReportActionPerformed
-        // TODO add your handling code here:
-        if (!verifyIfOneRowIsSelected()) {return;}
-        
-        String rentaId = table.getValueAt(table.getSelectedRow(), Colum.ID.getNumber()).toString();
-        String chofer = table.getValueAt(table.getSelectedRow(), Colum.CHOFER.getNumber()).toString();
+    private void generateDeliveryReport (String eventId, String choferName, String folio) {
         
         try {      
+            String pathLocation = Utility.getPathLocation();
+            String reportName = pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS_SIN_EXT+"-"+folio+".pdf";
             connectionDB = ConnectionDB.getInstance();
             JasperPrint jasperPrint;
-            String pathLocation = Utility.getPathLocation();
             JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_ENTREGAS);  
             // enviamos los parametros
             Map<String,Object> map = new HashMap<>();
-            map.put("id_renta", rentaId);
-            map.put("chofer", chofer);
+            map.put("id_renta", eventId);
+            map.put("chofer", choferName);
             map.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA);
             jasperPrint = JasperFillManager.fillReport(masterReport, map, connectionDB.getConnection());
-            JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS);
+            JasperExportManager.exportReportToPdfFile(jasperPrint, reportName);
             Desktop.getDesktop().open(
-                    new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS)
+                    new File(reportName)
             );
-            generateLogGeneratePDFPush("reporte de entregas");
+            generateLogGeneratePDFPush("reporte de entregas, folio: "+folio);
         } catch (Exception e) {
             LOGGER.error(e);
             JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnDeliveryReportActionPerformed
-
-    private static boolean verifyIfOneRowIsSelected () {
         
-        if (table.getSelectedRow() == - 1){
-            JOptionPane.showMessageDialog(null, SELECT_A_ROW_TO_GENERATE_REPORT, "Reporte", JOptionPane.INFORMATION_MESSAGE);
-            return false;
-        }
-        
-        return true;
     }
     
-    public static void generateReportByCategories (Usuario user) {
-    
-        if (!verifyIfOneRowIsSelected()) {return;}
+    private void btnDeliveryReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeliveryReportActionPerformed
+        // TODO add your handling code here:
+        int selectRows = 0;
         
-        String rentaId = table.getValueAt(table.getSelectedRow(), Colum.ID.getNumber()).toString();
+        for (int i = 0; i < table.getRowCount(); i++) {
+            if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
+                selectRows++;
+                String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
+                String rentaId = table.getValueAt(i, Column.ID.getNumber()).toString();
+                String chofer = table.getValueAt(i, Column.CHOFER.getNumber()).toString();
+                generateDeliveryReport(rentaId,chofer,folio);
+            }
+        }
         
+        if (selectRows <= 0) {
+           JOptionPane.showMessageDialog(null, "Selecciona una o mas filas para generar el reporte", "Reporte", JOptionPane.INFORMATION_MESSAGE);  
+        }
+    }//GEN-LAST:event_btnDeliveryReportActionPerformed
+
+    private static void openPDFReportByCategories (String rentaId, Usuario user, String folio) {
         try {
             connectionDB = ConnectionDB.getInstance();
             String pathLocation = Utility.getPathLocation();
+            String reportName = pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS_SIN_EXT+"-"+folio+".pdf";
             JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_CATEGORIAS);
             
             Map<String,Object> parameters = new HashMap<>();
@@ -627,28 +622,86 @@ public class OrdersForm extends javax.swing.JInternalFrame {
             parameters.put("NOMBRE_ENCARGADO_AREA",user.getNombre() + " " + user.getApellidos());
             
             JasperPrint jasperPrint = JasperFillManager.fillReport(masterReport, parameters, connectionDB.getConnection());
-            JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS);
+            JasperExportManager.exportReportToPdfFile(jasperPrint, reportName);
 
             Desktop.getDesktop().open(
-                    new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS)
+                    new File(reportName)
             );
-            generateLogGeneratePDFPush("reporte por categorías");
+            generateLogGeneratePDFPush("reporte por categorías, folio: "+folio);
 
         } catch (Exception e) {
             LOGGER.error(e);
             JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
         }
     }
+    public static void generateReportByCategories (Usuario user) {
     
+        if (IndexForm.globalUser.getAdministrador().equals("1")) {
+            int rowSelected = getRowSelectedAndValidateOneRowSelect();
+            if (rowSelected < 0) {
+               JOptionPane.showMessageDialog(null, getMessageNotPrintPdfWhenIsAdmin(), "Reporte", JOptionPane.INFORMATION_MESSAGE);
+               return;
+            }
+            String rentaId = table.getValueAt(rowSelected, Column.ID.getNumber()).toString();
+            String folio = table.getValueAt(rowSelected, Column.FOLIO.getNumber()).toString();
+            openPDFReportByCategories(rentaId,user,folio);
+        } else {
+            int selectRows = 0;
+            for (int i = 0; i < table.getRowCount(); i++) {
+                if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
+                    selectRows++;
+                    String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
+                    String rentaId = table.getValueAt(i, Column.ID.getNumber()).toString();
+                    openPDFReportByCategories(rentaId,user,folio);
+                }
+            }
+
+            if (selectRows <= 0) {
+               JOptionPane.showMessageDialog(null, "Selecciona una o mas filas para generar el reporte", "Reporte", JOptionPane.INFORMATION_MESSAGE);  
+            }
+        }        
+    }
+    
+    private static int getRowSelectedAndValidateOneRowSelect () {
+        
+        int rowSelected = 0;
+        int rowSelectedCount = 0;
+        
+        for (int i = 0; i < table.getRowCount(); i++) {
+            if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
+                rowSelected = i;
+                rowSelectedCount++;
+            }
+        }
+        
+        if (rowSelectedCount <= 0 || rowSelectedCount > 1) {
+            rowSelected = -1;
+        } 
+        
+        return rowSelected;
+        
+    }
+    
+    private static String getMessageNotPrintPdfWhenIsAdmin () {
+        return "Selecciona solo una fila para generar el reporte. Recuerda que para abrir dos o mas PDFs, debes ingresar con un usuario que no sea ADMINISTRADOR";
+    }
     
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
-        if (!verifyIfOneRowIsSelected()) {return;}
-
+        
+        
         if (IndexForm.globalUser.getAdministrador().equals("1")) {
-            String rentaId = table.getValueAt(table.getSelectedRow(), Colum.ID.getNumber()).toString();
-            String folio = table.getValueAt(table.getSelectedRow(), Colum.FOLIO.getNumber()).toString();
+            
+            int rowSelected = getRowSelectedAndValidateOneRowSelect();
+            if (rowSelected < 0) {
+               JOptionPane.showMessageDialog(null,getMessageNotPrintPdfWhenIsAdmin() , "Reporte", JOptionPane.INFORMATION_MESSAGE);
+               return;
+            }
+            
+            String rentaId = table.getValueAt(rowSelected, Column.ID.getNumber()).toString();
+            String folio = table.getValueAt(rowSelected, Column.FOLIO.getNumber()).toString();
             
             try {
+              
               final List<Usuario> usersInCategoriesAlmacen = userService.getUsersInCategoriesAlmacenAndEvent(Integer.parseInt(rentaId));
               if (usersInCategoriesAlmacen.isEmpty()) {
                   JOptionPane.showMessageDialog(this, "Ops!, no se puede generar el reporte, por que no existen usuarios que tengan categorias asignadas al folio: "+folio, "Error", JOptionPane.ERROR_MESSAGE);
