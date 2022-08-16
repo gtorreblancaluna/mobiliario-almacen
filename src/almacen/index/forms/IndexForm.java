@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
-import almacen.orders.forms.OrdersForm;
+import almacen.tasks.forms.TasksAlmacenForm;
 import almacen.commons.utilities.Utility;
 import static almacen.commons.utilities.Utility.getCloseWindowAction;
+import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
 import common.services.PropertiesService;
 import common.services.UserService;
@@ -19,7 +20,7 @@ public class IndexForm extends javax.swing.JFrame {
 
     public static List<String> listNotifications = new ArrayList<>();
     public static Usuario globalUser;
-    private OrdersForm ordersForm;
+    private TasksAlmacenForm ordersForm;
 
     private static final UserService userService = UserService.getInstance();
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
@@ -38,6 +39,11 @@ public class IndexForm extends javax.swing.JFrame {
         Utility.pushNotification("Minutos para finalizar la sesión: "+timeToEndSession);
         this.setTitle("MOBILIARIO ALMACEN");
         new InactivityListener(this, getCloseWindowAction(), timeToEndSession ).start();
+        String choferPuestoId = ApplicationConstants.PUESTO_CHOFER+"";
+        String userPuestId = globalUser.getPuesto().getPuestoId()+"";
+        if (!globalUser.getAdministrador().equals("1") && choferPuestoId.equals(userPuestId)) {
+            panelEvents.setVisible(false);
+        }
     }
     
     private void init () {
@@ -72,6 +78,16 @@ public class IndexForm extends javax.swing.JFrame {
     private void initComponents() {
 
         rootPanel = new javax.swing.JDesktopPane();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        panelEvents = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        panelMenuChoferDelivery = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtAreaNotifications = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         lbl_logueo = new javax.swing.JLabel();
@@ -85,14 +101,60 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jSeparator10 = new javax.swing.JSeparator();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtAreaNotifications = new javax.swing.JTextArea();
-        jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel2.setBackground(new java.awt.Color(102, 102, 102));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelEvents.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        panelEvents.setOpaque(false);
+        panelEvents.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panelEventsMouseClicked(evt);
+            }
+        });
+        panelEvents.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Tareas almacen");
+        panelEvents.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
+
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/lista-de-quehaceres-24.png"))); // NOI18N
+        panelEvents.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
+
+        jPanel2.add(panelEvents, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 180, 30));
+
+        panelMenuChoferDelivery.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        panelMenuChoferDelivery.setOpaque(false);
+        panelMenuChoferDelivery.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panelMenuChoferDeliveryMouseClicked(evt);
+            }
+        });
+        panelMenuChoferDelivery.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel8.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("Reportes entregas");
+        panelMenuChoferDelivery.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
+
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/delivery-24.png"))); // NOI18N
+        panelMenuChoferDelivery.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
+
+        jPanel2.add(panelMenuChoferDelivery, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 180, 40));
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+
+        txtAreaNotifications.setEditable(false);
+        txtAreaNotifications.setColumns(20);
+        txtAreaNotifications.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        txtAreaNotifications.setRows(5);
+        txtAreaNotifications.setBorder(null);
+        txtAreaNotifications.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        txtAreaNotifications.setEnabled(false);
+        jScrollPane1.setViewportView(txtAreaNotifications);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -132,65 +194,49 @@ public class IndexForm extends javax.swing.JFrame {
         jSeparator10.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jPanel1.add(jSeparator10, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 0, 10, 90));
 
-        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1296, Short.MAX_VALUE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
-        txtAreaNotifications.setEditable(false);
-        txtAreaNotifications.setColumns(20);
-        txtAreaNotifications.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        txtAreaNotifications.setRows(5);
-        txtAreaNotifications.setBorder(null);
-        txtAreaNotifications.setDisabledTextColor(new java.awt.Color(0, 0, 0));
-        txtAreaNotifications.setEnabled(false);
-        jScrollPane1.setViewportView(txtAreaNotifications);
-
-        jPanel2.setBackground(new java.awt.Color(102, 102, 102));
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jPanel3.setOpaque(false);
-        jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel3MouseClicked(evt);
-            }
-        });
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Ver eventos");
-        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 100, 30));
-
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/lista-de-quehaceres-24.png"))); // NOI18N
-        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
-
-        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 150, 30));
-
-        rootPanel.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        rootPanel.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        rootPanel.setLayer(jPanel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        rootPanel.setLayer(jPanel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
         rootPanelLayout.setHorizontalGroup(
             rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(rootPanelLayout.createSequentialGroup()
-                .addGap(3, 3, 3)
-                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(rootPanelLayout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(2, 2, 2)
-                        .addComponent(jScrollPane1))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1310, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         rootPanelLayout.setVerticalGroup(
             rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(rootPanelLayout.createSequentialGroup()
-                .addGap(2, 2, 2)
-                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 531, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(4, 4, 4)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -201,9 +247,7 @@ public class IndexForm extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(rootPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(rootPanel)
         );
 
         pack();
@@ -215,7 +259,7 @@ public class IndexForm extends javax.swing.JFrame {
             if(!Utility.showWindowDataUpdateSession()){
                 return;
             }
-            ordersForm = new OrdersForm();
+            ordersForm = new TasksAlmacenForm();
             ordersForm.setLocation(this.getWidth() / 2 - ordersForm.getWidth() / 2, this.getHeight() / 2 - ordersForm.getHeight() / 2 - 20);
             rootPanel.add(ordersForm);
             ordersForm.show();
@@ -224,9 +268,13 @@ public class IndexForm extends javax.swing.JFrame {
         }
     }
     
-    private void jPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseClicked
+    private void panelEventsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelEventsMouseClicked
         openOrdersForm();
-    }//GEN-LAST:event_jPanel3MouseClicked
+    }//GEN-LAST:event_panelEventsMouseClicked
+
+    private void panelMenuChoferDeliveryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuChoferDeliveryMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_panelMenuChoferDeliveryMouseClicked
 
     /**
      * @param args the command line arguments
@@ -271,6 +319,8 @@ public class IndexForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -282,6 +332,8 @@ public class IndexForm extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator9;
     public static javax.swing.JLabel lblPuesto;
     public static javax.swing.JLabel lbl_logueo;
+    private javax.swing.JPanel panelEvents;
+    private javax.swing.JPanel panelMenuChoferDelivery;
     public static javax.swing.JDesktopPane rootPanel;
     public static javax.swing.JTextArea txtAreaNotifications;
     // End of variables declaration//GEN-END:variables

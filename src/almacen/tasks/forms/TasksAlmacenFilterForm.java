@@ -1,9 +1,8 @@
-package almacen.orders.forms;
+package almacen.tasks.forms;
 
 import common.constants.ApplicationConstants;
 import common.model.EstadoEvento;
 import common.model.Tipo;
-import common.model.Usuario;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,37 +10,34 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import almacen.index.forms.IndexForm;
-import static almacen.orders.forms.OrdersForm.Filter.END_CREATED_DATE;
-import static almacen.orders.forms.OrdersForm.Filter.INIT_CREATED_DATE;
-import static almacen.orders.forms.OrdersForm.Filter.LIMIT;
+import static almacen.tasks.forms.TasksAlmacenForm.Filter.END_CREATED_DATE;
+import static almacen.tasks.forms.TasksAlmacenForm.Filter.INIT_CREATED_DATE;
+import static almacen.tasks.forms.TasksAlmacenForm.Filter.LIMIT;
+import java.util.ArrayList;
 
 
-public class OrdersFilterForm extends javax.swing.JInternalFrame {
+public class TasksAlmacenFilterForm extends javax.swing.JInternalFrame {
     
     private List<Tipo> typesGlobal;
     private List<EstadoEvento> statusListGlobal;
-    private List<Usuario> choferes;
+    private final Integer LIMIT_RESULTS = 1_000;
     
-    public OrdersFilterForm(List<Tipo> typesGlobal, List<EstadoEvento> statusListGlobal, List<Usuario> choferes) {
+    public TasksAlmacenFilterForm(List<Tipo> typesGlobal, List<EstadoEvento> statusListGlobal) {
         initComponents();
         this.setClosable(true);
         this.typesGlobal = typesGlobal;
         this.statusListGlobal = statusListGlobal;
-        this.choferes = choferes;
         this.setTitle("FILTROS DE BUSQUEDA");
         if (!IndexForm.globalUser.getAdministrador().equals("1")) {
             lblStatus.setVisible(false);
-            lblDriver.setVisible(false);
             lblType.setVisible(false);
             cmbStatus.setVisible(false);
             cmbEventType.setVisible(false);
-            cmbDriver.setVisible(false);
         }
-        
         initInfo();
     }
     
-    public OrdersFilterForm() {
+    public TasksAlmacenFilterForm() {
         initComponents();
         this.setClosable(true);
     }
@@ -56,16 +52,7 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
         cmbEventType.addItem(
                 new Tipo(0, ApplicationConstants.CMB_SELECCIONE)
         );
-        cmbDriver.removeAllItems();        
-        cmbDriver.addItem(
-                new Usuario(0, ApplicationConstants.CMB_SELECCIONE)
-        );
-        
-        
-        choferes.stream().forEach(t -> {
-            cmbDriver.addItem(t);
-        });
-        
+
         statusListGlobal.stream().forEach(t -> {
             cmbStatus.addItem(t);
         });
@@ -97,8 +84,9 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
         lblType = new javax.swing.JLabel();
         cmbEventType = new javax.swing.JComboBox<>();
         btnApply = new javax.swing.JButton();
-        cmbDriver = new javax.swing.JComboBox<>();
-        lblDriver = new javax.swing.JLabel();
+        checkAttend = new javax.swing.JCheckBox();
+        checkUnAttend = new javax.swing.JCheckBox();
+        jLabel1 = new javax.swing.JLabel();
 
         jLabel3.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         jLabel3.setText("Cliente:");
@@ -211,11 +199,13 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             }
         });
 
-        cmbDriver.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        cmbDriver.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        checkAttend.setText("Atendidos");
+        checkAttend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        lblDriver.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        lblDriver.setText("Chofer:");
+        checkUnAttend.setText("Sin atender");
+        checkUnAttend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        jLabel1.setText("Atendido:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -224,30 +214,10 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(cmbStatus, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 94, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbEventType, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblType, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(16, 16, 16))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblDriver, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(cmbDriver, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(txtCustomer, javax.swing.GroupLayout.Alignment.LEADING)
@@ -266,12 +236,35 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
                                 .addComponent(txtCreatedInitDate, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txtCreatedEndDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(checkUnAttend)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(checkAttend)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(cmbStatus, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 94, Short.MAX_VALUE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(cmbEventType, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblType, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(16, 16, 16))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(17, Short.MAX_VALUE)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -301,12 +294,13 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbEventType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblDriver)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cmbDriver, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnApply))
+                    .addComponent(jLabel1)
+                    .addComponent(checkUnAttend)
+                    .addComponent(checkAttend))
+                .addGap(33, 33, 33)
+                .addComponent(btnApply)
                 .addContainerGap())
         );
 
@@ -369,7 +363,6 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
         try {
 
             final String FORMAT_DATE = "dd/MM/yyyy";
-            Usuario chofer = (Usuario) cmbDriver.getModel().getSelectedItem();
             EstadoEvento estadoEvento = (EstadoEvento) cmbStatus.getModel().getSelectedItem();
             Tipo eventType = (Tipo) cmbEventType.getModel().getSelectedItem();  
             String customer = txtCustomer.getText().trim();
@@ -381,14 +374,27 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             String endCreatedDate = txtCreatedEndDate.getDate() != null ? new SimpleDateFormat(FORMAT_DATE).format(txtCreatedEndDate.getDate()) : null;
       
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put(INIT_CREATED_DATE.getValue(), initCreatedDate);
-            parameters.put(END_CREATED_DATE.getValue(), endCreatedDate);
-            parameters.put(LIMIT.getValue(), 1000);
-            parameters.put(OrdersForm.Filter.CUSTOMER.getValue(), customer);
-            parameters.put(OrdersForm.Filter.INIT_DELIVERY_DATE.getValue(), initDeliveryDate);
-            parameters.put(OrdersForm.Filter.END_DELIVERY_DATE.getValue(), endDeliveryDate);
-            parameters.put(OrdersForm.Filter.INIT_EVENT_DATE.getValue(), initEventDate);
-            parameters.put(OrdersForm.Filter.END_EVENT_DATE.getValue(), endEventDate);
+            parameters.put(INIT_CREATED_DATE.getKey(), initCreatedDate);
+            parameters.put(END_CREATED_DATE.getKey(), endCreatedDate);
+            parameters.put(LIMIT.getKey(), LIMIT_RESULTS);
+            parameters.put(TasksAlmacenForm.Filter.CUSTOMER.getKey(), customer);
+            parameters.put(TasksAlmacenForm.Filter.INIT_DELIVERY_DATE.getKey(), initDeliveryDate);
+            parameters.put(TasksAlmacenForm.Filter.END_DELIVERY_DATE.getKey(), endDeliveryDate);
+            parameters.put(TasksAlmacenForm.Filter.INIT_EVENT_DATE.getKey(), initEventDate);
+            parameters.put(TasksAlmacenForm.Filter.END_EVENT_DATE.getKey(), endEventDate);
+            
+            List<String> attendAlmacenTasks = new ArrayList<>();
+            if (checkAttend.isSelected()) {
+                attendAlmacenTasks.add(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
+            }
+            if (checkUnAttend.isSelected()) {
+                attendAlmacenTasks.add(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
+            }
+            if (!checkUnAttend.isSelected() && !checkAttend.isSelected()) {
+                attendAlmacenTasks.add(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
+            }
+            parameters.put(TasksAlmacenForm.Filter.ATTEND_TYPE.getKey(), attendAlmacenTasks);
+            
             
             if (!customer.isEmpty() && customer.length()>1000) {
                 JOptionPane.showMessageDialog(null, "Valor no permitido para el nombre del cliente", "Error", JOptionPane.ERROR_MESSAGE);
@@ -396,12 +402,11 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
             }
             
             if (IndexForm.globalUser.getAdministrador().equals("1")) {
-                parameters.put(OrdersForm.Filter.TYPE.getValue(), eventType.getTipoId().equals(0) ? null : Arrays.asList(eventType.getTipoId()));
-                parameters.put(OrdersForm.Filter.STATUS.getValue(), estadoEvento.getEstadoId().equals(0) ? null : Arrays.asList(estadoEvento.getEstadoId()));
-                parameters.put(OrdersForm.Filter.DRIVER_ID.getValue(), chofer.getUsuarioId());
+                parameters.put(TasksAlmacenForm.Filter.TYPE.getKey(), eventType.getTipoId().equals(0) ? null : Arrays.asList(eventType.getTipoId()));
+                parameters.put(TasksAlmacenForm.Filter.STATUS.getKey(), estadoEvento.getEstadoId().equals(0) ? null : Arrays.asList(estadoEvento.getEstadoId()));
             }
 
-            OrdersForm.searchAndFillTable(parameters);
+            TasksAlmacenForm.searchAndFillTable(parameters);
             this.dispose();
 
         } catch (Exception e) {
@@ -412,14 +417,15 @@ public class OrdersFilterForm extends javax.swing.JInternalFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
-    private javax.swing.JComboBox<Usuario> cmbDriver;
+    private javax.swing.JCheckBox checkAttend;
+    private javax.swing.JCheckBox checkUnAttend;
     private javax.swing.JComboBox<Tipo> cmbEventType;
     private javax.swing.JComboBox<EstadoEvento> cmbStatus;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel lblDriver;
     private javax.swing.JLabel lblStatus;
     private javax.swing.JLabel lblType;
     private com.toedter.calendar.JDateChooser txtCreatedEndDate;

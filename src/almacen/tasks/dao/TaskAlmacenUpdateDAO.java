@@ -1,48 +1,48 @@
 
-package almacen.orders.dao;
+package almacen.tasks.dao;
 
 import common.exceptions.DataOriginException;
-import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.log4j.Logger;
 import common.utilities.MyBatisConnectionFactory;
-import almacen.orders.models.OrderWarehouseVO;
 
 
-public class OrderWarehouseDAO {
+public class TaskAlmacenUpdateDAO {
     
-    private final static Logger LOGGER = Logger.getLogger(OrderWarehouseDAO.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(TaskAlmacenUpdateDAO.class.getName());
     private final SqlSessionFactory sqlSessionFactory;
-    private static OrderWarehouseDAO INSTANCE = null;
+    private static TaskAlmacenUpdateDAO INSTANCE = null;
     
-    private OrderWarehouseDAO() {
+    private TaskAlmacenUpdateDAO() {
         sqlSessionFactory = MyBatisConnectionFactory.getSqlSessionFactory();
     }
     
     private synchronized static void createInstance() {
         if (INSTANCE == null) { 
-            INSTANCE = new OrderWarehouseDAO();
+            INSTANCE = new TaskAlmacenUpdateDAO();
         }
     }
     
-     public static OrderWarehouseDAO getInstance() {
+     public static TaskAlmacenUpdateDAO getInstance() {
         if (INSTANCE == null) createInstance();
             return INSTANCE;
     }
      
      @SuppressWarnings("unchecked")
-    public List<OrderWarehouseVO> getByParameters(Map<String,Object> parameters) throws DataOriginException{
-        SqlSession session = sqlSessionFactory.openSession();
-        
+    public void updateTypeAttend(Map<String,Object> parameters) throws DataOriginException{
+        SqlSession session = null;
         try {
-            return (List<OrderWarehouseVO>) session.selectList("MapperOrderWarehouse.getByParameters",parameters);
+            session = sqlSessionFactory.openSession();
+            session.update("MapperTaskAlmacenUpdate.updateTypeAttend",parameters);
+            session.commit();
         }catch(Exception e){
             LOGGER.error(e);
             throw new DataOriginException(e.getMessage(),e);
         } finally {
-            session.close();
+            if (session != null)
+                session.close();
         }
     }
 }

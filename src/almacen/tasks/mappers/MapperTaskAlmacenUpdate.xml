@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MapperTaskAlmacenUpdate">
+      
+    <update id="updateTypeAttend" parameterType="java.util.Map">
+        UPDATE tasks_almacen t
+        SET 
+            t.attend_almacen_tasks_type_catalog_id = #{taskTypeCatalogId},
+            t.updated_at = #{updatedAt}
+        <foreach item="item" index="index" collection="ids"
+            open="WHERE t.id IN (" separator="," close=")" >
+                #{item}
+        </foreach>
+    </update>
+  
+</mapper>

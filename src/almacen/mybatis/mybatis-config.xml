@@ -21,7 +21,8 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
     </environments>    
     <mappers>
         <mapper resource="common/mappers/MapperUsuarios.xml"/>
-        <mapper resource="almacen/orders/mappers/MapperOrderWarehouse.xml"/>
+        <mapper resource="almacen/tasks/mappers/MapperTaskAlmacenRetrieve.xml"/>
+        <mapper resource="almacen/tasks/mappers/MapperTaskAlmacenUpdate.xml"/>
         <mapper resource="common/mappers/MapperEstadoEvento.xml"/>
         <mapper resource="common/mappers/MapperTipoEvento.xml"/>
     </mappers>
