@@ -1,5 +1,6 @@
 package almacen.tasks.forms;
 
+import almacen.commons.enums.FilterEvent;
 import common.services.EstadoEventoService;
 import common.services.TipoEventoService;
 import common.constants.ApplicationConstants;
@@ -72,8 +73,8 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private Map<String, Object> getInitParameters () {
 
         Map<String,Object> map = new HashMap<>();
-        map.put(Filter.LIMIT.getKey(), LIMIT_RESULTS);
-        map.put(Filter.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
+        map.put(FilterEvent.LIMIT.getKey(), LIMIT_RESULTS);
+        map.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
         return map;
     }
     
@@ -85,9 +86,9 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private static void showFiltersApplied (Map<String,Object> map) {
         List<String> filters = new ArrayList<>();
         map.entrySet().forEach(entry -> {
-            for (Filter filter : Filter.values()) {
+            for (FilterEvent filter : FilterEvent.values()) {
                 if (entry.getValue() != null && !entry.getValue().equals("null") && !entry.getValue().equals("") && entry.getKey().equals(filter.getKey())) {
-                    if (entry.getKey().equals(Filter.ATTEND_TYPE.getKey())) {
+                    if (entry.getKey().equals(FilterEvent.ATTEND_TYPE.getKey())) {
                         List<String> array = (List<String>) entry.getValue();
                         List<String> result = new ArrayList<>();
                         for (String attendType : array) {
@@ -116,7 +117,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         
         formatTable();
         if (!IndexForm.globalUser.getAdministrador().equals("1")) {
-            map.put(TasksAlmacenForm.Filter.USER_ID.getKey(), IndexForm.globalUser.getUsuarioId());
+            map.put(FilterEvent.USER_ID.getKey(), IndexForm.globalUser.getUsuarioId());
         }
          
          List<TaskAlmacenVO> orders;
@@ -212,45 +213,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             return description;
         }
         
-    }
-    
-    
-    public enum Filter {
-        
-        CUSTOMER("customer","cliente"),
-        SYSTEM_DATE("systemDate","fecha sistema"),
-        LIMIT("limit","limite"),
-        DRIVER_ID("driverId","chofer"),
-        TYPE("type","tipo evento"),
-        STATUS("statusId","estado evento"),
-        INIT_DELIVERY_DATE("initDeliveryDate","fecha entrega evento"),
-        END_DELIVERY_DATE("endDeliveryDate","fecha devolucion evento"),
-        INIT_CREATED_DATE("initCreatedDate","fecha inicio elaboracion"),
-        END_CREATED_DATE("endCreatedDate","fecha fin elaboracion"),
-        INIT_EVENT_DATE("initEventDate","fecha inicio evento"),
-        END_EVENT_DATE("endEventDate","fecha fin evento"),
-        FILTER_BY_CATEGORY_USER("filterByCategoryUser",""),
-        USER_ID("userId","encargado"),
-        ATTEND_TYPE("attendType","tipo atendido"),
-        FOLIO("folio","folio");
-        
-        Filter (String key, String description) {
-            this.key = key;
-            this.description = description;
-        }
-        
-        private final String key;
-        private final String description;
-
-        public String getDescription() {
-            return description;
-        }
-        
-        
-        
-        public String getKey(){
-            return key;
-        }
     }
     
     private static void formatTable() {
@@ -399,6 +361,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         jButton1 = new javax.swing.JButton();
         btnAttend = new javax.swing.JButton();
         btnUnattended = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -480,35 +443,42 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(btnReload, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(btnAttend, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(btnUnattended, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(btnSearchByFolio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 34, Short.MAX_VALUE)
-                            .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(btnReport, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
-                .addGap(23, 23, 23))
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(41, 41, 41))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(btnAttend, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(btnUnattended, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSearchByFolio, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnReport, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(btnReport)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(9, 9, 9)
                 .addComponent(btnSearchByFolio)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(4, 4, 4)
                 .addComponent(btnSearch)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnUnattended)
-                .addGap(4, 4, 4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAttend)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(1, 1, 1)
                 .addComponent(btnReload)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1))
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         table.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -550,16 +520,15 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(33, Short.MAX_VALUE))
+            .addComponent(jScrollPane1)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                 .addGap(11, 11, 11)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -570,7 +539,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(11, 11, 11)
+                .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -582,8 +551,8 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 47, Short.MAX_VALUE)))
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -715,7 +684,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             Integer number = Integer.parseInt(folio);
             Map<String, Object> parameters = getInitParameters();
             parameters.put("folio", number);
-            parameters.put(Filter.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
+            parameters.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
             searchAndFillTable(parameters);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Folio no válido, ingresa un número válido para continuar ", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -765,6 +734,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
     public static javax.swing.JLabel lblDescriptionFilters;
     public static javax.swing.JLabel lblInfo;
     public static javax.swing.JTable table;

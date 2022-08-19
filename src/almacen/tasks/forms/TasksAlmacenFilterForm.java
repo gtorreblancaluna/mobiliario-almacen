@@ -1,5 +1,16 @@
 package almacen.tasks.forms;
 
+import static almacen.commons.enums.FilterEvent.ATTEND_TYPE;
+import static almacen.commons.enums.FilterEvent.CUSTOMER;
+import static almacen.commons.enums.FilterEvent.END_CREATED_DATE;
+import static almacen.commons.enums.FilterEvent.END_DELIVERY_DATE;
+import static almacen.commons.enums.FilterEvent.END_EVENT_DATE;
+import static almacen.commons.enums.FilterEvent.INIT_CREATED_DATE;
+import static almacen.commons.enums.FilterEvent.INIT_DELIVERY_DATE;
+import static almacen.commons.enums.FilterEvent.INIT_EVENT_DATE;
+import static almacen.commons.enums.FilterEvent.LIMIT;
+import static almacen.commons.enums.FilterEvent.STATUS;
+import static almacen.commons.enums.FilterEvent.TYPE;
 import common.constants.ApplicationConstants;
 import common.model.EstadoEvento;
 import common.model.Tipo;
@@ -10,9 +21,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import almacen.index.forms.IndexForm;
-import static almacen.tasks.forms.TasksAlmacenForm.Filter.END_CREATED_DATE;
-import static almacen.tasks.forms.TasksAlmacenForm.Filter.INIT_CREATED_DATE;
-import static almacen.tasks.forms.TasksAlmacenForm.Filter.LIMIT;
 import java.util.ArrayList;
 
 
@@ -377,11 +385,11 @@ public class TasksAlmacenFilterForm extends javax.swing.JInternalFrame {
             parameters.put(INIT_CREATED_DATE.getKey(), initCreatedDate);
             parameters.put(END_CREATED_DATE.getKey(), endCreatedDate);
             parameters.put(LIMIT.getKey(), LIMIT_RESULTS);
-            parameters.put(TasksAlmacenForm.Filter.CUSTOMER.getKey(), customer);
-            parameters.put(TasksAlmacenForm.Filter.INIT_DELIVERY_DATE.getKey(), initDeliveryDate);
-            parameters.put(TasksAlmacenForm.Filter.END_DELIVERY_DATE.getKey(), endDeliveryDate);
-            parameters.put(TasksAlmacenForm.Filter.INIT_EVENT_DATE.getKey(), initEventDate);
-            parameters.put(TasksAlmacenForm.Filter.END_EVENT_DATE.getKey(), endEventDate);
+            parameters.put(CUSTOMER.getKey(), customer);
+            parameters.put(INIT_DELIVERY_DATE.getKey(), initDeliveryDate);
+            parameters.put(END_DELIVERY_DATE.getKey(), endDeliveryDate);
+            parameters.put(INIT_EVENT_DATE.getKey(), initEventDate);
+            parameters.put(END_EVENT_DATE.getKey(), endEventDate);
             
             List<String> attendAlmacenTasks = new ArrayList<>();
             if (checkAttend.isSelected()) {
@@ -393,7 +401,7 @@ public class TasksAlmacenFilterForm extends javax.swing.JInternalFrame {
             if (!checkUnAttend.isSelected() && !checkAttend.isSelected()) {
                 attendAlmacenTasks.add(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
             }
-            parameters.put(TasksAlmacenForm.Filter.ATTEND_TYPE.getKey(), attendAlmacenTasks);
+            parameters.put(ATTEND_TYPE.getKey(), attendAlmacenTasks);
             
             
             if (!customer.isEmpty() && customer.length()>1000) {
@@ -402,8 +410,8 @@ public class TasksAlmacenFilterForm extends javax.swing.JInternalFrame {
             }
             
             if (IndexForm.globalUser.getAdministrador().equals("1")) {
-                parameters.put(TasksAlmacenForm.Filter.TYPE.getKey(), eventType.getTipoId().equals(0) ? null : Arrays.asList(eventType.getTipoId()));
-                parameters.put(TasksAlmacenForm.Filter.STATUS.getKey(), estadoEvento.getEstadoId().equals(0) ? null : Arrays.asList(estadoEvento.getEstadoId()));
+                parameters.put(TYPE.getKey(), eventType.getTipoId().equals(0) ? null : Arrays.asList(eventType.getTipoId()));
+                parameters.put(STATUS.getKey(), estadoEvento.getEstadoId().equals(0) ? null : Arrays.asList(estadoEvento.getEstadoId()));
             }
 
             TasksAlmacenForm.searchAndFillTable(parameters);
