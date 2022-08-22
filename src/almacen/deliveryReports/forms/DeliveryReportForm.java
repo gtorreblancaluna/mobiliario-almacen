@@ -1,13 +1,105 @@
 package almacen.deliveryReports.forms;
 
+import almacen.commons.enums.FilterEvent;
+import almacen.commons.utilities.ConnectionDB;
+import almacen.commons.utilities.Utility;
+import almacen.deliveryReports.services.RentaResultService;
+import almacen.index.forms.IndexForm;
+import common.constants.ApplicationConstants;
+import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
+import static common.constants.ApplicationConstants.MESSAGE_UNEXPECTED_ERROR;
+import common.exceptions.BusinessException;
+import common.exceptions.DataOriginException;
+import common.model.EstadoEvento;
+import common.model.Renta;
+import common.model.Tipo;
+import common.model.Usuario;
+import common.services.EstadoEventoService;
+import common.services.TipoEventoService;
+import common.services.UserService;
+import common.services.UtilityService;
+import common.utilities.CheckBoxHeader;
+import common.utilities.ItemListenerHeaderCheckbox;
+import common.utilities.UtilityCommon;
+import java.awt.Desktop;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.util.JRLoader;
+import org.apache.log4j.Logger;
 
 public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
+    private DeliveryReportFilterForm deliveryReportFilterForm;
+    private List<Tipo> typesGlobal = new ArrayList<>();
+    private List<EstadoEvento> statusListGlobal = new ArrayList<>();
+    private List<Usuario> choferes = new ArrayList<>();
+    private EstadoEventoService estadoEventoService;
+    private TipoEventoService tipoEventoService;
+    private static UserService userService;
+    private static ConnectionDB connectionDB;
+    private final static Integer LIMIT_RESULTS = 1_000;
+    private UtilityService utilityService;
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private static final String PATTERN_STRING_DATE = "dd/MM/yyyy";
+    private static final Logger LOGGER = Logger.getLogger(DeliveryReportForm.class.getName());
+    private static final RentaResultService rentaResultService = RentaResultService.getInstance();
+    
 
     public DeliveryReportForm() {
+        this.setClosable(true);
+        this.setTitle("REPORTES CHOFER");
         initComponents();
+        init();
+    }
+    
+    private Map<String, Object> getInitParameters () {
+
+        Map<String,Object> map = new HashMap<>();
+        map.put(FilterEvent.LIMIT.getKey(), LIMIT_RESULTS);
+        map.put(FilterEvent.STATUS.getKey(), Arrays.asList(ApplicationConstants.ESTADO_APARTADO));
+        map.put(FilterEvent.TYPE.getKey(), Arrays.asList(ApplicationConstants.TIPO_PEDIDO));
+        map.put(FilterEvent.SYSTEM_DATE.getKey(), UtilityCommon.getSystemDate("/"));
+        return map;
+    }
+    
+    private void checkGlobalList(){
+        
+        if (!IndexForm.globalUser.getAdministrador().equals("1"))
+            return;
+        
+        try {
+            tipoEventoService = TipoEventoService.getInstance();
+            estadoEventoService = EstadoEventoService.getInstance();
+            userService = UserService.getInstance();
+            
+            if (typesGlobal.isEmpty()) {
+                typesGlobal = tipoEventoService.get();
+            }
+            if (statusListGlobal.isEmpty()) {
+                statusListGlobal = estadoEventoService.get();
+            }
+            if (choferes.isEmpty()) {
+                choferes = userService.getChoferes();
+            }
+        } catch (DataOriginException e) {
+            JOptionPane.showMessageDialog(this, e,"ERROR",JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private enum Column{
@@ -53,6 +145,158 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         }
         
     }
+    
+    public static void searchAndFillTable (Map<String,Object> map) {
+        formatTable();
+        if (!IndexForm.globalUser.getAdministrador().equals("1")) {
+            map.put(FilterEvent.CHOFER_ID.getKey(), IndexForm.globalUser.getUsuarioId());
+        }
+        
+        List<Renta> rentas;
+        try {
+            rentas = rentaResultService.getByParameters(map);
+            lblInfo.setText("Eventos obtenidos: "+rentas.size()+". Límite de resultados: "+LIMIT_RESULTS);
+        } catch (DataOriginException e) {
+             JOptionPane.showMessageDialog(null, e, MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
+             return;
+        }
+        
+        try {
+            DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+            for (Renta renta : rentas) {
+                Object row[] = {
+                    false,
+                    renta.getRentaId(),
+                    renta.getFolio(),
+                    renta.getDescripcion(),
+                    simpleDateFormat.format(UtilityCommon.getFromString(renta.getFechaEvento(), PATTERN_STRING_DATE)),
+                    simpleDateFormat.format(UtilityCommon.getFromString(renta.getFechaDevolucion(), PATTERN_STRING_DATE)),
+                    renta.getCliente().getNombre()+" "+renta.getCliente().getApellidos(),
+                    renta.getTipo().getTipo(),
+                    renta.getEstado().getDescripcion(),
+                    renta.getChofer().getNombre() +" "+ renta.getChofer().getApellidos(),
+                    renta.getChofer().getUsuarioId()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (Exception e) {
+          JOptionPane.showMessageDialog(null, e, MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private static void formatTable() {
+        
+        String[] columnNames = {
+            
+            Column.BOOLEAN.getDescription(),
+            Column.ID.getDescription(),
+            Column.FOLIO.getDescription(), 
+            Column.DESCRIPTION_EVENT.getDescription(),
+            Column.EVENT_DATE.getDescription(), 
+            Column.DELIVERY_DATE.getDescription(),                        
+            Column.CUSTOMER.getDescription(),
+            Column.EVENT_TYPE.getDescription(),
+            Column.EVENT_STATUS.getDescription(),
+            Column.CHOFER.getDescription(),
+            Column.CHOFER_ID.getDescription()
+            
+            
+        };
+        Class[] types = {
+            
+            Column.BOOLEAN.getClazz(),
+            Column.ID.getClazz(),
+            Column.FOLIO.getClazz(), 
+            Column.DESCRIPTION_EVENT.getClazz(),
+            Column.EVENT_DATE.getClazz(), 
+            Column.DELIVERY_DATE.getClazz(),                        
+            Column.CUSTOMER.getClazz(),
+            Column.EVENT_TYPE.getClazz(),
+            Column.EVENT_STATUS.getClazz(),
+            Column.CHOFER.getClazz(),
+            Column.CHOFER_ID.getClazz()
+           
+            
+        };
+        
+        boolean[] editable = {
+            
+            Column.BOOLEAN.getIsEditable(),
+            Column.ID.getIsEditable(),
+            Column.FOLIO.getIsEditable(), 
+            Column.DESCRIPTION_EVENT.getIsEditable(),
+            Column.EVENT_DATE.getIsEditable(),
+            Column.DELIVERY_DATE.getIsEditable(),                        
+            Column.CUSTOMER.getIsEditable(),
+            Column.EVENT_TYPE.getIsEditable(),
+            Column.EVENT_STATUS.getIsEditable(),
+            Column.CHOFER.getIsEditable(),
+            Column.CHOFER_ID.getIsEditable()
+           
+            
+        };
+        
+        // customize column types
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0){
+            @Override
+            public Class getColumnClass(int column) {
+                return types[column];
+            }
+            
+            @Override
+            public boolean isCellEditable (int row, int column) {
+                return editable[column];
+            }
+        };
+       
+       table.setModel(tableModel);
+
+       TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(tableModel); 
+       table.setRowSorter(ordenarTabla);
+       
+     
+       int[] anchos = {20,20,40,90,100,100,80,80,90,90,90};
+
+       for (int inn = 0; inn < table.getColumnCount(); inn++) {
+           table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);
+       }
+
+       try {
+           DefaultTableModel temp = (DefaultTableModel) table.getModel();
+           temp.removeRow(temp.getRowCount() - 1);
+       } catch (ArrayIndexOutOfBoundsException e) {
+           ;
+       }
+       DefaultTableCellRenderer centrar = new DefaultTableCellRenderer();
+       centrar.setHorizontalAlignment(SwingConstants.CENTER);
+
+       DefaultTableCellRenderer right = new DefaultTableCellRenderer();
+       right.setHorizontalAlignment(SwingConstants.RIGHT);
+
+       table.getColumnModel().getColumn(Column.ID.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.ID.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.ID.getNumber()).setPreferredWidth(0);
+       
+       table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setPreferredWidth(0);
+              
+       // adding checkbox in header table
+       TableColumn tc = table.getColumnModel().getColumn(Column.BOOLEAN.getNumber());
+       tc.setCellEditor(table.getDefaultEditor(Boolean.class)); 
+       tc.setHeaderRenderer(new CheckBoxHeader(new ItemListenerHeaderCheckbox(Column.BOOLEAN.getNumber(),table)));
+       
+       table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                // int row = table.rowAtPoint(evt.getPoint());
+                int col = table.columnAtPoint(evt.getPoint());
+                if (col == Column.BOOLEAN.getNumber()) {
+                    //checkSelectRowsInTable();
+                }
+            }
+        });
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -96,19 +340,16 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1053, Short.MAX_VALUE)
+            .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 13, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         btnReload.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -193,7 +434,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
                 .addComponent(btnReload)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(341, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -210,12 +451,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -225,15 +465,18 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         init();
     }//GEN-LAST:event_btnReloadActionPerformed
-
+    private void init () {
+        Map<String, Object> map = getInitParameters();
+        searchAndFillTable(map);
+    }
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         // TODO add your handling code here:
-        if (UtilityCommon.verifyIfInternalFormIsOpen(ordersFilterForm,IndexForm.rootPanel)) {
+        if (UtilityCommon.verifyIfInternalFormIsOpen(deliveryReportFilterForm,IndexForm.rootPanel)) {
             checkGlobalList();
-            ordersFilterForm = new TasksAlmacenFilterForm(typesGlobal,statusListGlobal);
-            ordersFilterForm.setLocation(this.getWidth() / 2 - ordersFilterForm.getWidth() / 2, this.getHeight() / 2 - ordersFilterForm.getHeight() / 2 - 20);
-            rootPanel.add(ordersFilterForm);
-            ordersFilterForm.show();
+            deliveryReportFilterForm = new DeliveryReportFilterForm(typesGlobal,statusListGlobal,choferes);
+            deliveryReportFilterForm.setLocation(this.getWidth() / 2 - deliveryReportFilterForm.getWidth() / 2, this.getHeight() / 2 - deliveryReportFilterForm.getHeight() / 2 - 20);
+            IndexForm.rootPanel.add(deliveryReportFilterForm);
+            deliveryReportFilterForm.show();
         } else {
             JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
         }
@@ -246,9 +489,9 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         }
         try {
             Integer number = Integer.parseInt(folio);
-            Map<String, Object> parameters = getInitParameters();
+            Map<String, Object> parameters = new HashMap<>();
             parameters.put("folio", number);
-            parameters.put(Filter.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
+            parameters.put("limit", 1);
             searchAndFillTable(parameters);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Folio no válido, ingresa un número válido para continuar ", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -257,17 +500,46 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnSearchByFolioActionPerformed
 
+    private static void generateLogGeneratePDFPush (String report) {
+        String logMessage = IndexForm.globalUser.getNombre() + " " + IndexForm.globalUser.getApellidos()+", a creado el PDF ["+report+"] ";
+        LOGGER.info(logMessage);
+        Utility.pushNotification(logMessage);
+    }
+    private static void openPDFReport (String rentaId, String choferName, String folio) {
+        try {
+            connectionDB = ConnectionDB.getInstance();
+            String pathLocation = Utility.getPathLocation();
+            String reportName = pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS+"-"+folio+".pdf";
+            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_ENTREGAS);
+            
+            Map<String,Object> parameters = new HashMap<>();
+            parameters.put("id_renta", rentaId);
+            parameters.put("chofer", choferName);
+            parameters.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
+            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(masterReport, parameters, connectionDB.getConnection());
+            JasperExportManager.exportReportToPdfFile(jasperPrint, reportName);
+
+            Desktop.getDesktop().open(
+                    new File(reportName)
+            );
+            generateLogGeneratePDFPush("reporte por entrega por chofer, folio: "+folio);
+
+        } catch (Exception e) {
+            LOGGER.error(e);
+            JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
+        }
+    }
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
 
         try {
-            validateSelectedRows();
+            Utility.validateSelectCheckboxInTable(table,Column.BOOLEAN.getNumber());
             for (int i = 0; i < table.getRowCount(); i++) {
                 if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
                     String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
                     String rentaId = table.getValueAt(i, Column.ID.getNumber()).toString();
-                    String userId = table.getValueAt(i, Column.USER_ID.getNumber()).toString();
-                    String userName = table.getValueAt(i, Column.USER_NAME.getNumber()).toString();
-                    openPDFReportByCategories(rentaId,userId,userName,folio);
+                    String choferName = table.getValueAt(i, Column.CHOFER.getNumber()).toString();
+                    openPDFReport(rentaId,choferName,folio);
                 }
             }
         } catch (BusinessException e) {
@@ -277,6 +549,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnReportActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        utilityService = UtilityService.getInstance();
         utilityService.exportarExcel(table);
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -292,6 +565,6 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     public static javax.swing.JLabel lblInfo;
-    private javax.swing.JTable table;
+    public static javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }

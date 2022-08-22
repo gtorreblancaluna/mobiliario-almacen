@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MapperRentasResult">
+    
+    
+    <resultMap id="resultMapRenta" type="common.model.Renta">
+        <result property="rentaId" column="id_renta"/>
+        <result property="detalleRenta" column="detalle_renta"/>
+        <!-- customer info-->
+        <result property="cliente.id" column="cliente_id"/>
+        <result property="cliente.nombre" column="cliente_nombre"/>
+        <result property="cliente.apellidos" column="cliente_apellidos"/>
+        <!--user info-->
+        <result property="usuario.usuarioId" column="usuario_id"/>
+        <result property="usuario.nombre" column="usuario_nombre"/>
+        <result property="usuario.apellidos" column="usuario_apellidos"/>
+        
+        <result property="fechaPedido" column="fecha_pedido"/>
+        <result property="fechaEntrega" column="fecha_entrega"/>
+        <result property="horaEntrega" column="hora_entrega"/>
+        <result property="fechaDevolucion" column="fecha_devolucion"/>
+        <result property="descripcion" column="descripcion"/>
+        <result property="descuento" column="descuento"/>
+        <result property="cantidadDescuento" column="cantidad_descuento"/>
+        <result property="iva" column="iva"/>
+        <result property="comentario" column="comentario"/>
+        <result property="folio" column="folio"/>
+        <result property="stock" column="stock"/>
+        <!--event type-->
+        <result property="tipo.tipoId" column="tipo_id"/>
+        <result property="tipo.tipo" column="tipo_tipo"/>
+        <result property="totalAbonos" column="total_abonos"/>
+        <result property="horaDevolucion" column="hora_devolucion"/>
+        <result property="fechaEvento" column="fecha_evento"/>
+        <result property="depositoGarantia" column="deposito_garantia"/>      
+        <result property="envioRecoleccion" column="envio_recoleccion"/>
+        <!-- driver info-->
+        <result property="chofer.usuarioId" column="chofer_id"/>
+        <result property="chofer.nombre" column="chofer_nombre"/>
+        <result property="chofer.apellidos" column="chofer_apellidos"/>
+        <!--status event-->
+        <result property="estado.estadoId" column="id_estado"/>
+        <result property="estado.descripcion" column="estado_descripcion"/>
+        <result property="mostrarPreciosPdf" column="mostrar_precios_pdf"/>
+        <result property="totalAbonos" column="total_abonos"/>
+        <result property="totalFaltantes" column="total_faltantes"/>
+        <result property="subTotal" column="sub_total"/>
+          
+    </resultMap>
+
+    <select id="getByParameters" resultMap="resultMapRenta" parameterType="java.util.Map">
+        SELECT
+            r.id_renta,
+            c.id_clientes AS cliente_id,
+            c.nombre AS cliente_nombre,
+            c.apellidos AS cliente_apellidos,
+            u.id_usuarios AS usuario_id,
+            u.nombre AS usuario_nombre,
+            u.apellidos AS usuario_apellidos,
+            r.fecha_pedido,
+            r.fecha_entrega,
+            r.hora_entrega,
+            r.fecha_devolucion,
+            r.descripcion,
+            r.descuento,
+            r.cantidad_descuento,
+            r.iva,
+            r.comentario,
+            r.folio,
+            r.stock,
+            t.id_tipo AS tipo_id,
+            t.tipo AS tipo_tipo,
+            r.hora_devolucion,
+            r.fecha_evento,
+            r.deposito_garantia,
+            r.envio_recoleccion,
+            r.mostrar_precios_pdf,
+            chofer.id_usuarios AS chofer_id,
+            chofer.nombre AS chofer_nombre,
+            chofer.apellidos AS chofer_apellidos,
+            e.id_estado,
+            e.descripcion AS estado_descripcion
+        FROM renta r
+            INNER JOIN estado e ON (e.id_estado = r.id_estado)
+            INNER JOIN clientes c ON (c.id_clientes = r.id_clientes)
+            INNER JOIN usuarios u ON (u.id_usuarios = r.id_usuarios)
+            INNER JOIN usuarios chofer ON (chofer.id_usuarios = r.id_usuario_chofer)
+            INNER JOIN tipo t ON (t.id_tipo = r.id_tipo)
+        
+        <if test="currentTypeId != null and currentTypeId != '' and currentTypeId != 0 
+                and changeTypeId != null and changeTypeId != '' and changeTypeId != 0 ">   
+            AND r.id_renta IN (
+                    SELECT order_type_changes.renta_id 
+                    FROM order_type_changes order_type_changes 
+                    WHERE order_type_changes.current_type_id = #{currentTypeId} AND order_type_changes.change_type_id = #{changeTypeId}  
+                    AND order_type_changes.fg_active = '1'
+                    <if test="orderTypeChangeInitDate != null and orderTypeChangeInitDate != ''
+                                and orderTypeChangeEndDate != null and orderTypeChangeEndDate != ''">
+                            AND order_type_changes.created_at <![CDATA[ >= ]]> #{orderTypeChangeInitDate}
+                            AND order_type_changes.created_at <![CDATA[ <= ]]> #{orderTypeChangeEndDate}
+                    </if>
+                    GROUP BY order_type_changes.renta_id
+                )   
+        </if>
+        <if test="currentStatusId != null and currentStatusId != '' and currentStatusId != 0 
+                and changeStatusId != null and changeStatusId != '' and changeStatusId != 0 ">   
+            AND r.id_renta IN (
+                SELECT order_status_changes.renta_id 
+                FROM order_status_changes order_status_changes 
+                WHERE order_status_changes.current_status_id = #{currentStatusId} AND order_status_changes.change_status_id = #{changeStatusId}  
+                AND order_status_changes.fg_active = '1'
+                <if test="orderStatusChangeInitDate != null and orderStatusChangeInitDate != ''
+                            and orderStatusChangeEndDate != null and orderStatusChangeEndDate != ''">
+                        AND order_status_changes.created_at <![CDATA[ >= ]]> #{orderStatusChangeInitDate}
+                        AND order_status_changes.created_at <![CDATA[ <= ]]> #{orderStatusChangeEndDate}
+                </if>
+                GROUP BY order_status_changes.renta_id
+            )
+            
+        </if>
+        <if test="folio != null and folio != '' ">
+            AND r.folio = #{folio}
+        </if>
+        <if test="systemDate != null and systemDate != '' ">
+            AND STR_TO_DATE(r.fecha_entrega, '%d/%m/%Y') <![CDATA[ >= ]]> STR_TO_DATE(#{systemDate}, '%d/%m/%Y' )
+        </if>
+        <if test="applyDiff != null and applyDiff != '' ">
+            AND r.id_estado <![CDATA[ <> ]]> #{applyDiff}   
+        </if>
+        <if test="type != null">
+            <foreach item="item" index="index" collection="type"
+                open="AND t.id_tipo IN (" separator="," close=")" >
+                    #{item}
+            </foreach>
+        </if>
+        <if test="customer != null and customer != '' ">
+            AND CONCAT(c.nombre," ",c.apellidos) LIKE CONCAT('%',#{customer},'%')
+        </if>
+        <if test="initDeliveryDate != null and endDeliveryDate != null ">
+            AND STR_TO_DATE(r.fecha_entrega,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initDeliveryDate},'%d/%m/%Y') AND STR_TO_DATE(#{endDeliveryDate},'%d/%m/%Y')
+        </if>
+        
+        <if test="initEventDate != null and endEventDate != null ">
+            AND STR_TO_DATE(r.fecha_evento,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initEventDate},'%d/%m/%Y') AND STR_TO_DATE(#{endEventDate},'%d/%m/%Y')
+        </if>
+        <if test="initCreatedDate != null and endCreatedDate != null ">
+            AND STR_TO_DATE(r.fecha_pedido,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initCreatedDate},'%d/%m/%Y') AND STR_TO_DATE(#{endCreatedDate},'%d/%m/%Y')
+        </if>
+        <if test="statusId != null">
+            <foreach item="item" index="index" collection="statusId"
+                open="AND r.id_estado IN (" separator="," close=")" >
+                    #{item}
+            </foreach>
+        </if>
+        <if test="driverId != null and driverId != '' and driverId != 0 ">
+            AND r.id_usuario_chofer = #{driverId}
+        </if>
+        
+        ORDER BY STR_TO_DATE(r.fecha_entrega, '%d/%m/%Y') LIMIT #{limit}
+        
+    </select>
+      
+</mapper>

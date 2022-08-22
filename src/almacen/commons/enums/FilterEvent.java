@@ -17,7 +17,8 @@ public enum FilterEvent {
         FILTER_BY_CATEGORY_USER("filterByCategoryUser",""),
         USER_ID("userId","encargado"),
         ATTEND_TYPE("attendType","tipo atendido"),
-        FOLIO("folio","folio");
+        FOLIO("folio","folio"),
+        CHOFER_ID("driverId","chofer id");
         
         FilterEvent (String key, String description) {
             this.key = key;

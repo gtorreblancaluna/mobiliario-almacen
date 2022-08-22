@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import almacen.tasks.forms.TasksAlmacenForm;
 import almacen.commons.utilities.Utility;
 import static almacen.commons.utilities.Utility.getCloseWindowAction;
+import almacen.deliveryReports.forms.DeliveryReportForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
 import common.services.PropertiesService;
@@ -21,13 +22,14 @@ public class IndexForm extends javax.swing.JFrame {
     public static List<String> listNotifications = new ArrayList<>();
     public static Usuario globalUser;
     private TasksAlmacenForm ordersForm;
+    private DeliveryReportForm deliveryReportForm;
 
     private static final UserService userService = UserService.getInstance();
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
     private static final Logger LOGGER = Logger.getLogger(IndexForm.class.getName());
     
     private IndexForm() {
-        throw new RuntimeException("Deprecated constructor, please do use constructor with POJO Usuario arguments");
+        throw new RuntimeException("Deprecated constructor");
     }
     
     public IndexForm(Usuario user) {
@@ -41,8 +43,8 @@ public class IndexForm extends javax.swing.JFrame {
         new InactivityListener(this, getCloseWindowAction(), timeToEndSession ).start();
         String choferPuestoId = ApplicationConstants.PUESTO_CHOFER+"";
         String userPuestId = globalUser.getPuesto().getPuestoId()+"";
-        if (!globalUser.getAdministrador().equals("1") && choferPuestoId.equals(userPuestId)) {
-            panelEvents.setVisible(false);
+        if (!globalUser.getAdministrador().equals("1") && !choferPuestoId.equals(userPuestId)) {
+            panelMenuChoferDelivery.setVisible(false);
         }
     }
     
@@ -253,10 +255,35 @@ public class IndexForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void openDeliveryReportForm () {
+        if (UtilityCommon.verifyIfInternalFormIsOpen(deliveryReportForm,IndexForm.rootPanel)) {
+            if(!Utility.showWindowDataUpdateSession()){
+                return;
+            }
+            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
+            String userJobId = globalUser.getPuesto().getPuestoId()+"";
+            if (!globalUser.getAdministrador().equals("1") && !jobChoferId.equals(userJobId)) {
+                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR o puesto de CHOFER puede acceder a esta ventana. AYUDA. Reinicia el sistema para actualizar la sesion");
+                return;
+            }
+            deliveryReportForm = new DeliveryReportForm();
+            deliveryReportForm.setLocation(this.getWidth() / 2 - deliveryReportForm.getWidth() / 2, this.getHeight() / 2 - deliveryReportForm.getHeight() / 2 - 20);
+            rootPanel.add(deliveryReportForm);
+            deliveryReportForm.show();
+        } else {
+            JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
+        }
+    }
     public void openOrdersForm () {
         
         if (UtilityCommon.verifyIfInternalFormIsOpen(ordersForm,IndexForm.rootPanel)) {
             if(!Utility.showWindowDataUpdateSession()){
+                return;
+            }
+            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
+            String userJobId = globalUser.getPuesto().getPuestoId()+"";
+            if (!globalUser.getAdministrador().equals("1") && userJobId.equals(jobChoferId)) {
+                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con puesto ADMINISTRADOR o ALMACENISTA puede acceder a esta ventana. AYUDA. Reinicia el sistema para actualizar la sesion");
                 return;
             }
             ordersForm = new TasksAlmacenForm();
@@ -273,7 +300,7 @@ public class IndexForm extends javax.swing.JFrame {
     }//GEN-LAST:event_panelEventsMouseClicked
 
     private void panelMenuChoferDeliveryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuChoferDeliveryMouseClicked
-        // TODO add your handling code here:
+       openDeliveryReportForm();
     }//GEN-LAST:event_panelMenuChoferDeliveryMouseClicked
 
     /**

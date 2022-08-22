@@ -38,35 +38,42 @@ import almacen.commons.utilities.Utility;
 import almacen.tasks.services.TaskAlmacenUpdateService;
 import common.exceptions.BusinessException;
 import common.model.TaskAlmacenVO;
+import common.model.Usuario;
+import common.services.UserService;
 import common.utilities.CheckBoxHeader;
 import common.utilities.ItemListenerHeaderCheckbox;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     
-    private static TaskAlmacenRetrieveService orderWarehouseService;
+    private static TaskAlmacenRetrieveService taskAlmacenRetrieveService;
     // variables gloables para reutilizar en los filtros y combos
     private List<Tipo> typesGlobal = new ArrayList<>();
     private List<EstadoEvento> statusListGlobal = new ArrayList<>();
+    private List<Usuario> usersInCategoriesAlmacen = new ArrayList<>();
     private TasksAlmacenFilterForm ordersFilterForm;
     private final UtilityService utilityService = UtilityService.getInstance();
     private static ConnectionDB connectionDB;
     private static final Logger LOGGER = Logger.getLogger(TasksAlmacenForm.class.getName());
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private static final String PATTERN_STRING_DATE = "dd/MM/yyyy";
-    private final EstadoEventoService estadoEventoService = EstadoEventoService.getInstance();
-    private final TipoEventoService tipoEventoService = TipoEventoService.getInstance();
+    private EstadoEventoService estadoEventoService;
+    private TipoEventoService tipoEventoService;
+    private UserService userService;
     private final TaskAlmacenUpdateService taskAlmacenUpdateService = TaskAlmacenUpdateService.getInstance();
     private final static Integer LIMIT_RESULTS = 1_000;
-    private final static Integer LIMIT_GENERATE_PDF = 20;
+    
     
     public TasksAlmacenForm() {
         initComponents();
         this.setClosable(true);
         this.setTitle("TAREAS ALMACEN");
-        orderWarehouseService = TaskAlmacenRetrieveService.getInstance();
+        taskAlmacenRetrieveService = TaskAlmacenRetrieveService.getInstance();
         init();
     }
     
@@ -122,7 +129,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
          
          List<TaskAlmacenVO> orders;
          try {
-             orders = orderWarehouseService.getByParameters(map);
+             orders = taskAlmacenRetrieveService.getByParameters(map);
              if (orders.isEmpty()) {
                 lblInfo.setText("No se obtuvieron resultados :( ");
              } else {
@@ -333,20 +340,42 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
        tc.setCellEditor(table.getDefaultEditor(Boolean.class)); 
        tc.setHeaderRenderer(new CheckBoxHeader(new ItemListenerHeaderCheckbox(Column.BOOLEAN.getNumber(),table)));
        
+//       JTableHeader header = table.getTableHeader();
+//       header.addMouseListener(new java.awt.event.MouseAdapter() {
+//           @Override
+//            public void mouseClicked(MouseEvent event) {
+//                Point point = event.getPoint();
+//                int col = table.columnAtPoint(point);
+//                if (col == Column.BOOLEAN.getNumber()) {
+//                    setLabelRowsSelected();
+//                }
+//            }
+//       });
+              
        table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 // int row = table.rowAtPoint(evt.getPoint());
                 int col = table.columnAtPoint(evt.getPoint());
+                String name = table.getColumnName(col);
+                System.out.println("Column index selected " + col + " " + name);
                 if (col == Column.BOOLEAN.getNumber()) {
-                    checkSelectRowsInTable();
+                    setLabelRowsSelected();
                 }
             }
         });
     }
-    
-   private static void checkSelectRowsInTable () {
-       // when all checkbox selected, then check in true checkbox header table
+       
+   private static void setLabelRowsSelected () {
+       int selectRows = 0;
+        
+        for (int i = 0; i < table.getRowCount(); i++) {
+            if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
+                selectRows++;
+            }
+        }
+        
+        lblCountTable.setText(selectRows <= 0 ? "" : selectRows+"");
    }
    
     @SuppressWarnings("unchecked")
@@ -360,8 +389,9 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         btnReport = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         btnAttend = new javax.swing.JButton();
-        btnUnattended = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
+        lblCountTable = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -428,37 +458,31 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             }
         });
 
-        btnUnattended.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/file-unattended-24.png"))); // NOI18N
-        btnUnattended.setToolTipText("Marcar como sin atender");
-        btnUnattended.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnUnattended.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUnattendedActionPerformed(evt);
-            }
-        });
+        lblCountTable.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnReload, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(41, 41, 41))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(btnAttend, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(btnUnattended, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnSearchByFolio, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnReport, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(btnAttend, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnSearchByFolio, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnReport, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnReload, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lblCountTable, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -469,15 +493,17 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                 .addGap(4, 4, 4)
                 .addComponent(btnSearch)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnUnattended)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAttend)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnReload)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblCountTable, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -528,7 +554,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
                 .addGap(11, 11, 11)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -541,7 +567,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(8, 8, 8)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -552,7 +578,8 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(23, 23, 23)))
                 .addContainerGap())
         );
 
@@ -565,12 +592,24 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnReloadActionPerformed
 
     private void checkGlobalList(){
+        
+        if (!IndexForm.globalUser.getAdministrador().equals("1"))
+            return;
+        
         try {
+            
+            tipoEventoService = TipoEventoService.getInstance();
+            estadoEventoService = EstadoEventoService.getInstance();
+            userService = UserService.getInstance();
+            
             if (typesGlobal.isEmpty()) {
                 typesGlobal = tipoEventoService.get();
             }
             if (statusListGlobal.isEmpty()) {
                 statusListGlobal = estadoEventoService.get();
+            }
+            if (usersInCategoriesAlmacen.isEmpty()) {
+                usersInCategoriesAlmacen = userService.getUsersInCategoriesAlmacen();
             }
         } catch (DataOriginException e) {
             JOptionPane.showMessageDialog(this, e,"ERROR",JOptionPane.ERROR_MESSAGE);
@@ -580,7 +619,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         if (UtilityCommon.verifyIfInternalFormIsOpen(ordersFilterForm,IndexForm.rootPanel)) {
             checkGlobalList();
-            ordersFilterForm = new TasksAlmacenFilterForm(typesGlobal,statusListGlobal);
+            ordersFilterForm = new TasksAlmacenFilterForm(typesGlobal,statusListGlobal,usersInCategoriesAlmacen);
             ordersFilterForm.setLocation(this.getWidth() / 2 - ordersFilterForm.getWidth() / 2, this.getHeight() / 2 - ordersFilterForm.getHeight() / 2 - 20);
             rootPanel.add(ordersFilterForm);
             ordersFilterForm.show();
@@ -632,29 +671,12 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         }
         return ids;
    }
-   private void validateSelectedRows() throws BusinessException {
-        
-        int selectRows = 0;
-        
-        for (int i = 0; i < table.getRowCount(); i++) {
-            if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
-                selectRows++;
-            }
-        }
-        
-        if (selectRows > LIMIT_GENERATE_PDF) {
-            throw new BusinessException ("Limite excedido de operaciones ["+ LIMIT_GENERATE_PDF +"]");
-        }
-        
-        if (selectRows <= 0) {
-            throw new BusinessException ("Marca el CHECKBOX de una o mas filas para continuar");
-        }
-    }
+   
     
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
         
         try {
-            validateSelectedRows();
+            Utility.validateSelectCheckboxInTable(table,Column.BOOLEAN.getNumber());
             for (int i = 0; i < table.getRowCount(); i++) {
                 if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
                     String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
@@ -695,7 +717,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
 
     private void updateAttendType (String taskTypeCatalogId, String taskTypeCatalogDescription) {
         try{
-            validateSelectedRows();
+            Utility.validateSelectCheckboxInTable(table, Column.BOOLEAN.getNumber());
             Map<String,Object> parameters = new HashMap<>();
             List<String> ids = getIdsSelected();
             parameters.put("ids", ids);
@@ -717,10 +739,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         updateAttendType(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
     }//GEN-LAST:event_btnAttendActionPerformed
 
-    private void btnUnattendedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnattendedActionPerformed
-        updateAttendType(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
-    }//GEN-LAST:event_btnUnattendedActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAttend;
@@ -728,13 +746,14 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnReport;
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnSearchByFolio;
-    private javax.swing.JButton btnUnattended;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private static javax.swing.JLabel lblCountTable;
     public static javax.swing.JLabel lblDescriptionFilters;
     public static javax.swing.JLabel lblInfo;
     public static javax.swing.JTable table;
