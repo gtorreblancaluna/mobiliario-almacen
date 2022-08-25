@@ -434,8 +434,8 @@ public class TasksAlmacenFilterForm extends javax.swing.JInternalFrame {
             }
             
             if (IndexForm.globalUser.getAdministrador().equals("1")) {
-                parameters.put(TYPE.getKey(), eventType.getTipoId().equals(0) ? null : Arrays.asList(eventType.getTipoId()));
-                parameters.put(STATUS.getKey(), estadoEvento.getEstadoId().equals(0) ? null : Arrays.asList(estadoEvento.getEstadoId()));
+                parameters.put(TYPE.getKey(), eventType.getTipoId().equals(0) ? Arrays.asList(ApplicationConstants.TIPO_PEDIDO) : Arrays.asList(eventType.getTipoId()));
+                parameters.put(STATUS.getKey(), estadoEvento.getEstadoId().equals(0) ? Arrays.asList(ApplicationConstants.ESTADO_APARTADO) : Arrays.asList(estadoEvento.getEstadoId()));
                 parameters.put(USER_ID.getKey(), userInCategorieAlmacen.getUsuarioId().equals(0) ? null : userInCategorieAlmacen.getUsuarioId()+"");
             }
 
