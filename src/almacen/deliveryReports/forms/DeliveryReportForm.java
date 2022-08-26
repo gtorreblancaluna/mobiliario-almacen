@@ -3,7 +3,8 @@ package almacen.deliveryReports.forms;
 import almacen.commons.enums.FilterEvent;
 import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
-import almacen.deliveryReports.services.RentaResultService;
+import almacen.deliveryReports.services.TaskChoferDeliveryRetrieveService;
+import almacen.deliveryReports.services.TaskChoferDeliveryUpdateService;
 import almacen.index.forms.IndexForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
@@ -11,7 +12,7 @@ import static common.constants.ApplicationConstants.MESSAGE_UNEXPECTED_ERROR;
 import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;
 import common.model.EstadoEvento;
-import common.model.Renta;
+import common.model.TaskChoferDeliveryVO;
 import common.model.Tipo;
 import common.model.Usuario;
 import common.services.EstadoEventoService;
@@ -21,6 +22,8 @@ import common.services.UtilityService;
 import common.utilities.CheckBoxHeader;
 import common.utilities.ItemListenerHeaderCheckbox;
 import common.utilities.UtilityCommon;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -29,7 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -58,8 +63,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private static final String PATTERN_STRING_DATE = "dd/MM/yyyy";
     private static final Logger LOGGER = Logger.getLogger(DeliveryReportForm.class.getName());
-    private static final RentaResultService rentaResultService = RentaResultService.getInstance();
-    
+    private static final TaskChoferDeliveryRetrieveService taskChoferDeliveryRetrieveService = TaskChoferDeliveryRetrieveService.getInstance();
+    private static TaskChoferDeliveryUpdateService taskChoferDeliveryUpdateService;
 
     public DeliveryReportForm() {
         this.setClosable(true);
@@ -72,9 +77,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
         Map<String,Object> map = new HashMap<>();
         map.put(FilterEvent.LIMIT.getKey(), LIMIT_RESULTS);
-        map.put(FilterEvent.STATUS.getKey(), Arrays.asList(ApplicationConstants.ESTADO_APARTADO));
-        map.put(FilterEvent.TYPE.getKey(), Arrays.asList(ApplicationConstants.TIPO_PEDIDO));
-        map.put(FilterEvent.SYSTEM_DATE.getKey(), UtilityCommon.getSystemDate("/"));
+        map.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
         return map;
     }
     
@@ -114,7 +117,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         EVENT_TYPE(7,"Tipo",String.class, false),
         EVENT_STATUS(8,"Estatus Pedido",String.class, false),
         CHOFER(9,"Chofer",String.class, false),
-        CHOFER_ID(10,"ID Chofer",String.class, false)
+        ATTENDED_TYPE(10,"Atendido",String.class, false),
+        CHOFER_ID(11,"ID Chofer",String.class, false),
+        PENDING_TO_PAY(12,"Esta pendiente por pagar",Boolean.class, false),
+        PENDING_TO_PAY_DESCRIPTION(13,"Pendiente por pagar",String.class, false),
+        TASK_ID(14,"task id", String.class,false)
         ;
         
         Column (Integer number, String description, Class clazz, Boolean isEditable) {
@@ -152,10 +159,10 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             map.put(FilterEvent.CHOFER_ID.getKey(), IndexForm.globalUser.getUsuarioId());
         }
         
-        List<Renta> rentas;
+        List<TaskChoferDeliveryVO> tasks;
         try {
-            rentas = rentaResultService.getByParameters(map);
-            lblInfo.setText("Eventos obtenidos: "+rentas.size()+". Límite de resultados: "+LIMIT_RESULTS);
+            tasks = taskChoferDeliveryRetrieveService.getByParameters(map);
+            lblInfo.setText("Eventos obtenidos: "+tasks.size()+". Límite de resultados: "+LIMIT_RESULTS);
         } catch (DataOriginException e) {
              JOptionPane.showMessageDialog(null, e, MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
              return;
@@ -163,28 +170,53 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         
         try {
             DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-            for (Renta renta : rentas) {
+            for (TaskChoferDeliveryVO task : tasks) {
                 Object row[] = {
                     false,
-                    renta.getRentaId(),
-                    renta.getFolio(),
-                    renta.getDescripcion(),
-                    simpleDateFormat.format(UtilityCommon.getFromString(renta.getFechaEvento(), PATTERN_STRING_DATE)),
-                    simpleDateFormat.format(UtilityCommon.getFromString(renta.getFechaDevolucion(), PATTERN_STRING_DATE)),
-                    renta.getCliente().getNombre()+" "+renta.getCliente().getApellidos(),
-                    renta.getTipo().getTipo(),
-                    renta.getEstado().getDescripcion(),
-                    renta.getChofer().getNombre() +" "+ renta.getChofer().getApellidos(),
-                    renta.getChofer().getUsuarioId()
+                    task.getRenta().getRentaId(),
+                    task.getRenta().getFolio(),
+                    task.getRenta().getDescripcion(),
+                    simpleDateFormat.format(UtilityCommon.getFromString(task.getRenta().getFechaEvento(), PATTERN_STRING_DATE)),
+                    simpleDateFormat.format(UtilityCommon.getFromString(task.getRenta().getFechaDevolucion(), PATTERN_STRING_DATE)),
+                    task.getRenta().getCliente().getNombre()+" "+task.getRenta().getCliente().getApellidos(),
+                    task.getRenta().getTipo().getTipo(),
+                    task.getRenta().getEstado().getDescripcion(),
+                    task.getChofer().getNombre() +" "+ task.getChofer().getApellidos(),
+                    task.getAttendAlmacenTaskTypeCatalogVO().getDescription(),
+                    task.getChofer().getUsuarioId(),
+                    task.getPendingToPayEvent(),
+                    (task.getPendingToPayEvent() ? "PENDIENTE POR PAGAR" : ""),
+                    task.getId()
                 };
                 tableModel.addRow(row);
             }
+            
         } catch (Exception e) {
           JOptionPane.showMessageDialog(null, e, MESSAGE_UNEXPECTED_ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }
     
     private static void formatTable() {
+        
+        // Colorear fila cuando este pendiente por pagar
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer()
+        {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+            {
+                final Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Boolean pendingToPay = Boolean.parseBoolean(table.getValueAt(row, Column.PENDING_TO_PAY.getNumber()).toString());
+
+                if (pendingToPay){
+                   component.setBackground(Color.RED);
+                } else if (isSelected){
+                    
+                } else {
+                    component.setBackground(row % 2 == 0 ? new Color(240,240,240) : Color.WHITE);
+                }
+                return component;
+            }
+        });
         
         String[] columnNames = {
             
@@ -198,8 +230,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Column.EVENT_TYPE.getDescription(),
             Column.EVENT_STATUS.getDescription(),
             Column.CHOFER.getDescription(),
-            Column.CHOFER_ID.getDescription()
-            
+            Column.ATTENDED_TYPE.getDescription(),
+            Column.CHOFER_ID.getDescription(),
+            Column.PENDING_TO_PAY.getDescription(),
+            Column.PENDING_TO_PAY_DESCRIPTION.getDescription(),
+            Column.TASK_ID.getDescription() 
             
         };
         Class[] types = {
@@ -214,8 +249,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Column.EVENT_TYPE.getClazz(),
             Column.EVENT_STATUS.getClazz(),
             Column.CHOFER.getClazz(),
-            Column.CHOFER_ID.getClazz()
-           
+            Column.ATTENDED_TYPE.getClazz(),
+            Column.CHOFER_ID.getClazz(),
+            Column.PENDING_TO_PAY.getClazz(),
+            Column.PENDING_TO_PAY_DESCRIPTION.getClazz(),
+            Column.TASK_ID.getClazz() 
             
         };
         
@@ -231,8 +269,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Column.EVENT_TYPE.getIsEditable(),
             Column.EVENT_STATUS.getIsEditable(),
             Column.CHOFER.getIsEditable(),
-            Column.CHOFER_ID.getIsEditable()
-           
+            Column.ATTENDED_TYPE.getIsEditable(),
+            Column.CHOFER_ID.getIsEditable(),
+            Column.PENDING_TO_PAY.getIsEditable(),
+            Column.PENDING_TO_PAY_DESCRIPTION.getIsEditable(),
+            Column.TASK_ID.getIsEditable()
             
         };
         
@@ -247,6 +288,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             public boolean isCellEditable (int row, int column) {
                 return editable[column];
             }
+            
         };
        
        table.setModel(tableModel);
@@ -255,7 +297,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
        table.setRowSorter(ordenarTabla);
        
      
-       int[] anchos = {20,20,40,90,100,100,80,80,90,90,90};
+       int[] anchos = {20,20,40,90,100,100,80,80,80,90,90,90,40,60,40};
 
        for (int inn = 0; inn < table.getColumnCount(); inn++) {
            table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);
@@ -272,10 +314,18 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
        DefaultTableCellRenderer right = new DefaultTableCellRenderer();
        right.setHorizontalAlignment(SwingConstants.RIGHT);
-
+       
        table.getColumnModel().getColumn(Column.ID.getNumber()).setMaxWidth(0);
        table.getColumnModel().getColumn(Column.ID.getNumber()).setMinWidth(0);
        table.getColumnModel().getColumn(Column.ID.getNumber()).setPreferredWidth(0);
+       
+       table.getColumnModel().getColumn(Column.PENDING_TO_PAY.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.PENDING_TO_PAY.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.PENDING_TO_PAY.getNumber()).setPreferredWidth(0);
+       
+       table.getColumnModel().getColumn(Column.TASK_ID.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.TASK_ID.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.TASK_ID.getNumber()).setPreferredWidth(0);
        
        table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setMaxWidth(0);
        table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setMinWidth(0);
@@ -296,8 +346,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
                 }
             }
         });
+      
     }
+    
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -312,12 +365,14 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         table = new javax.swing.JTable();
         lblInfo = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
-        btnReload = new javax.swing.JButton();
         btnSearch = new javax.swing.JButton();
         btnSearchByFolio = new javax.swing.JButton();
         btnReport = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
+        btnAttend = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JSeparator();
+        btnReload = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         table.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         table.setModel(new javax.swing.table.DefaultTableModel(
@@ -340,27 +395,20 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1053, Short.MAX_VALUE)
             .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-
-        btnReload.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnReload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/refresh-24.png"))); // NOI18N
-        btnReload.setToolTipText("Recargar");
-        btnReload.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnReload.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnReloadActionPerformed(evt);
-            }
-        });
 
         btnSearch.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/search-24.png"))); // NOI18N
@@ -392,6 +440,25 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             }
         });
 
+        btnAttend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/user-attend-24.png"))); // NOI18N
+        btnAttend.setToolTipText("Marcar como atendido");
+        btnAttend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnAttend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAttendActionPerformed(evt);
+            }
+        });
+
+        btnReload.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnReload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/refresh-24.png"))); // NOI18N
+        btnReload.setToolTipText("Recargar");
+        btnReload.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnReload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReloadActionPerformed(evt);
+            }
+        });
+
         jButton1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/excel-24.png"))); // NOI18N
         jButton1.setToolTipText("Exportar a excel");
@@ -407,17 +474,22 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnReload, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(btnSearchByFolio, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnReport, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnReport, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnAttend, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(btnReload, javax.swing.GroupLayout.PREFERRED_SIZE, 34, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -430,11 +502,18 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
                 .addComponent(btnSearch)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
-                .addComponent(btnReload)
+                .addGap(2, 2, 2)
+                .addComponent(btnAttend)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
                 .addComponent(jButton1)
-                .addContainerGap(341, Short.MAX_VALUE))
+                .addContainerGap(88, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(195, 195, 195)
+                    .addComponent(btnReload)
+                    .addContainerGap(127, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -444,15 +523,15 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -492,6 +571,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("folio", number);
             parameters.put("limit", 1);
+            parameters.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
             searchAndFillTable(parameters);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Folio no válido, ingresa un número válido para continuar ", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -548,13 +628,51 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
     }//GEN-LAST:event_btnReportActionPerformed
 
+    private List<String> getIdsSelected () {
+       List<String> ids = new ArrayList<>();
+        
+        for (int i = 0; i < table.getRowCount(); i++) {
+            if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
+                ids.add(
+                        table.getValueAt(i, Column.TASK_ID.getNumber()).toString()
+                );
+            }
+        }
+        return ids;
+   }
+    
+    private void updateAttendType (String taskTypeCatalogId, String taskTypeCatalogDescription) {
+        try{
+            Utility.validateSelectCheckboxInTable(table, Column.BOOLEAN.getNumber());
+            Map<String,Object> parameters = new HashMap<>();
+            List<String> ids = getIdsSelected();
+            parameters.put("ids", ids);
+            parameters.put("taskTypeCatalogId", taskTypeCatalogId);
+            int seleccion = JOptionPane.showOptionDialog(this, "Tareas seleccionadas: "+ids.size()+". Marcar como: "+taskTypeCatalogDescription+", ¿Deseas continuar?", "Mensaje", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Si", "No"}, "Si");
+            if (seleccion == 0) {//presiono que si
+                taskChoferDeliveryUpdateService = TaskChoferDeliveryUpdateService.getInstance();
+                taskChoferDeliveryUpdateService.updateTaskChoferDelivery(parameters);
+                String message = "Tareas actualizadas: "+ids.size()+", IDs: ["+ids.stream().collect(Collectors.joining(","))+"]";
+                Utility.pushNotification("Usuario: "+IndexForm.globalUser.getNombre()+" "+IndexForm.globalUser.getApellidos()+". "+message);
+                init();
+            }
+        } catch (DataOriginException | BusinessException e) {
+            LOGGER.error(e);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.INFORMATION_MESSAGE);   
+        }
+    }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         utilityService = UtilityService.getInstance();
         utilityService.exportarExcel(table);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void btnAttendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAttendActionPerformed
+        updateAttendType(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
+    }//GEN-LAST:event_btnAttendActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAttend;
     private javax.swing.JButton btnReload;
     private javax.swing.JButton btnReport;
     private javax.swing.JButton btnSearch;
@@ -564,6 +682,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     public static javax.swing.JLabel lblInfo;
     public static javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables

@@ -42,11 +42,8 @@ import common.model.Usuario;
 import common.services.UserService;
 import common.utilities.CheckBoxHeader;
 import common.utilities.ItemListenerHeaderCheckbox;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class TasksAlmacenForm extends javax.swing.JInternalFrame {

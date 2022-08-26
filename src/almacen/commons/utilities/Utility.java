@@ -23,7 +23,7 @@ import static common.constants.ApplicationConstants.LIMIT_GENERATE_PDF;
 public abstract class Utility {
     
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+    
     public static void validateSelectCheckboxInTable(JTable table, Integer columNumber) throws BusinessException {
         
         int selectRows = 0;

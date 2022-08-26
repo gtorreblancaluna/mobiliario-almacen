@@ -3,12 +3,13 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
-<mapper namespace="MapperTaskAlmacenRetrieve">
-  
-    <resultMap id="resultMapTaskAlmacen" type="common.model.TaskAlmacenVO">
-        <result property="id" column="task_almacen_id"/>
-        <result property="createdAt" column="task_almacen_created_at"/>
-        <result property="systemMessage" column="task_almacen_system_message"/>
+<mapper namespace="MapperTaskChoferDelivery">
+
+    <resultMap id="resultMapTaskChoferDelivery" type="common.model.TaskChoferDeliveryVO">
+        
+        <result property="id" column="task_chofer_delivery_id"/>
+        <result property="createdAt" column="task_chofer_delivery_created_at"/>
+        <result property="systemMessage" column="task_chofer_delivery_system_message"/>
         <result property="statusAlmacenTaskCatalogVO.description" column="status_almacen_task_catalog_description"/>
         <result property="attendAlmacenTaskTypeCatalogVO.description" column="attend_almacen_task_type_catalog_description"/>
         <result property="renta.rentaId" column="event_id"/>
@@ -21,16 +22,23 @@
         <result property="renta.cliente.nombre" column="customer_name"/>
         <result property="renta.cliente.apellidos" column="customer_last_name"/>
         <result property="renta.tipo.tipo" column="event_type"/>
-        <result property="user.nombre" column="user_name"/>
-        <result property="user.apellidos" column="user_last_name"/>
-        <result property="user.usuarioId" column="user_id"/>
+        <result property="chofer.nombre" column="chofer_name"/>
+        <result property="chofer.apellidos" column="chofer_last_name"/>
+        <result property="chofer.usuarioId" column="chofer_id"/>
+        <result property="renta.totalAbonos" column="total_abonos_renta"/>
+        <result property="renta.totalFaltantes" column="total_faltantes_renta"/>
+        <result property="renta.subTotal" column="sub_total_renta"/>
+        <result property="renta.descuento" column="descuento_renta"/>
+        <result property="renta.iva" column="iva_renta"/>
+        <result property="renta.depositoGarantia" column="deposito_garantia_renta"/>
+        <result property="renta.envioRecoleccion" column="envio_recoleccion_renta"/>
     </resultMap>
-    
-    <select id="getByParameters" resultMap="resultMapTaskAlmacen" parameterType="java.util.Map">
+
+    <select id="getTasksChoferDelivery" resultMap="resultMapTaskChoferDelivery" parameterType="java.util.Map">
         SELECT
-         tasks_almacen.id AS task_almacen_id,
-         tasks_almacen.created_at AS task_almacen_created_at,
-         tasks_almacen.system_message AS task_almacen_system_message,
+         tasks_chofer_delivery.id AS task_chofer_delivery_id,
+         tasks_chofer_delivery.created_at AS task_chofer_delivery_created_at,
+         tasks_chofer_delivery.system_message AS task_chofer_delivery_system_message,
          status_almacen_tasks_catalog.description AS status_almacen_task_catalog_description,
          attend_almacen_tasks_type_catalog.description AS attend_almacen_task_type_catalog_description,
          renta.id_renta AS event_id,
@@ -43,21 +51,40 @@
          c.apellidos AS customer_last_name,
          estado.descripcion AS event_status,
          tipo.tipo AS event_type,
-         usuarios.nombre AS user_name,
-         usuarios.apellidos AS user_last_name,
-         usuarios.id_usuarios AS user_id
-         FROM tasks_almacen tasks_almacen
-         INNER JOIN attend_almacen_tasks_type_catalog attend_almacen_tasks_type_catalog ON (tasks_almacen.attend_almacen_tasks_type_catalog_id = attend_almacen_tasks_type_catalog.id)
-         INNER JOIN status_almacen_tasks_catalog status_almacen_tasks_catalog ON (tasks_almacen.status_almacen_tasks_catalog_id = status_almacen_tasks_catalog.id)
-         INNER JOIN renta renta ON (renta.id_renta = tasks_almacen.renta_id)
+         usuarios.nombre AS chofer_name,
+         usuarios.apellidos AS chofer_last_name,
+         usuarios.id_usuarios AS chofer_id,
+         renta.descuento AS descuento_renta,
+         renta.iva AS iva_renta,
+         renta.deposito_garantia AS deposito_garantia_renta,
+         renta.envio_recoleccion AS envio_recoleccion_renta,
+         (
+            SELECT SUM(a.abono)
+            FROM abonos a 
+            WHERE a.id_renta = renta.id_renta
+        ) AS total_abonos_renta,
+        (
+            SELECT SUM(IF( ( f.fg_devolucion = '0' AND f.fg_accidente_trabajo = '0'),(f.cantidad * f.precio_cobrar),0) )AS total
+            FROM faltantes f
+            INNER JOIN articulo a ON (f.id_articulo = a.id_articulo)
+            WHERE f.id_renta = renta.id_renta
+            AND f.fg_activo = '1'
+        ) AS total_faltantes_renta,
+        (
+            SELECT IF(porcentaje_descuento >= 0,
+            (SUM( (cantidad*p_unitario) - ((cantidad*p_unitario) * (porcentaje_descuento / 100) ))),
+            (SUM( (cantidad*p_unitario) ))) AS suma
+            FROM detalle_renta WHERE id_renta = renta.id_renta
+        ) AS sub_total_renta
+         FROM tasks_chofer_delivery tasks_chofer_delivery
+         INNER JOIN attend_almacen_tasks_type_catalog attend_almacen_tasks_type_catalog ON (tasks_chofer_delivery.attend_almacen_tasks_type_catalog_id = attend_almacen_tasks_type_catalog.id)
+         INNER JOIN status_almacen_tasks_catalog status_almacen_tasks_catalog ON (tasks_chofer_delivery.status_almacen_tasks_catalog_id = status_almacen_tasks_catalog.id)
+         INNER JOIN renta renta ON (renta.id_renta = tasks_chofer_delivery.renta_id)
          INNER JOIN tipo tipo ON (tipo.id_tipo = renta.id_tipo)
          INNER JOIN estado estado ON (estado.id_estado = renta.id_estado)
          INNER JOIN clientes c ON (c.id_clientes = renta.id_clientes)
-         INNER JOIN usuarios usuarios ON (usuarios.id_usuarios = tasks_almacen.user_id)
-         WHERE tasks_almacen.fg_active = '1'
-            <if test="systemDate != null and systemDate != '' ">
-                AND STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') <![CDATA[ >= ]]> STR_TO_DATE(#{systemDate}, '%d/%m/%Y' )
-            </if>
+         INNER JOIN usuarios usuarios ON (usuarios.id_usuarios = tasks_chofer_delivery.chofer_id)
+         WHERE tasks_chofer_delivery.fg_active = '1'
             <if test="folio != null and folio != '' ">
                 AND renta.folio = #{folio}
             </if>
@@ -85,15 +112,16 @@
             <if test="customer != null and customer != '' ">
                 AND CONCAT(c.nombre," ",c.apellidos) LIKE CONCAT('%',#{customer},'%')
             </if>
-            <if test="userId != null and userId != '' ">
-                AND tasks_almacen.user_id = #{userId}
+            <if test="driverId != null and driverId != '' ">
+                AND tasks_chofer_delivery.chofer_id = #{driverId}
             </if>
             <if test="attendType != null">
                 <foreach item="item" index="index" collection="attendType"
-                    open="AND tasks_almacen.attend_almacen_tasks_type_catalog_id IN (" separator="," close=")" >
+                    open="AND tasks_chofer_delivery.attend_almacen_tasks_type_catalog_id IN (" separator="," close=")" >
                         #{item}
                 </foreach>
             </if>
-            ORDER BY tasks_almacen.id DESC LIMIT #{limit}
+            ORDER BY tasks_chofer_delivery.id DESC LIMIT #{limit}
     </select>
+      
 </mapper>
