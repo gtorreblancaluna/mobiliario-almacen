@@ -116,12 +116,14 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         CUSTOMER(6,"Cliente",String.class, false),
         EVENT_TYPE(7,"Tipo",String.class, false),
         EVENT_STATUS(8,"Estatus Pedido",String.class, false),
-        CHOFER(9,"Chofer",String.class, false),
-        ATTENDED_TYPE(10,"Atendido",String.class, false),
-        CHOFER_ID(11,"ID Chofer",String.class, false),
-        PENDING_TO_PAY(12,"Esta pendiente por pagar",Boolean.class, false),
-        PENDING_TO_PAY_DESCRIPTION(13,"Pendiente por pagar",String.class, false),
-        TASK_ID(14,"task id", String.class,false)
+        TASK_CREATED_AT(9,"Fecha tarea",String.class, false),
+        STATUS_TASK(10,"Descripcion tarea",String.class, false),
+        CHOFER(11,"Chofer",String.class, false),
+        ATTENDED_TYPE(12,"Atendido",String.class, false),
+        CHOFER_ID(13,"ID Chofer",String.class, false),
+        PENDING_TO_PAY(14,"Esta pendiente por pagar",Boolean.class, false),
+        PENDING_TO_PAY_DESCRIPTION(15,"Pendiente por pagar",String.class, false),
+        TASK_ID(16,"task id", String.class,false)
         ;
         
         Column (Integer number, String description, Class clazz, Boolean isEditable) {
@@ -181,6 +183,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
                     task.getRenta().getCliente().getNombre()+" "+task.getRenta().getCliente().getApellidos(),
                     task.getRenta().getTipo().getTipo(),
                     task.getRenta().getEstado().getDescripcion(),
+                    simpleDateFormat.format(task.getCreatedAt()),
+                    task.getStatusAlmacenTaskCatalogVO().getDescription(),
                     task.getChofer().getNombre() +" "+ task.getChofer().getApellidos(),
                     task.getAttendAlmacenTaskTypeCatalogVO().getDescription(),
                     task.getChofer().getUsuarioId(),
@@ -229,6 +233,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Column.CUSTOMER.getDescription(),
             Column.EVENT_TYPE.getDescription(),
             Column.EVENT_STATUS.getDescription(),
+            Column.TASK_CREATED_AT.getDescription(),
+            Column.STATUS_TASK.getDescription(),
             Column.CHOFER.getDescription(),
             Column.ATTENDED_TYPE.getDescription(),
             Column.CHOFER_ID.getDescription(),
@@ -248,6 +254,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Column.CUSTOMER.getClazz(),
             Column.EVENT_TYPE.getClazz(),
             Column.EVENT_STATUS.getClazz(),
+            Column.TASK_CREATED_AT.getClazz(),
+            Column.STATUS_TASK.getClazz(),
             Column.CHOFER.getClazz(),
             Column.ATTENDED_TYPE.getClazz(),
             Column.CHOFER_ID.getClazz(),
@@ -268,6 +276,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Column.CUSTOMER.getIsEditable(),
             Column.EVENT_TYPE.getIsEditable(),
             Column.EVENT_STATUS.getIsEditable(),
+            Column.TASK_CREATED_AT.getIsEditable(),
+            Column.STATUS_TASK.getIsEditable(),
             Column.CHOFER.getIsEditable(),
             Column.ATTENDED_TYPE.getIsEditable(),
             Column.CHOFER_ID.getIsEditable(),
@@ -297,7 +307,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
        table.setRowSorter(ordenarTabla);
        
      
-       int[] anchos = {20,20,40,90,100,100,80,80,80,90,90,90,40,60,40};
+       int[] anchos = {20,20,30,90,80,80,40,40,60,40,40,60,40,40,40,60,40};
 
        for (int inn = 0; inn < table.getColumnCount(); inn++) {
            table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);

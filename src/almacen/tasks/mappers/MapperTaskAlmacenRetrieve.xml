@@ -8,7 +8,6 @@
     <resultMap id="resultMapTaskAlmacen" type="common.model.TaskAlmacenVO">
         <result property="id" column="task_almacen_id"/>
         <result property="createdAt" column="task_almacen_created_at"/>
-        <result property="systemMessage" column="task_almacen_system_message"/>
         <result property="statusAlmacenTaskCatalogVO.description" column="status_almacen_task_catalog_description"/>
         <result property="attendAlmacenTaskTypeCatalogVO.description" column="attend_almacen_task_type_catalog_description"/>
         <result property="renta.rentaId" column="event_id"/>
@@ -30,7 +29,6 @@
         SELECT
          tasks_almacen.id AS task_almacen_id,
          tasks_almacen.created_at AS task_almacen_created_at,
-         tasks_almacen.system_message AS task_almacen_system_message,
          status_almacen_tasks_catalog.description AS status_almacen_task_catalog_description,
          attend_almacen_tasks_type_catalog.description AS attend_almacen_task_type_catalog_description,
          renta.id_renta AS event_id,

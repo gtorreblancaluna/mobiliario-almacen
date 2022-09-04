@@ -152,7 +152,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                     task.getRenta().getCliente().getNombre()+" "+task.getRenta().getCliente().getApellidos(),
                     task.getRenta().getTipo().getTipo(),
                     task.getRenta().getEstado().getDescripcion(),
-                    task.getSystemMessage(),
                     simpleDateFormat.format(task.getCreatedAt()),
                     task.getStatusAlmacenTaskCatalogVO().getDescription(),
                     task.getAttendAlmacenTaskTypeCatalogVO().getDescription(),
@@ -181,13 +180,12 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         CUSTOMER(6,"Cliente",String.class, false),
         EVENT_TYPE(7,"Tipo",String.class, false),
         EVENT_STATUS(8,"Estatus Pedido",String.class, false),
-        SYSTEM_MESSAGE_TASK(9,"Tarea",String.class, false),
-        TASK_CREATED_AT(10,"Fecha tarea",String.class, false),
-        STATUS_TASK(11,"Descripcion tarea",String.class, false),
-        ATTENDED_TYPE(12,"Atendido",String.class, false),
-        USER_NAME(13,"Encargado",String.class,false),
-        USER_ID(14,"usuario id", String.class,false),
-        TASK_ID(15,"task id", String.class,false)
+        TASK_CREATED_AT(9,"Fecha tarea",String.class, false),
+        STATUS_TASK(10,"Descripcion tarea",String.class, false),
+        ATTENDED_TYPE(11,"Atendido",String.class, false),
+        USER_NAME(12,"Encargado",String.class,false),
+        USER_ID(13,"usuario id", String.class,false),
+        TASK_ID(14,"task id", String.class,false)
         ;
         
         Column (Integer number, String description, Class clazz, Boolean isEditable) {
@@ -232,7 +230,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             Column.CUSTOMER.getDescription(),
             Column.EVENT_TYPE.getDescription(),
             Column.EVENT_STATUS.getDescription(),
-            Column.SYSTEM_MESSAGE_TASK.getDescription(),
             Column.TASK_CREATED_AT.getDescription(),
             Column.STATUS_TASK.getDescription(),
             Column.ATTENDED_TYPE.getDescription(),
@@ -252,7 +249,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             Column.CUSTOMER.getClazz(),
             Column.EVENT_TYPE.getClazz(),
             Column.EVENT_STATUS.getClazz(),
-            Column.SYSTEM_MESSAGE_TASK.getClazz(),
             Column.TASK_CREATED_AT.getClazz(),
             Column.STATUS_TASK.getClazz(),
             Column.ATTENDED_TYPE.getClazz(),
@@ -273,7 +269,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             Column.CUSTOMER.getIsEditable(),
             Column.EVENT_TYPE.getIsEditable(),
             Column.EVENT_STATUS.getIsEditable(),
-            Column.SYSTEM_MESSAGE_TASK.getIsEditable(),
             Column.TASK_CREATED_AT.getIsEditable(),
             Column.STATUS_TASK.getIsEditable(),
             Column.ATTENDED_TYPE.getIsEditable(),
@@ -302,7 +297,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
        table.setRowSorter(ordenarTabla);
        
      
-       int[] anchos = {20,20,40,90,100,100,80,80,90,90,90,90,90,90,90,40,40};
+       int[] anchos = {20,20,40,90,100,100,80,90,90,90,90,90,90,90,40,40};
 
        for (int inn = 0; inn < table.getColumnCount(); inn++) {
            table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);

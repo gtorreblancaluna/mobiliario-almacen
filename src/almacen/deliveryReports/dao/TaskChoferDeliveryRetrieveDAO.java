@@ -40,6 +40,5 @@ public class TaskChoferDeliveryRetrieveDAO {
             if (session != null)
                 session.close();
         }
-    }
-    
+    }   
 }

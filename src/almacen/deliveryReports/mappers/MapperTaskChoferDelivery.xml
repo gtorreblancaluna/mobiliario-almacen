@@ -9,7 +9,6 @@
         
         <result property="id" column="task_chofer_delivery_id"/>
         <result property="createdAt" column="task_chofer_delivery_created_at"/>
-        <result property="systemMessage" column="task_chofer_delivery_system_message"/>
         <result property="statusAlmacenTaskCatalogVO.description" column="status_almacen_task_catalog_description"/>
         <result property="attendAlmacenTaskTypeCatalogVO.description" column="attend_almacen_task_type_catalog_description"/>
         <result property="renta.rentaId" column="event_id"/>
@@ -38,7 +37,6 @@
         SELECT
          tasks_chofer_delivery.id AS task_chofer_delivery_id,
          tasks_chofer_delivery.created_at AS task_chofer_delivery_created_at,
-         tasks_chofer_delivery.system_message AS task_chofer_delivery_system_message,
          status_almacen_tasks_catalog.description AS status_almacen_task_catalog_description,
          attend_almacen_tasks_type_catalog.description AS attend_almacen_task_type_catalog_description,
          renta.id_renta AS event_id,
