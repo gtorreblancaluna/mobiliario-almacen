@@ -20,9 +20,9 @@
         <result property="renta.cliente.nombre" column="customer_name"/>
         <result property="renta.cliente.apellidos" column="customer_last_name"/>
         <result property="renta.tipo.tipo" column="event_type"/>
-        <result property="user.nombre" column="user_name"/>
-        <result property="user.apellidos" column="user_last_name"/>
-        <result property="user.usuarioId" column="user_id"/>
+        <result property="userByCategory.nombre" column="user_by_category_name"/>
+        <result property="userByCategory.apellidos" column="user_by_category_last_name"/>
+        <result property="userByCategory.usuarioId" column="user_by_category_id"/>
     </resultMap>
     
     <select id="getByParameters" resultMap="resultMapTaskAlmacen" parameterType="java.util.Map">
@@ -41,9 +41,9 @@
          c.apellidos AS customer_last_name,
          estado.descripcion AS event_status,
          tipo.tipo AS event_type,
-         usuarios.nombre AS user_name,
-         usuarios.apellidos AS user_last_name,
-         usuarios.id_usuarios AS user_id
+         usuarios_by_category.nombre AS user_by_category_name,
+         usuarios_by_category.apellidos AS user_by_category_last_name,
+         usuarios_by_category.id_usuarios AS user_by_category_id
          FROM tasks_almacen tasks_almacen
          INNER JOIN attend_almacen_tasks_type_catalog attend_almacen_tasks_type_catalog ON (tasks_almacen.attend_almacen_tasks_type_catalog_id = attend_almacen_tasks_type_catalog.id)
          INNER JOIN status_almacen_tasks_catalog status_almacen_tasks_catalog ON (tasks_almacen.status_almacen_tasks_catalog_id = status_almacen_tasks_catalog.id)
@@ -51,7 +51,7 @@
          INNER JOIN tipo tipo ON (tipo.id_tipo = renta.id_tipo)
          INNER JOIN estado estado ON (estado.id_estado = renta.id_estado)
          INNER JOIN clientes c ON (c.id_clientes = renta.id_clientes)
-         INNER JOIN usuarios usuarios ON (usuarios.id_usuarios = tasks_almacen.user_id)
+         INNER JOIN usuarios usuarios_by_category ON (usuarios_by_category.id_usuarios = tasks_almacen.user_by_category_id)
          WHERE tasks_almacen.fg_active = '1'
             <if test="systemDate != null and systemDate != '' ">
                 AND STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') <![CDATA[ >= ]]> STR_TO_DATE(#{systemDate}, '%d/%m/%Y' )

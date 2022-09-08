@@ -155,8 +155,8 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                     simpleDateFormat.format(task.getCreatedAt()),
                     task.getStatusAlmacenTaskCatalogVO().getDescription(),
                     task.getAttendAlmacenTaskTypeCatalogVO().getDescription(),
-                    task.getUser().getNombre()+" "+task.getUser().getApellidos(),
-                    task.getUser().getUsuarioId(),
+                    task.getUserByCategory().getNombre()+" "+task.getUserByCategory().getApellidos(),
+                    task.getUserByCategory().getUsuarioId(),
                     task.getId()
                 };
                 tableModel.addRow(row);
