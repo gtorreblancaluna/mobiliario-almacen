@@ -624,7 +624,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         utilityService.exportarExcel(table);
     }//GEN-LAST:event_jButton1ActionPerformed
     
-    private static void openPDFReportByCategories (String rentaId, String userId, String userName, String folio) {
+    private static void openPDFReportByCategories (String rentaId, String userId, String userName, String folio) throws BusinessException {
         try {
             connectionDB = ConnectionDB.getInstance();
             String pathLocation = Utility.getPathLocation();
@@ -647,7 +647,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
 
         } catch (Exception e) {
             LOGGER.error(e);
-            JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
+            throw new BusinessException(e.getMessage(),e);
         }
     }
    

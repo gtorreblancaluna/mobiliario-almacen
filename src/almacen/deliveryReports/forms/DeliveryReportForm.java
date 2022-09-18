@@ -595,7 +595,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         LOGGER.info(logMessage);
         Utility.pushNotification(logMessage);
     }
-    private static void openPDFReport (String rentaId, String choferName, String folio) {
+    private static void openPDFReport (String rentaId, String choferName, String folio) throws BusinessException {
         try {
             connectionDB = ConnectionDB.getInstance();
             String pathLocation = Utility.getPathLocation();
@@ -617,7 +617,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
         } catch (Exception e) {
             LOGGER.error(e);
-            JOptionPane.showMessageDialog(null, e,"ERROR",JOptionPane.ERROR_MESSAGE);
+            throw new BusinessException(e.getMessage(), e);
         }
     }
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
