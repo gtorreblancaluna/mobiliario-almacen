@@ -15,7 +15,7 @@ public enum FilterEvent {
         INIT_EVENT_DATE("initEventDate","fecha inicio evento"),
         END_EVENT_DATE("endEventDate","fecha fin evento"),
         FILTER_BY_CATEGORY_USER("filterByCategoryUser",""),
-        USER_ID("userId","encargado"),
+        USER_BY_CATEGORY_ID("userByCategoryId","encargado"),
         ATTEND_TYPE("attendType","tipo atendido"),
         FOLIO("folio","folio"),
         CHOFER_ID("driverId","chofer id");
@@ -31,9 +31,7 @@ public enum FilterEvent {
         public String getDescription() {
             return description;
         }
-        
-        
-        
+
         public String getKey(){
             return key;
         }

@@ -11,7 +11,7 @@ import static almacen.commons.enums.FilterEvent.INIT_EVENT_DATE;
 import static almacen.commons.enums.FilterEvent.LIMIT;
 import static almacen.commons.enums.FilterEvent.STATUS;
 import static almacen.commons.enums.FilterEvent.TYPE;
-import static almacen.commons.enums.FilterEvent.USER_ID;
+import static almacen.commons.enums.FilterEvent.USER_BY_CATEGORY_ID;
 import common.constants.ApplicationConstants;
 import common.model.EstadoEvento;
 import common.model.Tipo;
@@ -436,7 +436,7 @@ public class TasksAlmacenFilterForm extends javax.swing.JInternalFrame {
             if (IndexForm.globalUser.getAdministrador().equals("1")) {
                 parameters.put(TYPE.getKey(), eventType.getTipoId().equals(0) ? Arrays.asList(ApplicationConstants.TIPO_PEDIDO) : Arrays.asList(eventType.getTipoId()));
                 parameters.put(STATUS.getKey(), estadoEvento.getEstadoId().equals(0) ? Arrays.asList(ApplicationConstants.ESTADO_APARTADO) : Arrays.asList(estadoEvento.getEstadoId()));
-                parameters.put(USER_ID.getKey(), userInCategorieAlmacen.getUsuarioId().equals(0) ? null : userInCategorieAlmacen.getUsuarioId()+"");
+                parameters.put(USER_BY_CATEGORY_ID.getKey(), userInCategorieAlmacen.getUsuarioId().equals(0) ? null : userInCategorieAlmacen.getUsuarioId()+"");
             }
 
             TasksAlmacenForm.searchAndFillTable(parameters);

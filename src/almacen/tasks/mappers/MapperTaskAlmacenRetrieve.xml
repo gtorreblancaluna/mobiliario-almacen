@@ -83,8 +83,8 @@
             <if test="customer != null and customer != '' ">
                 AND CONCAT(c.nombre," ",c.apellidos) LIKE CONCAT('%',#{customer},'%')
             </if>
-            <if test="userId != null and userId != '' ">
-                AND tasks_almacen.user_id = #{userId}
+            <if test="userByCategoryId != null and userByCategoryId != '' ">
+                AND tasks_almacen.user_by_category_id = #{userByCategoryId}
             </if>
             <if test="attendType != null">
                 <foreach item="item" index="index" collection="attendType"

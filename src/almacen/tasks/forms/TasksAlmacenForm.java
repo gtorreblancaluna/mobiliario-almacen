@@ -42,6 +42,7 @@ import common.model.Usuario;
 import common.services.UserService;
 import common.utilities.CheckBoxHeader;
 import common.utilities.ItemListenerHeaderCheckbox;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.swing.table.TableColumn;
@@ -121,7 +122,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         
         formatTable();
         if (!IndexForm.globalUser.getAdministrador().equals("1")) {
-            map.put(FilterEvent.USER_ID.getKey(), IndexForm.globalUser.getUsuarioId());
+            map.put(FilterEvent.USER_BY_CATEGORY_ID.getKey(), IndexForm.globalUser.getUsuarioId());
         }
          
          List<TaskAlmacenVO> orders;
@@ -357,7 +358,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             }
         });
     }
-       
+           
    private static void setLabelRowsSelected () {
        int selectRows = 0;
         
@@ -511,6 +512,11 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        table.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tableKeyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(table);
 
         lblInfo.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
@@ -730,6 +736,11 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private void btnAttendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAttendActionPerformed
         updateAttendType(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
     }//GEN-LAST:event_btnAttendActionPerformed
+
+    private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
+        Utility.selectCheckBoxWhenKeyPressedIsSpace(evt,table,Column.BOOLEAN.getNumber());
+        setLabelRowsSelected();
+    }//GEN-LAST:event_tableKeyPressed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

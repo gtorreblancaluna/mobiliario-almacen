@@ -396,6 +396,11 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        table.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tableKeyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(table);
 
         lblInfo.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
@@ -679,6 +684,10 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     private void btnAttendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAttendActionPerformed
         updateAttendType(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
     }//GEN-LAST:event_btnAttendActionPerformed
+
+    private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
+        Utility.selectCheckBoxWhenKeyPressedIsSpace(evt,table,Column.BOOLEAN.getNumber());
+    }//GEN-LAST:event_tableKeyPressed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
