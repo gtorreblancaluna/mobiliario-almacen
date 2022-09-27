@@ -427,7 +427,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
         btnSearch.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/search-24.png"))); // NOI18N
-        btnSearch.setToolTipText("Busqueda");
+        btnSearch.setMnemonic('b');
+        btnSearch.setToolTipText("[Alt+B] Busqueda");
         btnSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -437,7 +438,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
         btnSearchByFolio.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnSearchByFolio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/searching-24.png"))); // NOI18N
-        btnSearchByFolio.setToolTipText("Buscar por folio");
+        btnSearchByFolio.setMnemonic('f');
+        btnSearchByFolio.setToolTipText("[Alt+F] Buscar por folio");
         btnSearchByFolio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSearchByFolio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -447,7 +449,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
         btnReport.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         btnReport.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/pdf-24.png"))); // NOI18N
-        btnReport.setToolTipText("Reporte por categorias");
+        btnReport.setMnemonic('p');
+        btnReport.setToolTipText("[Alt+P] Generar PDF");
         btnReport.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnReport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -456,7 +459,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         });
 
         btnAttend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/user-attend-24.png"))); // NOI18N
-        btnAttend.setToolTipText("Marcar como atendido");
+        btnAttend.setMnemonic('a');
+        btnAttend.setToolTipText("[Alt+A] Marcar como atendido");
         btnAttend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnAttend.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
