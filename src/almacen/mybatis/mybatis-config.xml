@@ -27,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         <mapper resource="common/mappers/MapperTipoEvento.xml"/>
         <mapper resource="almacen/deliveryReports/mappers/MapperTaskChoferDelivery.xml"/>
         <mapper resource="almacen/deliveryReports/mappers/MapperTaskChoferDeliveryUpdate.xml"/>
+        <mapper resource="common/mappers/MapperArticulos.xml"/>
     </mappers>
     
     

@@ -11,6 +11,7 @@ import almacen.tasks.forms.TasksAlmacenForm;
 import almacen.commons.utilities.Utility;
 import static almacen.commons.utilities.Utility.getCloseWindowAction;
 import almacen.deliveryReports.forms.DeliveryReportForm;
+import almacen.inventory.forms.ItemsForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
 import common.services.PropertiesService;
@@ -23,6 +24,7 @@ public class IndexForm extends javax.swing.JFrame {
     public static Usuario globalUser;
     private TasksAlmacenForm ordersForm;
     private DeliveryReportForm deliveryReportForm;
+    private ItemsForm itemsForm;
 
     private static final UserService userService = UserService.getInstance();
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
@@ -45,6 +47,9 @@ public class IndexForm extends javax.swing.JFrame {
         String userPuestId = globalUser.getPuesto().getPuestoId()+"";
         if (!globalUser.getAdministrador().equals("1") && !choferPuestoId.equals(userPuestId)) {
             panelMenuChoferDelivery.setVisible(false);
+        }
+        if (!globalUser.getAdministrador().equals("1") && choferPuestoId.equals(userPuestId)) {
+            panelMenuInventory.setVisible(false);
         }
     }
     
@@ -88,6 +93,9 @@ public class IndexForm extends javax.swing.JFrame {
         panelMenuChoferDelivery = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
+        panelMenuInventory = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtAreaNotifications = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
@@ -146,6 +154,25 @@ public class IndexForm extends javax.swing.JFrame {
         panelMenuChoferDelivery.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuChoferDelivery, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 180, 40));
+
+        panelMenuInventory.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        panelMenuInventory.setOpaque(false);
+        panelMenuInventory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panelMenuInventoryMouseClicked(evt);
+            }
+        });
+        panelMenuInventory.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("Inventario");
+        panelMenuInventory.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
+
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/delivery-24.png"))); // NOI18N
+        panelMenuInventory.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
+
+        jPanel2.add(panelMenuInventory, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 180, 40));
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -255,6 +282,27 @@ public class IndexForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    public void openInventoryForm () {
+        if (UtilityCommon.verifyIfInternalFormIsOpen(itemsForm,IndexForm.rootPanel)) {
+            if(!Utility.showWindowDataUpdateSession()){
+                return;
+            }
+            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
+            String userJobId = globalUser.getPuesto().getPuestoId()+"";
+            if (!globalUser.getAdministrador().equals("1") && jobChoferId.equals(userJobId)) {
+                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR. Reinicia el sistema para actualizar la sesion");
+                return;
+            }
+            itemsForm = new ItemsForm();
+            itemsForm.setLocation(this.getWidth() / 2 - itemsForm.getWidth() / 2, this.getHeight() / 2 - itemsForm.getHeight() / 2 - 20);
+            rootPanel.add(itemsForm);
+            itemsForm.show();
+        } else {
+            JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
+        }
+    }
+    
     public void openDeliveryReportForm () {
         if (UtilityCommon.verifyIfInternalFormIsOpen(deliveryReportForm,IndexForm.rootPanel)) {
             if(!Utility.showWindowDataUpdateSession()){
@@ -303,6 +351,10 @@ public class IndexForm extends javax.swing.JFrame {
        openDeliveryReportForm();
     }//GEN-LAST:event_panelMenuChoferDeliveryMouseClicked
 
+    private void panelMenuInventoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuInventoryMouseClicked
+        openInventoryForm();
+    }//GEN-LAST:event_panelMenuInventoryMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -340,6 +392,8 @@ public class IndexForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -361,6 +415,7 @@ public class IndexForm extends javax.swing.JFrame {
     public static javax.swing.JLabel lbl_logueo;
     private javax.swing.JPanel panelEvents;
     private javax.swing.JPanel panelMenuChoferDelivery;
+    private javax.swing.JPanel panelMenuInventory;
     public static javax.swing.JDesktopPane rootPanel;
     public static javax.swing.JTextArea txtAreaNotifications;
     // End of variables declaration//GEN-END:variables
