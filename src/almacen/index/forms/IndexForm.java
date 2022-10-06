@@ -169,7 +169,7 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel10.setText("Inventario");
         panelMenuInventory.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/delivery-24.png"))); // NOI18N
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/warehouse-24.png"))); // NOI18N
         panelMenuInventory.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuInventory, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 180, 40));
