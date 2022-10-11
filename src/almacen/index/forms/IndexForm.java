@@ -11,6 +11,7 @@ import almacen.tasks.forms.TasksAlmacenForm;
 import almacen.commons.utilities.Utility;
 import static almacen.commons.utilities.Utility.getCloseWindowAction;
 import almacen.deliveryReports.forms.DeliveryReportForm;
+import almacen.events.forms.EventsForm;
 import almacen.inventory.forms.ItemsForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
@@ -25,6 +26,7 @@ public class IndexForm extends javax.swing.JFrame {
     private TasksAlmacenForm ordersForm;
     private DeliveryReportForm deliveryReportForm;
     private ItemsForm itemsForm;
+    private EventsForm eventsForm;
 
     private static final UserService userService = UserService.getInstance();
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
@@ -96,6 +98,9 @@ public class IndexForm extends javax.swing.JFrame {
         panelMenuInventory = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        panelMenuRentas = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtAreaNotifications = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
@@ -173,6 +178,25 @@ public class IndexForm extends javax.swing.JFrame {
         panelMenuInventory.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuInventory, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 180, 40));
+
+        panelMenuRentas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        panelMenuRentas.setOpaque(false);
+        panelMenuRentas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panelMenuRentasMouseClicked(evt);
+            }
+        });
+        panelMenuRentas.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel12.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setText("Eventos");
+        panelMenuRentas.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
+
+        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/warehouse-24.png"))); // NOI18N
+        panelMenuRentas.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
+
+        jPanel2.add(panelMenuRentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 140, 180, 40));
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -303,6 +327,26 @@ public class IndexForm extends javax.swing.JFrame {
         }
     }
     
+    public void openEventsForm () {
+        if (UtilityCommon.verifyIfInternalFormIsOpen(eventsForm,IndexForm.rootPanel)) {
+            if(!Utility.showWindowDataUpdateSession()){
+                return;
+            }
+            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
+            String userJobId = globalUser.getPuesto().getPuestoId()+"";
+            if (!globalUser.getAdministrador().equals("1") && jobChoferId.equals(userJobId)) {
+                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR. Reinicia el sistema para actualizar la sesion");
+                return;
+            }
+            eventsForm = new EventsForm();
+            eventsForm.setLocation(this.getWidth() / 2 - eventsForm.getWidth() / 2, this.getHeight() / 2 - eventsForm.getHeight() / 2 - 20);
+            rootPanel.add(eventsForm);
+            eventsForm.show();
+        } else {
+            JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
+        }
+    }
+    
     public void openDeliveryReportForm () {
         if (UtilityCommon.verifyIfInternalFormIsOpen(deliveryReportForm,IndexForm.rootPanel)) {
             if(!Utility.showWindowDataUpdateSession()){
@@ -355,6 +399,10 @@ public class IndexForm extends javax.swing.JFrame {
         openInventoryForm();
     }//GEN-LAST:event_panelMenuInventoryMouseClicked
 
+    private void panelMenuRentasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuRentasMouseClicked
+        openEventsForm();
+    }//GEN-LAST:event_panelMenuRentasMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -394,6 +442,8 @@ public class IndexForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -416,6 +466,7 @@ public class IndexForm extends javax.swing.JFrame {
     private javax.swing.JPanel panelEvents;
     private javax.swing.JPanel panelMenuChoferDelivery;
     private javax.swing.JPanel panelMenuInventory;
+    private javax.swing.JPanel panelMenuRentas;
     public static javax.swing.JDesktopPane rootPanel;
     public static javax.swing.JTextArea txtAreaNotifications;
     // End of variables declaration//GEN-END:variables
