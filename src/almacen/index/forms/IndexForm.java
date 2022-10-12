@@ -11,7 +11,7 @@ import almacen.tasks.forms.TasksAlmacenForm;
 import almacen.commons.utilities.Utility;
 import static almacen.commons.utilities.Utility.getCloseWindowAction;
 import almacen.deliveryReports.forms.DeliveryReportForm;
-import almacen.events.forms.EventsForm;
+import almacen.rentas.forms.RentasForm;
 import almacen.inventory.forms.ItemsForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
@@ -26,7 +26,7 @@ public class IndexForm extends javax.swing.JFrame {
     private TasksAlmacenForm ordersForm;
     private DeliveryReportForm deliveryReportForm;
     private ItemsForm itemsForm;
-    private EventsForm eventsForm;
+    private RentasForm eventsForm;
 
     private static final UserService userService = UserService.getInstance();
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
@@ -338,7 +338,7 @@ public class IndexForm extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR. Reinicia el sistema para actualizar la sesion");
                 return;
             }
-            eventsForm = new EventsForm();
+            eventsForm = new RentasForm();
             eventsForm.setLocation(this.getWidth() / 2 - eventsForm.getWidth() / 2, this.getHeight() / 2 - eventsForm.getHeight() / 2 - 20);
             rootPanel.add(eventsForm);
             eventsForm.show();

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MapperRentas">
+
+    <resultMap id="resultMapRenta" type="common.model.Renta">
+        
+        <result property="rentaId" column="id_renta"/>
+        <!-- customer info-->
+        <result property="cliente.id" column="cliente_id"/>
+        <result property="cliente.nombre" column="cliente_nombre"/>
+        <result property="cliente.apellidos" column="cliente_apellidos"/>
+        <!--user info-->
+        <result property="usuario.usuarioId" column="usuario_id"/>
+        <result property="usuario.nombre" column="usuario_nombre"/>
+        <result property="usuario.apellidos" column="usuario_apellidos"/>
+        
+        <result property="fechaPedido" column="fecha_pedido"/>
+        <result property="fechaEntrega" column="fecha_entrega"/>
+        <result property="horaEntrega" column="hora_entrega"/>
+        <result property="fechaDevolucion" column="fecha_devolucion"/>
+        <result property="horaDevolucion" column="hora_devolucion"/>
+        <result property="descripcion" column="descripcion"/>
+        <result property="folio" column="folio"/>
+        <!--event type-->
+        <result property="tipo.tipoId" column="tipo_id"/>
+        <result property="tipo.tipo" column="tipo_tipo"/>      
+        <result property="fechaEvento" column="fecha_evento"/>
+        <!-- driver info-->
+        <result property="chofer.usuarioId" column="chofer_id"/>
+        <result property="chofer.nombre" column="chofer_nombre"/>
+        <result property="chofer.apellidos" column="chofer_apellidos"/>
+        <!--status event-->
+        <result property="estado.estadoId" column="id_estado"/>
+        <result property="estado.descripcion" column="estado_descripcion"/>
+          
+    </resultMap>
+
+    <select id="getEventsBetweenDeliveryDate" resultMap="resultMapRenta" parameterType="java.util.Map">
+        SELECT
+            r.id_renta,
+            c.id_clientes AS cliente_id,
+            c.nombre AS cliente_nombre,
+            c.apellidos AS cliente_apellidos,
+            u.id_usuarios AS usuario_id,
+            u.nombre AS usuario_nombre,
+            u.apellidos AS usuario_apellidos,
+            r.fecha_pedido,
+            r.fecha_entrega,
+            r.hora_entrega,
+            r.fecha_devolucion,
+            r.descripcion,
+            r.descuento,
+            r.cantidad_descuento,
+            r.iva,
+            r.comentario,
+            r.folio,
+            r.stock,
+            t.id_tipo AS tipo_id,
+            t.tipo AS tipo_tipo,
+            r.hora_devolucion,
+            r.fecha_evento,
+            r.deposito_garantia,
+            r.envio_recoleccion,
+            r.mostrar_precios_pdf,
+            chofer.id_usuarios AS chofer_id,
+            chofer.nombre AS chofer_nombre,
+            chofer.apellidos AS chofer_apellidos,
+            e.id_estado,
+            e.descripcion AS estado_descripcion
+        FROM renta r
+            INNER JOIN estado e ON (e.id_estado = r.id_estado)
+            INNER JOIN clientes c ON (c.id_clientes = r.id_clientes)
+            INNER JOIN usuarios u ON (u.id_usuarios = r.id_usuarios)
+            INNER JOIN usuarios chofer ON (chofer.id_usuarios = r.id_usuario_chofer)
+            INNER JOIN tipo t ON (t.id_tipo = r.id_tipo)
+        
+        <if test="type != null and type != '' and type != 0 ">
+            AND t.id_tipo = #{type}
+        </if>
+        <if test="initDeliveryDate != null and endDeliveryDate != null ">
+            AND STR_TO_DATE(r.fecha_entrega,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initDeliveryDate},'%d/%m/%Y') AND STR_TO_DATE(#{endDeliveryDate},'%d/%m/%Y')
+        </if>
+        <if test="statusId != null ">
+            <foreach item="item" index="index" collection="statusId"
+                    open="AND r.id_estado IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+        </if>
+        <if test="driverId != null and driverId != '' and driverId != 0 ">
+            AND r.id_usuario_chofer = #{driverId}
+        </if>
+        <if test="userByCategoryId != null and userByCategoryId != '' ">
+            AND #{userByCategoryId} IN (
+                SELECT u.id_usuarios        
+                    FROM usuarios u
+                    WHERE u.id_usuarios IN (
+                            SELECT asigna_categoria.id_usuarios 
+                            FROM asigna_categoria asigna_categoria 
+                            WHERE asigna_categoria.id_categoria IN (
+                                SELECT articulo.id_categoria FROM detalle_renta detalle_renta
+                                INNER JOIN articulo articulo ON (detalle_renta.id_articulo = articulo.id_articulo)
+                                WHERE detalle_renta.id_renta = r.id_renta
+                            ) 
+                    )
+                    AND u.activo = 1
+            )
+        </if>
+        
+        ORDER BY STR_TO_DATE(r.fecha_entrega, '%d/%m/%Y')
+        
+    </select>
+    
+    
+    <select id="getByParameters" resultMap="resultMapRenta" parameterType="java.util.Map">
+        SELECT
+            r.id_renta,
+            c.id_clientes AS cliente_id,
+            c.nombre AS cliente_nombre,
+            c.apellidos AS cliente_apellidos,
+            u.id_usuarios AS usuario_id,
+            u.nombre AS usuario_nombre,
+            u.apellidos AS usuario_apellidos,
+            r.fecha_pedido,
+            r.fecha_entrega,
+            r.hora_entrega,
+            r.fecha_devolucion,
+            r.descripcion,
+            r.descuento,
+            r.cantidad_descuento,
+            r.iva,
+            r.comentario,
+            r.folio,
+            r.stock,
+            t.id_tipo AS tipo_id,
+            t.tipo AS tipo_tipo,
+            r.hora_devolucion,
+            r.fecha_evento,
+            r.deposito_garantia,
+            r.envio_recoleccion,
+            r.mostrar_precios_pdf,
+            chofer.id_usuarios AS chofer_id,
+            chofer.nombre AS chofer_nombre,
+            chofer.apellidos AS chofer_apellidos,
+            e.id_estado,
+            e.descripcion AS estado_descripcion
+        FROM renta r
+            INNER JOIN estado e ON (e.id_estado = r.id_estado)
+            INNER JOIN clientes c ON (c.id_clientes = r.id_clientes)
+            INNER JOIN usuarios u ON (u.id_usuarios = r.id_usuarios)
+            INNER JOIN usuarios chofer ON (chofer.id_usuarios = r.id_usuario_chofer)
+            INNER JOIN tipo t ON (t.id_tipo = r.id_tipo)
+        <if test="folio != null and folio != '' and folio != 0 ">
+            AND r.folio = #{folio}
+        </if>
+        <if test="type != null and type != '' and type != 0 ">
+            AND t.id_tipo = #{type}
+        </if>
+        <if test="initDate != null and endDate != null ">
+            AND STR_TO_DATE(r.fecha_entrega,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initDate},'%d/%m/%Y') AND STR_TO_DATE(#{endDate},'%d/%m/%Y')
+        </if>
+        <if test="statusId != null ">
+            <foreach item="item" index="index" collection="statusId"
+                    open="AND r.id_estado IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+        </if>
+        <if test="userByCategoryId != null and userByCategoryId != '' ">
+            AND #{userByCategoryId} IN (
+                SELECT u.id_usuarios        
+                    FROM usuarios u
+                    WHERE u.id_usuarios IN (
+                            SELECT asigna_categoria.id_usuarios 
+                            FROM asigna_categoria asigna_categoria 
+                            WHERE asigna_categoria.id_categoria IN (
+                                SELECT articulo.id_categoria FROM detalle_renta detalle_renta
+                                INNER JOIN articulo articulo ON (detalle_renta.id_articulo = articulo.id_articulo)
+                                WHERE detalle_renta.id_renta = r.id_renta
+                            ) 
+                    )
+                    AND u.activo = 1
+            )
+        </if>
+        
+        ORDER BY STR_TO_DATE(r.fecha_entrega, '%d/%m/%Y')
+        
+    </select>
+    
+    <select id="getByIds" resultMap="resultMapRenta" parameterType="java.util.List">
+        SELECT
+            r.id_renta,
+            c.id_clientes AS cliente_id,
+            c.nombre AS cliente_nombre,
+            c.apellidos AS cliente_apellidos,
+            u.id_usuarios AS usuario_id,
+            u.nombre AS usuario_nombre,
+            u.apellidos AS usuario_apellidos,
+            r.fecha_pedido,
+            r.fecha_entrega,
+            r.hora_entrega,
+            r.fecha_devolucion,
+            r.descripcion,
+            r.descuento,
+            r.cantidad_descuento,
+            r.iva,
+            r.comentario,
+            r.folio,
+            r.stock,
+            t.id_tipo AS tipo_id,
+            t.tipo AS tipo_tipo,
+            r.hora_devolucion,
+            r.fecha_evento,
+            r.deposito_garantia,
+            r.envio_recoleccion,
+            r.mostrar_precios_pdf,
+            chofer.id_usuarios AS chofer_id,
+            chofer.nombre AS chofer_nombre,
+            chofer.apellidos AS chofer_apellidos,
+            e.id_estado,
+            e.descripcion AS estado_descripcion
+        FROM renta r
+            INNER JOIN estado e ON (e.id_estado = r.id_estado)
+            INNER JOIN clientes c ON (c.id_clientes = r.id_clientes)
+            INNER JOIN usuarios u ON (u.id_usuarios = r.id_usuarios)
+            INNER JOIN usuarios chofer ON (chofer.id_usuarios = r.id_usuario_chofer)
+            INNER JOIN tipo t ON (t.id_tipo = r.id_tipo)
+            <foreach item="item" index="index" collection="ids"
+                    open="WHERE r.id_renta IN (" separator="," close=")" >
+                        #{item}
+            </foreach>
+        
+    </select>
+    
+    <update id="updateStatusFromApartadoToEnRenta" parameterType="java.util.Map">
+        UPDATE renta r SET r.id_estado = #{estadoIdInRent}
+        <foreach item="item" index="index" collection="ids"
+                open="WHERE r.id_renta IN (" separator="," close=")" >
+                    #{item}
+        </foreach>
+    </update>
+      
+</mapper>

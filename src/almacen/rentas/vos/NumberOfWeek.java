@@ -1,4 +1,4 @@
-package almacen.events.vos;
+package almacen.rentas.vos;
 
 public class NumberOfWeek {
     
