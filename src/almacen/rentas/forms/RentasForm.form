@@ -94,21 +94,21 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="btnAttend" alignment="0" pref="33" max="32767" attributes="0"/>
+              <Component id="btnUpdateStatusRentaToEnRenta" alignment="0" pref="33" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="btnAttend" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnUpdateStatusRentaToEnRenta" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="361" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JButton" name="btnAttend">
+        <Component class="javax.swing.JButton" name="btnUpdateStatusRentaToEnRenta">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/almacen/icons24/user-attend-24.png"/>
@@ -120,7 +120,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAttendActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnUpdateStatusRentaToEnRentaActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

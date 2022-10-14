@@ -226,7 +226,7 @@
             INNER JOIN usuarios u ON (u.id_usuarios = r.id_usuarios)
             INNER JOIN usuarios chofer ON (chofer.id_usuarios = r.id_usuario_chofer)
             INNER JOIN tipo t ON (t.id_tipo = r.id_tipo)
-            <foreach item="item" index="index" collection="ids"
+            <foreach item="item" index="index" collection="list"
                     open="WHERE r.id_renta IN (" separator="," close=")" >
                         #{item}
             </foreach>

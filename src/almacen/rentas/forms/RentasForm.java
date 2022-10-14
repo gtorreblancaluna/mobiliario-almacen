@@ -10,6 +10,7 @@ import common.exceptions.DataOriginException;
 import common.model.Renta;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,9 @@ public class RentasForm extends javax.swing.JInternalFrame {
     }
     
     private void init () {
-        
+        if (!IndexForm.globalUser.getAdministrador().equals("1")) {
+            btnUpdateStatusRentaToEnRenta.setVisible(false);
+        }
         this.cmbNumberOfWeeks.removeAllItems();
         this.cmbNumberOfWeeks.addItem(new NumberOfWeek (1,"Esta semana"));
         this.cmbNumberOfWeeks.addItem(new NumberOfWeek (2,"2 Semanas"));
@@ -92,6 +95,11 @@ public class RentasForm extends javax.swing.JInternalFrame {
         parameters.put("userByCategoryId", userByCategoryId);
         parameters.put("initDate", initDate);
         parameters.put("endDate", endDate);
+        parameters.put("type", ApplicationConstants.TIPO_PEDIDO);
+        parameters.put("statusId", Arrays.asList( 
+                        ApplicationConstants.ESTADO_APARTADO,
+                        ApplicationConstants.ESTADO_EN_RENTA
+                    ));
         
         try {
             List<Renta> rentas = rentaService.getByParameters(parameters);
@@ -148,16 +156,24 @@ public class RentasForm extends javax.swing.JInternalFrame {
    }
     
     private void updateStatusFromApartadoToEnRenta () {
+        if (!IndexForm.globalUser.getAdministrador().equals("1")) {
+            JOptionPane.showMessageDialog(this, "Acción denegada, solo un usuario con perfil administrador, puede realizar este proceso", "Error", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         try{
             Utility.validateSelectCheckboxInTable(table, Column.BOOLEAN.getNumber());
             List<String> ids = getIdsSelected();
-            int seleccion = JOptionPane.showOptionDialog(this, "Folios seleccionados: "+ids.size()+". Marcar como: "+ApplicationConstants.DS_ESTADO_EN_RENTA+", ¿Deseas continuar?", "Mensaje", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Si", "No"}, "Si");
+            int seleccion = JOptionPane.showOptionDialog(this, "ATENCIÓN. ESTA ACCIÓN NO SE PUEDE DESHACER.\n"
+                    + "SE ACTUALIZARÁN A STATUS: "+ApplicationConstants.DS_ESTADO_EN_RENTA+".\n"
+                    + "Folios seleccionados: "+ids.size()+". Marcar como: "+ApplicationConstants.DS_ESTADO_EN_RENTA+", ¿Deseas continuar?", "Mensaje", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Si", "No"}, "Si");
             if (seleccion != 0) {//presiono que no
                 return;
             }
             Map<String,Object> parameters = new HashMap<>();
             parameters.put("ids", ids);
             rentaService.updateStatusFromApartadoToEnRenta(ids, IndexForm.globalUser);
+            this.cmbNumberOfWeeks.setSelectedIndex(0);
+            getByNumberOfWeeks();
         } catch (DataOriginException | BusinessException e) {
             LOGGER.error(e);
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.INFORMATION_MESSAGE);   
@@ -165,7 +181,6 @@ public class RentasForm extends javax.swing.JInternalFrame {
     }
     
     private void getByNumberOfWeeks () {
-        
         
         Integer userByCategoryId = null;
         Integer codeJobChofer = Integer.parseInt(ApplicationConstants.PUESTO_CHOFER+"");
@@ -350,7 +365,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
         table = new javax.swing.JTable();
         lblInfo = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
-        btnAttend = new javax.swing.JButton();
+        btnUpdateStatusRentaToEnRenta = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         cmbNumberOfWeeks = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
@@ -383,13 +398,13 @@ public class RentasForm extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(table);
 
-        btnAttend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/user-attend-24.png"))); // NOI18N
-        btnAttend.setMnemonic('a');
-        btnAttend.setToolTipText("[Alt+A] Marcar como atendido");
-        btnAttend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnAttend.addActionListener(new java.awt.event.ActionListener() {
+        btnUpdateStatusRentaToEnRenta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/user-attend-24.png"))); // NOI18N
+        btnUpdateStatusRentaToEnRenta.setMnemonic('a');
+        btnUpdateStatusRentaToEnRenta.setToolTipText("[Alt+A] Marcar como atendido");
+        btnUpdateStatusRentaToEnRenta.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnUpdateStatusRentaToEnRenta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAttendActionPerformed(evt);
+                btnUpdateStatusRentaToEnRentaActionPerformed(evt);
             }
         });
 
@@ -397,13 +412,13 @@ public class RentasForm extends javax.swing.JInternalFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(btnAttend, javax.swing.GroupLayout.PREFERRED_SIZE, 33, Short.MAX_VALUE)
+            .addComponent(btnUpdateStatusRentaToEnRenta, javax.swing.GroupLayout.PREFERRED_SIZE, 33, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(75, 75, 75)
-                .addComponent(btnAttend)
+                .addComponent(btnUpdateStatusRentaToEnRenta)
                 .addContainerGap(361, Short.MAX_VALUE))
         );
 
@@ -544,14 +559,14 @@ public class RentasForm extends javax.swing.JInternalFrame {
         getBetweenDates();
     }//GEN-LAST:event_btnSearchByDatesActionPerformed
 
-    private void btnAttendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAttendActionPerformed
+    private void btnUpdateStatusRentaToEnRentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateStatusRentaToEnRentaActionPerformed
         updateStatusFromApartadoToEnRenta();
-    }//GEN-LAST:event_btnAttendActionPerformed
+    }//GEN-LAST:event_btnUpdateStatusRentaToEnRentaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAttend;
     private javax.swing.JButton btnSearchByDates;
+    private javax.swing.JButton btnUpdateStatusRentaToEnRenta;
     private javax.swing.JComboBox<NumberOfWeek> cmbNumberOfWeeks;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

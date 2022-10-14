@@ -12,6 +12,7 @@ import common.model.Tipo;
 import common.model.Usuario;
 import common.services.OrderStatusChangeService;
 import common.services.TaskAlmacenUpdateService;
+import common.services.TaskDeliveryChoferUpdateService;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -27,6 +28,7 @@ public class RentaService {
     private final TaskAlmacenUpdateService taskAlmacenUpdateService = TaskAlmacenUpdateService.getInstance();
     private final OrderStatusChangeService orderStatusChangeService = OrderStatusChangeService.getInstance();
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RentaService.class.getName());
+    private final TaskDeliveryChoferUpdateService taskDeliveryChoferUpdateService = TaskDeliveryChoferUpdateService.getInstance();
 
     private RentaService() {}
 
@@ -79,8 +81,8 @@ public class RentaService {
         parameters.put("estadoIdInRent", ApplicationConstants.ESTADO_EN_RENTA);
         
         rentaDao.updateStatusFromApartadoToEnRenta(parameters);
-        final EstadoEvento estadoEventoSelected = new EstadoEvento(Integer.parseInt(ApplicationConstants.ESTADO_EN_RENTA));
-        final Tipo tipoSelected = new Tipo(Integer.parseInt(ApplicationConstants.TIPO_PEDIDO));
+        final EstadoEvento estadoEventoSelected = new EstadoEvento(Integer.parseInt(ApplicationConstants.ESTADO_EN_RENTA), ApplicationConstants.DS_ESTADO_EN_RENTA);
+        final Tipo tipoSelected = new Tipo(Integer.parseInt(ApplicationConstants.TIPO_PEDIDO), ApplicationConstants.DS_TIPO_PEDIDO);
         
         new Thread(() -> {
             for (Renta renta : rentas) {
@@ -89,20 +91,17 @@ public class RentaService {
                 try {
                     messageSaveWhenEventIsUpdated = taskAlmacenUpdateService
                         .saveWhenEventIsUpdated(estadoEventoSelected, tipoSelected, renta, false, false, user.getUsuarioId().toString());
-                } catch (NoDataFoundException e) {
-                    messageSaveWhenEventIsUpdated = e.getMessage();
-                    log.error(messageSaveWhenEventIsUpdated);
-                } catch (DataOriginException e) {
+                } catch (DataOriginException | NoDataFoundException e) {
                     log.error(e.getMessage(),e);
-                    messageSaveWhenEventIsUpdated = "Ocurrió un error al generar la tarea a almacén, DETALLE: "+e.getMessage();
+                    messageSaveWhenEventIsUpdated = e.getMessage();
                 }
                 Utility.pushNotification(messageSaveWhenEventIsUpdated);
             }
         }).start();
         
         new Thread(() -> {
-            for (Renta renta : rentas) {            
-                String msg = String.format("Folio: %s, Usuario %s,  Realizó el cambio de Estado [%s] a [%s]",
+            for (Renta renta : rentas) {
+                String msg = String.format("Folio: %s, Usuario: %s,  Realizó el cambio de Estado [%s] a [%s]",
                     renta.getFolio()+"",
                     user.getNombre() + " " + user.getApellidos(),
                     renta.getEstado().getDescripcion(),
@@ -111,11 +110,29 @@ public class RentaService {
                 try {
                     orderStatusChangeService.insert(renta.getRentaId(), renta.getEstado().getEstadoId() , estadoEventoSelected.getEstadoId(),user.getUsuarioId());
                     log.info(msg);
-                    Utility.pushNotification(msg);
-                } catch (BusinessException e) {
+                } catch (BusinessException | DataOriginException e) {
                     log.error(e.getMessage(),e);
-                    Utility.pushNotification(e.getMessage());
+                    msg = e.getMessage();
                 }
+                Utility.pushNotification(msg);
+            }
+        }).start();
+        
+        new Thread(() -> {
+            for (Renta renta : rentas) {
+                String messageTaskDeliveryChoferUpdateService;
+                try {
+                    taskDeliveryChoferUpdateService.saveWhenEventIsUpdated(
+                            estadoEventoSelected, tipoSelected, renta, false, renta.getChofer().getUsuarioId().toString() ,false,
+                            user.getUsuarioId().toString()
+                    );
+                    messageTaskDeliveryChoferUpdateService = String.format("Tarea 'entrega chofer' generada. Folio: %s, chofer: %s",renta.getFolio(),renta.getChofer());
+                } catch (DataOriginException | NoDataFoundException e) {
+                    messageTaskDeliveryChoferUpdateService = e.getMessage();
+                    log.error(messageTaskDeliveryChoferUpdateService);
+                }
+
+                Utility.pushNotification(messageTaskDeliveryChoferUpdateService);
             }
         }).start();
         
@@ -137,16 +154,16 @@ public class RentaService {
                     ));
         parameters.put("userByCategoryId", userByCategoryId);
         
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String initDeliveryDate;
         String endDeliveryDate;
         
         if (numbersWeek > 0) {
-            initDeliveryDate = format.format(LocalDate.now().atStartOfDay());
-            endDeliveryDate = format.format(LocalDate.now().plusWeeks(numbersWeek).with(DayOfWeek.MONDAY).minusDays(1));
+            initDeliveryDate = dateTimeFormatter.format(LocalDate.now().with(DayOfWeek.MONDAY));
+            endDeliveryDate = dateTimeFormatter.format(LocalDate.now().plusWeeks(numbersWeek).with(DayOfWeek.MONDAY).minusDays(1));
         } else {
-            endDeliveryDate = format.format(LocalDate.now().atStartOfDay());
-            initDeliveryDate = format.format(LocalDate.now().plusWeeks(numbersWeek).with(DayOfWeek.MONDAY).minusDays(1));
+            initDeliveryDate = dateTimeFormatter.format(LocalDate.now().minusWeeks((numbersWeek*-1)).with(DayOfWeek.MONDAY));
+            endDeliveryDate = dateTimeFormatter.format(LocalDate.now().minusWeeks(1).with(DayOfWeek.SUNDAY));
         }
         
         parameters.put("initDeliveryDate", initDeliveryDate);

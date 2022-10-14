@@ -190,10 +190,10 @@ public class IndexForm extends javax.swing.JFrame {
 
         jLabel12.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText("Eventos");
+        jLabel12.setText("Folios");
         panelMenuRentas.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/warehouse-24.png"))); // NOI18N
+        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/folder-24.png"))); // NOI18N
         panelMenuRentas.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuRentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 140, 180, 40));
