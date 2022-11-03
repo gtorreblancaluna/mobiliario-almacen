@@ -88,14 +88,13 @@ public abstract class Utility {
         win.setLocationRelativeTo(null);
         win.setVisible(true);
     }
-   
+       
     public static boolean showWindowDataUpdateSession(){
         
         JPasswordField pf = new JPasswordField(); 
         pf.addAncestorListener(new RequestFocusListener());
         int okCxl = JOptionPane.showConfirmDialog(null, pf, "Introduce tu contrase\u00F1a", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
        
-        
         if (okCxl == JOptionPane.OK_OPTION) {
             String password = new String(pf.getPassword()); 
             System.out.println("You entered: " + password); 

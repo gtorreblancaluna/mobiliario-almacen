@@ -15,9 +15,12 @@ import almacen.rentas.forms.RentasForm;
 import almacen.inventory.forms.ItemsForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
+import common.exceptions.InvalidDataException;
 import common.services.PropertiesService;
 import common.services.UserService;
 import common.utilities.InactivityListener;
+import common.utilities.RequestFocusListener;
+import javax.swing.JPasswordField;
 
 public class IndexForm extends javax.swing.JFrame {
 
@@ -309,13 +312,10 @@ public class IndexForm extends javax.swing.JFrame {
     
     public void openInventoryForm () {
         if (UtilityCommon.verifyIfInternalFormIsOpen(itemsForm,IndexForm.rootPanel)) {
-            if(!Utility.showWindowDataUpdateSession()){
-                return;
-            }
-            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
-            String userJobId = globalUser.getPuesto().getPuestoId()+"";
-            if (!globalUser.getAdministrador().equals("1") && jobChoferId.equals(userJobId)) {
-                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR. Reinicia el sistema para actualizar la sesion");
+            try {
+                showWindowDataUpdateSessionAndJobIdNotAccess(ApplicationConstants.PUESTO_CHOFER+"",true);
+            } catch (InvalidDataException | DataOriginException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
                 return;
             }
             itemsForm = new ItemsForm();
@@ -329,13 +329,10 @@ public class IndexForm extends javax.swing.JFrame {
     
     public void openEventsForm () {
         if (UtilityCommon.verifyIfInternalFormIsOpen(eventsForm,IndexForm.rootPanel)) {
-            if(!Utility.showWindowDataUpdateSession()){
-                return;
-            }
-            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
-            String userJobId = globalUser.getPuesto().getPuestoId()+"";
-            if (!globalUser.getAdministrador().equals("1") && jobChoferId.equals(userJobId)) {
-                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR. Reinicia el sistema para actualizar la sesion");
+            try {
+                showWindowDataUpdateSessionAndJobIdNotAccess(ApplicationConstants.PUESTO_CHOFER+"",true);
+            } catch (InvalidDataException | DataOriginException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
                 return;
             }
             eventsForm = new RentasForm();
@@ -349,13 +346,10 @@ public class IndexForm extends javax.swing.JFrame {
     
     public void openDeliveryReportForm () {
         if (UtilityCommon.verifyIfInternalFormIsOpen(deliveryReportForm,IndexForm.rootPanel)) {
-            if(!Utility.showWindowDataUpdateSession()){
-                return;
-            }
-            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
-            String userJobId = globalUser.getPuesto().getPuestoId()+"";
-            if (!globalUser.getAdministrador().equals("1") && !jobChoferId.equals(userJobId)) {
-                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con acceso ADMINISTRADOR o puesto de CHOFER puede acceder a esta ventana. AYUDA. Reinicia el sistema para actualizar la sesion");
+            try {
+                showWindowDataUpdateSessionAndJobIdNotAccess(ApplicationConstants.PUESTO_CHOFER+"", false);
+            } catch (InvalidDataException | DataOriginException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
                 return;
             }
             deliveryReportForm = new DeliveryReportForm();
@@ -366,16 +360,53 @@ public class IndexForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, ALREADY_AVAILABLE);
         }
     }
+    
+    private void showWindowDataUpdateSessionAndJobIdNotAccess(String jobId, Boolean isEqual) throws DataOriginException, InvalidDataException {
+        
+        JPasswordField pf = new JPasswordField(); 
+        pf.addAncestorListener(new RequestFocusListener());
+        int okCxl = JOptionPane.showConfirmDialog(null, pf, "Introduce tu contrase\u00F1a", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
+        if (okCxl != JOptionPane.OK_OPTION) {
+           return;
+        } 
+        String password = new String(pf.getPassword());
+        Usuario user = userService.getByPassword(password);
+        if(user == null || user.getNombre().isEmpty()) {
+            String msg = "Ususario no encontrado";
+            Utility.pushNotification(msg);
+            throw new InvalidDataException(msg);
+        }
+        
+        String userJobId = user.getPuesto().getPuestoId()+"";
+        String msg = "";
+        if (isEqual && !user.getAdministrador().equals("1") && userJobId.equals(jobId)
+                ||
+                (!isEqual && !user.getAdministrador().equals("1") && !userJobId.equals(jobId))) {
+            msg = String.format("Usuario: %s, Tu puesto: %s, no esta autorizado para acceder a esta ventana\nAYUDA. Reinicia el sistema para actualizar la sesión", 
+                    String.format("%s %s", user.getNombre(),user.getApellidos()),
+                    user.getPuesto().getDescripcion());
+        }
+        
+        if (!msg.isEmpty()) {
+            Utility.pushNotification(msg);
+            throw new InvalidDataException(msg);
+        }
+        String msgUpdateSession = "Actualización sesión: "+user.getNombre()+" "+user.getApellidos()+", PUESTO: "+user.getPuesto().getDescripcion().toUpperCase().trim();
+        LOGGER.info(msgUpdateSession);
+        Utility.pushNotification(msgUpdateSession);
+        globalUser = user;
+        lbl_logueo.setText(user.getNombre()+" "+user.getApellidos());
+        lblPuesto.setText(user.getPuesto().getDescripcion());
+        
+    }
+    
     public void openOrdersForm () {
         
         if (UtilityCommon.verifyIfInternalFormIsOpen(ordersForm,IndexForm.rootPanel)) {
-            if(!Utility.showWindowDataUpdateSession()){
-                return;
-            }
-            String jobChoferId = ApplicationConstants.PUESTO_CHOFER+"";
-            String userJobId = globalUser.getPuesto().getPuestoId()+"";
-            if (!globalUser.getAdministrador().equals("1") && userJobId.equals(jobChoferId)) {
-                JOptionPane.showMessageDialog(this, "Accion denegada. Solo un usuario con puesto ADMINISTRADOR o ALMACENISTA puede acceder a esta ventana. AYUDA. Reinicia el sistema para actualizar la sesion");
+            try {
+                showWindowDataUpdateSessionAndJobIdNotAccess(ApplicationConstants.PUESTO_CHOFER+"", true);
+            } catch (InvalidDataException | DataOriginException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
                 return;
             }
             ordersForm = new TasksAlmacenForm();
