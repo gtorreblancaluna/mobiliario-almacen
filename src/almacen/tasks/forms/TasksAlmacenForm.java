@@ -741,7 +741,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnAttendActionPerformed
 
     private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
-        Utility.selectCheckBoxWhenKeyPressedIsSpace(evt,table,Column.BOOLEAN.getNumber());
+        UtilityCommon.selectCheckBoxWhenKeyPressedIsSpace(evt,table,Column.BOOLEAN.getNumber());
         setLabelRowsSelected();
     }//GEN-LAST:event_tableKeyPressed
 

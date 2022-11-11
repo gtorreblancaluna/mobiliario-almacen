@@ -24,19 +24,6 @@ public abstract class Utility {
     
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
-    public static void selectCheckBoxWhenKeyPressedIsSpace (java.awt.event.KeyEvent evt, JTable table, int columnBoolean) {
-        
-        if(evt.getKeyCode() != 32) {
-            return;
-        }
-        
-        int rowSelect = table.getSelectedRow();
-        
-        if (rowSelect >= 0) {
-            boolean isSelected = (Boolean) table.getValueAt(rowSelect, columnBoolean);
-            table.setValueAt(!isSelected, rowSelect, columnBoolean);
-        }
-    }
     public static void validateSelectCheckboxInTable(JTable table, Integer columNumber) throws BusinessException {
         
         int selectRows = 0;
