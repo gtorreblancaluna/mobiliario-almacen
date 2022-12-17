@@ -1,5 +1,8 @@
 package almacen.rentas.vos;
 
+import lombok.Data;
+
+@Data
 public class NumberOfWeek {
     
     private Integer number;
@@ -7,22 +10,6 @@ public class NumberOfWeek {
     
     public NumberOfWeek (Integer number, String description) {
         this.number = number;
-        this.description = description;
-    }
-
-    public Integer getNumber() {
-        return number;
-    }
-
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
     }
 
