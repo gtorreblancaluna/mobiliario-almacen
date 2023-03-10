@@ -90,7 +90,7 @@ public class RentaService {
                 String messageSaveWhenEventIsUpdated;
                 try {
                     messageSaveWhenEventIsUpdated = taskAlmacenUpdateService
-                        .saveWhenEventIsUpdated(estadoEventoSelected, tipoSelected, renta, false, false, user.getUsuarioId().toString());
+                        .saveWhenEventIsUpdated(estadoEventoSelected, tipoSelected, renta, false, false, user.getUsuarioId().toString(),true);
                 } catch (DataOriginException | NoDataFoundException e) {
                     log.error(e.getMessage(),e);
                     messageSaveWhenEventIsUpdated = e.getMessage();
@@ -124,7 +124,8 @@ public class RentaService {
                 try {
                     taskDeliveryChoferUpdateService.saveWhenEventIsUpdated(
                             estadoEventoSelected, tipoSelected, renta, false, renta.getChofer().getUsuarioId().toString() ,false,
-                            user.getUsuarioId().toString()
+                            user.getUsuarioId().toString(),
+                            true
                     );
                     messageTaskDeliveryChoferUpdateService = String.format("Tarea 'entrega chofer' generada. Folio: %s, chofer: %s",renta.getFolio(),renta.getChofer());
                 } catch (DataOriginException | NoDataFoundException e) {
