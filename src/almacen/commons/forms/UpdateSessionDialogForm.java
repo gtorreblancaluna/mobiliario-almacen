@@ -1,7 +1,7 @@
 package almacen.commons.forms;
 
 import almacen.commons.utilities.Utility;
-import almacen.index.forms.IndexForm;
+import almacen.form.index.IndexForm;
 import common.constants.ApplicationConstants;
 import common.services.PropertiesService;
 import javax.swing.JOptionPane;

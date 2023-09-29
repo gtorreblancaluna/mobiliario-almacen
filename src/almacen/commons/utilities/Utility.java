@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
-import almacen.index.forms.IndexForm;
+import almacen.form.index.IndexForm;
 import common.exceptions.BusinessException;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -18,12 +18,14 @@ import javax.swing.Action;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import static common.constants.ApplicationConstants.LIMIT_GENERATE_PDF;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 
 public abstract class Utility {
     
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
+        
     public static void validateSelectCheckboxInTable(JTable table, Integer columNumber) throws BusinessException {
         
         int selectRows = 0;
