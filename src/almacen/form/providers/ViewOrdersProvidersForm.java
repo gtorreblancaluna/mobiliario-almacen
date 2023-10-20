@@ -5,6 +5,7 @@ import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
+import almacen.service.rentas.RentaService;
 import almacen.tables.providers.TableViewOrdersProviders;
 import almacen.tables.providers.TableViewOrdersProvidersDetail;
 import common.constants.ApplicationConstants;
@@ -13,6 +14,7 @@ import common.exceptions.DataOriginException;
 import common.exceptions.InvalidDataException;
 import common.exceptions.NoDataFoundException;
 import common.model.DatosGenerales;
+import common.model.Renta;
 import common.model.providers.OrdenProveedor;
 import common.model.providers.ParameterOrderProvider;
 import common.model.providers.queryresult.DetailOrderSupplierQueryResult;
@@ -21,6 +23,7 @@ import common.services.providers.OrderProviderService;
 import common.utilities.UtilityCommon;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
@@ -47,6 +50,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     private final TableViewOrdersProviders tableViewOrdersProviders;
     private final TableViewOrdersProvidersDetail tableViewOrdersProvidersDetail;
     private final SystemService systemService = SystemService.getInstance();
+    private final RentaService rentaService = RentaService.getInstance();
     private static final DecimalFormat decimalFormat = new DecimalFormat( "#,###,###,##0.00" );
     private final OrderProviderService orderService = OrderProviderService.getInstance();
     private static final org.apache.log4j.Logger LOGGER = 
@@ -81,7 +85,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             Point point = mouseEvent.getPoint();
             int row = table.rowAtPoint(point);
             if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-                mostrar_agregar_orden_proveedor();
+                editOrderProvider();
             }
         }
 });
@@ -137,7 +141,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                     parameter.setEndEventDate(UtilityCommon.getStringFromDate(txtSearchEndEventDate.getDate(),formatDate));
                 } catch (ParseException e) {
                     LOGGER.error(e);
-                    JOptionPane.showMessageDialog(this, e, "ERROR", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             }
             if(!this.cmbStatus.getModel().getSelectedItem().equals(ApplicationConstants.CMB_SELECCIONE)){
@@ -255,35 +259,8 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
        }
        
        return tableActive.getValueAt(tableActive.getSelectedRow(), columnNumber).toString(); 
-   }
-    
-    private void mostrar_agregar_orden_proveedor() {
-         
-        String rentaId;
-        String orderId;
-        String folio;
-       try {
-            rentaId = getValueIdBySelectedRow(ColumnToGetValue.RENTA_ID);
-            orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
-            folio = getValueIdBySelectedRow(ColumnToGetValue.FOLIO);
-       } catch (BusinessException e) {
-           LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e, "ERROR", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
-        
-        try {
-            IndexForm.showWindowDataUpdateSessionAndJobIdNotAccess(ApplicationConstants.PUESTO_CHOFER+"",true);
-        } catch (InvalidDataException | DataOriginException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
-            return;
-        }         
-        
-        OrderProviderForm form = new OrderProviderForm(folio, orderId, rentaId);
-        IndexForm.rootPanel.add(form);
-        form.show();
-        
-    }
+   }  
+
     
     public void showPaymentsProvidersForm() {
        String orderId;
@@ -291,7 +268,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
        } catch (BusinessException e) {
            LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e, "ERROR", JOptionPane.ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
            return;
        }
        
@@ -322,7 +299,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
        } catch (BusinessException e) {
            LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e, "ERROR", JOptionPane.ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
            return;
        }
          
@@ -457,24 +434,65 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
    
    }
     
-   private void addOrderProvider () {
+   private void addNewOrderProvider () {
+        String folioID = JOptionPane.showInputDialog(this, "Folio de la renta para generar nueva orden.", "Nueva orden.", JOptionPane.INFORMATION_MESSAGE);
+        if(folioID == null || folioID.isEmpty()){
+             return;
+        }
+        System.out.println(folioID);
+
+        try {
+            Integer folioInt = Integer.parseInt(folioID);
+            Renta renta = rentaService.getByFolio(folioInt);
+            if (renta == null) {
+                throw new BusinessException(String.format("Folio '%s' no encontrado en la base de datos.",folioInt));
+            }
+            OrderProviderForm form = new OrderProviderForm(renta.getFolio()+"", null, renta.getRentaId()+"");
+            IndexForm.rootPanel.add(form);
+            form.show();
+        } catch (NumberFormatException numberFormatException) {
+            JOptionPane.showMessageDialog(this, "Introduce un numero valido", "ERROR", JOptionPane.ERROR_MESSAGE);
+        } catch (BusinessException | DataOriginException dataOriginException) {
+            JOptionPane.showMessageDialog(this, dataOriginException.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+   }
+    
+   private void editOrderProvider () {       
+
+       try {
+            String rentaId = getValueIdBySelectedRow(ColumnToGetValue.RENTA_ID);
+            String folio = getValueIdBySelectedRow(ColumnToGetValue.FOLIO);
+            String orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
+            OrderProviderForm form = new OrderProviderForm(folio, orderId, rentaId);
+            IndexForm.rootPanel.add(form);
+            form.show();
+       } catch (BusinessException businessException) {
+           JOptionPane.showMessageDialog(this, businessException.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+       }
        
-       String rentaId;
-        String orderId = null;
+        
+        
+   }
+   
+   private void showBitacoraProveedores () {
+        
+        Frame frame = JOptionPane.getFrameForComponent(this);
+        
+        String rentaId;
         String folio;
        try {
             rentaId = getValueIdBySelectedRow(ColumnToGetValue.RENTA_ID);
             folio = getValueIdBySelectedRow(ColumnToGetValue.FOLIO);
        } catch (BusinessException e) {
            LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e, "ERROR", JOptionPane.ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
            return;
        }
-       
-        OrderProviderForm form = new OrderProviderForm(folio, orderId, rentaId);
-        IndexForm.rootPanel.add(form);
-        form.show();
-        
+
+        ProviderStatusBitacoraDialog win =
+        new ProviderStatusBitacoraDialog(frame,true,Long.parseLong(rentaId), folio);
+        win.setLocationRelativeTo(this);
+        win.setVisible(true);
    }
 
 
@@ -506,6 +524,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
         txtSearchInitialEventDate = new com.toedter.calendar.JDateChooser();
         txtSearchEndEventDate = new com.toedter.calendar.JDateChooser();
         jbtnAddOrder = new javax.swing.JButton();
+        jbtnBitacoraProveedor = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         lblInfoGeneral = new javax.swing.JLabel();
         tabGeneral = new javax.swing.JTabbedPane();
@@ -672,11 +691,21 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
 
         jbtnAddOrder.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jbtnAddOrder.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/agregar-24.png"))); // NOI18N
-        jbtnAddOrder.setToolTipText("Buscar");
+        jbtnAddOrder.setToolTipText("Agregar nueva orden");
         jbtnAddOrder.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jbtnAddOrder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbtnAddOrderActionPerformed(evt);
+            }
+        });
+
+        jbtnBitacoraProveedor.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jbtnBitacoraProveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/inventario-24.png"))); // NOI18N
+        jbtnBitacoraProveedor.setToolTipText("Bitacora seguimiento proveedor");
+        jbtnBitacoraProveedor.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jbtnBitacoraProveedor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnBitacoraProveedorActionPerformed(evt);
             }
         });
 
@@ -700,7 +729,9 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtnAddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jbtnAddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtnBitacoraProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(txtSearchByNameProvider, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(7, 7, 7)
@@ -781,7 +812,8 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                                         .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING))
                                     .addComponent(jButton2)))
-                            .addComponent(jbtnAddOrder))
+                            .addComponent(jbtnAddOrder)
+                            .addComponent(jbtnBitacoraProveedor))
                         .addGap(1, 1, 1)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -920,7 +952,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        mostrar_agregar_orden_proveedor();
+        editOrderProvider();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -956,8 +988,12 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_tabGeneralMouseClicked
 
     private void jbtnAddOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddOrderActionPerformed
-        addOrderProvider();
+        addNewOrderProvider();
     }//GEN-LAST:event_jbtnAddOrderActionPerformed
+
+    private void jbtnBitacoraProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnBitacoraProveedorActionPerformed
+        showBitacoraProveedores();
+    }//GEN-LAST:event_jbtnBitacoraProveedorActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -978,6 +1014,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton jbtnAddOrder;
+    private javax.swing.JButton jbtnBitacoraProveedor;
     private javax.swing.JButton jbtnSearch;
     private javax.swing.JLabel lblInfoGeneral;
     private javax.swing.JTabbedPane tabGeneral;

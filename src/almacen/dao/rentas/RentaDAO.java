@@ -84,7 +84,21 @@ public class RentaDAO {
             if (session != null)
                 session.close();
         }
-    }  
+    }
+    
+    public Renta getByFolio (Integer folio) throws DataOriginException {
+        SqlSession session = null;
+        try {
+           session = sqlSessionFactory.openSession();
+           return (Renta) session.selectOne("MapperRentas.getByFolio",folio);
+        } catch (Exception e) {
+            LOGGER.error(e);
+            throw new DataOriginException(e.getMessage(),e);
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
     
     public List<Renta> getByIds (List<String> ids) throws DataOriginException {
         SqlSession session = null;

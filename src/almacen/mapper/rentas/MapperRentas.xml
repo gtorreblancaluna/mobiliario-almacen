@@ -299,7 +299,67 @@
         INNER JOIN color c ON (c.id_color = articulo.id_color)
         WHERE d.id_renta = #{id}
         ORDER BY articulo.descripcion
-    </select>  
+    </select>
+    
+    
+    <select id="getByFolio" resultMap="resultMapRenta" parameterType="java.lang.Integer">
+        SELECT
+            r.id_renta,
+            c.id_clientes AS cliente_id,
+            c.nombre AS cliente_nombre,
+            c.apellidos AS cliente_apellidos,
+            u.id_usuarios AS usuario_id,
+            u.nombre AS usuario_nombre,
+            u.apellidos AS usuario_apellidos,
+            r.fecha_pedido,
+            r.fecha_entrega,
+            r.hora_entrega,
+            r.fecha_devolucion,
+            r.descripcion,
+            r.descuento,
+            r.cantidad_descuento,
+            r.iva,
+            r.comentario,
+            r.folio,
+            r.stock,
+            t.id_tipo AS tipo_id,
+            t.tipo AS tipo_tipo,
+            r.hora_devolucion,
+            r.fecha_evento,
+            r.deposito_garantia,
+            r.envio_recoleccion,
+            r.mostrar_precios_pdf,
+            chofer.id_usuarios AS chofer_id,
+            chofer.nombre AS chofer_nombre,
+            chofer.apellidos AS chofer_apellidos,
+            e.id_estado,
+            e.descripcion AS estado_descripcion,
+            (
+                SELECT SUM(a.abono)
+                FROM abonos a 
+                WHERE a.id_renta = #{id}
+            ) AS total_abonos,
+            (
+                SELECT SUM(IF( ( f.fg_devolucion = '0' AND f.fg_accidente_trabajo = '0'),(f.cantidad * f.precio_cobrar),0) )AS total
+                FROM faltantes f
+                INNER JOIN articulo a ON (f.id_articulo = a.id_articulo)
+                WHERE f.id_renta=#{id}
+                AND f.fg_activo = '1'
+            ) AS total_faltantes,
+            (
+                SELECT IF(porcentaje_descuento >= 0,
+                (SUM( (cantidad*p_unitario) - ((cantidad*p_unitario) * (porcentaje_descuento / 100) ))),
+                (SUM( (cantidad*p_unitario) ))) AS suma
+                FROM detalle_renta WHERE id_renta = #{id}
+            ) AS sub_total
+        FROM renta r
+            INNER JOIN estado e ON (e.id_estado = r.id_estado)
+            INNER JOIN clientes c ON (c.id_clientes = r.id_clientes)
+            INNER JOIN usuarios u ON (u.id_usuarios = r.id_usuarios)
+            INNER JOIN usuarios chofer ON (chofer.id_usuarios = r.id_usuario_chofer)
+            INNER JOIN tipo t ON (t.id_tipo = r.id_tipo)
+        WHERE r.folio = #{folio}
+    </select>
     
       
 </mapper>

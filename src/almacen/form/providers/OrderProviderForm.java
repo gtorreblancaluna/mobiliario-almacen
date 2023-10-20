@@ -1170,6 +1170,8 @@ public class OrderProviderForm extends javax.swing.JInternalFrame {
                 OrdenProveedor orderProvider = orderProviderService.getOrderById(Long.parseLong(orderId));
                 formato_tabla_orden();
                 fillTableDetailOrderProvider(orderProvider.getDetalleOrdenProveedorList());
+                Utility.pushNotification("El usuario "+IndexForm.globalUser.getNombre()+" "+IndexForm.globalUser.getApellidos()
+                +" modifico la orden al proveedor: '"+this.orderId+"', folio: '"+this.folio+"'.");
             } catch (BusinessException e) {
                 JOptionPane.showMessageDialog(this, e, "Error", JOptionPane.INFORMATION_MESSAGE);
                 return;

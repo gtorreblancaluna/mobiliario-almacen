@@ -13,7 +13,7 @@ import static almacen.commons.utilities.Utility.getCloseWindowAction;
 import almacen.form.delivery.DeliveryReportForm;
 import almacen.form.providers.ViewOrdersProvidersForm;
 import almacen.form.rentas.RentasForm;
-import almacen.inventory.forms.ItemsForm;
+import almacen.form.item.ItemsForm;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
 import common.exceptions.InvalidDataException;

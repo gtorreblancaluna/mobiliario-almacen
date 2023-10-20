@@ -43,6 +43,10 @@ public class RentaService {
         return SINGLE_INSTANCE;
     }
     
+    public Renta getByFolio (Integer folio) throws DataOriginException, BusinessException {
+        return rentaDao.getByFolio(folio);
+    }
+    
     public List<Renta> getByParameters (Map<String,Object> parameters) throws DataOriginException, BusinessException {
         return rentaDao.getByParameters(parameters);
     }
