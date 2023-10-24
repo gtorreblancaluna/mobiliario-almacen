@@ -6,8 +6,8 @@ import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
 import almacen.service.rentas.RentaService;
-import almacen.tables.providers.TableViewOrdersProviders;
-import almacen.tables.providers.TableViewOrdersProvidersDetail;
+import common.tables.TableViewOrdersProviders;
+import common.tables.TableViewOrdersProvidersDetail;
 import common.constants.ApplicationConstants;
 import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;
@@ -477,7 +477,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
    private void showBitacoraProveedores () {
         
         Frame frame = JOptionPane.getFrameForComponent(this);
-        
+
         String rentaId;
         String folio;
        try {

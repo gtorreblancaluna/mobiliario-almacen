@@ -2,7 +2,7 @@ package almacen.form.providers;
 
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
-import almacen.tables.providers.TableStatusProveedorBitacora;
+import common.tables.TableStatusProveedorBitacora;
 import common.constants.ApplicationConstants;
 import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;

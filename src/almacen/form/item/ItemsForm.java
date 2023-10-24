@@ -1,5 +1,6 @@
 package almacen.form.item;
 
+import common.constants.ApplicationConstants;
 import common.form.items.AgregarArticuloDisponibilidadDialog;
 import common.form.items.VerDisponibilidadArticulos;
 import common.model.Articulo;
@@ -66,13 +67,16 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         String initDate = txtDisponibilidadFechaInicial.getDate() != null ? new SimpleDateFormat(FORMAT_DATE).format(txtDisponibilidadFechaInicial.getDate()) : null;
         String endDate = txtDisponibilidadFechaFinal.getDate() != null ? new SimpleDateFormat(FORMAT_DATE).format(txtDisponibilidadFechaFinal.getDate()) : null;
         
-        String message = "";
+        String message = ApplicationConstants.BLANK_SPACE;
+        
         
         if (initDate != null && endDate != null) {
-            if (rowCount > 0) {
-                message = String.format("Articulos a mostrar %s entre el dia %s y %s",rowCount,initDate,endDate);
+            if (txtDisponibilidadFechaInicial.getDate().compareTo(txtDisponibilidadFechaFinal.getDate()) > 0) {
+                message = "ERROR. Fecha inicial debe ser menor que fecha final.";
+            } else if (rowCount > 0) {
+                message = String.format("Articulos a mostrar: [%s] entre el día [%s] y [%s]",rowCount,initDate,endDate);
             } else {
-                message = String.format("Mostrar todos los articulos entre el dia %s y %s", initDate,endDate);
+                message = String.format("Mostrar todos los artículos entre el día %s y %s", initDate,endDate);
             }
         }
         
@@ -85,7 +89,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             return;
         }
         if (items.isEmpty()) {
-            lblInfo.setText("No se encontraron articulos, puedes buscar por CODIGO, DESCRIPCION o COLOR");
+            lblInfo.setText("No se encontraron artículos, puedes buscar por CÓDIGO, DESCRIPCIÓN o COLOR");
         } else {
             lblInfo.setText("Total articulos: "+decimalFormat.format(items.size()));
         }
@@ -94,16 +98,16 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             
             DefaultTableModel temp = (DefaultTableModel) table.getModel();
             Object fila[] = {
-                  articulo.getArticuloId()+"",
+                  articulo.getArticuloId()+ApplicationConstants.BLANK_SPACE,
                   articulo.getCodigo(),
-                  articulo.getCantidad() != 0 ? decimalFormat.format(articulo.getCantidad()) : "",
-                  articulo.getRentados() != 0 ? decimalFormat.format(articulo.getRentados()) : "",
-                  articulo.getFaltantes() != 0 ? decimalFormat.format(articulo.getFaltantes()) : "",
-                  articulo.getReparacion() != 0 ? decimalFormat.format(articulo.getReparacion()) : "",
-                  articulo.getAccidenteTrabajo() != 0 ? decimalFormat.format(articulo.getAccidenteTrabajo()) : "",
-                  articulo.getDevolucion() != 0 ? decimalFormat.format(articulo.getDevolucion()) : "",
-                  articulo.getTotalCompras() != 0 ? decimalFormat.format(articulo.getTotalCompras()) : "",
-                  articulo.getUtiles() != 0 ? decimalFormat.format(articulo.getUtiles()) : "",
+                  articulo.getCantidad() != 0 ? decimalFormat.format(articulo.getCantidad()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getRentados() != 0 ? decimalFormat.format(articulo.getRentados()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getFaltantes() != 0 ? decimalFormat.format(articulo.getFaltantes()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getReparacion() != 0 ? decimalFormat.format(articulo.getReparacion()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getAccidenteTrabajo() != 0 ? decimalFormat.format(articulo.getAccidenteTrabajo()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getDevolucion() != 0 ? decimalFormat.format(articulo.getDevolucion()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getTotalCompras() != 0 ? decimalFormat.format(articulo.getTotalCompras()) : ApplicationConstants.BLANK_SPACE,
+                  articulo.getUtiles() != 0 ? decimalFormat.format(articulo.getUtiles()) : ApplicationConstants.BLANK_SPACE,
                   articulo.getCategoria().getDescripcion(),
                   articulo.getDescripcion(),
                   articulo.getColor().getColor()
@@ -114,22 +118,27 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     
     private void showAndSelectItems () {
         
-        AgregarArticuloDisponibilidadDialog dialog = new AgregarArticuloDisponibilidadDialog(null, true, items);
+        AgregarArticuloDisponibilidadDialog dialog = 
+                new AgregarArticuloDisponibilidadDialog(null, true, items);
         String itemId = dialog.showDialog();
+        
+        if (itemId == null) {
+            return;
+        }
 
         Articulo item = itemService.obtenerArticuloPorId(Integer.parseInt(itemId));
         
         if(item == null)
             return;
 
-        String dato = null;
+        String dato;
          
          // verificamos que el elemento no se encuentre en la lista
         for (int i = 0; i < tablaDisponibilidadArticulos.getRowCount(); i++) {
-            dato = tablaDisponibilidadArticulos.getValueAt(i, Column.ID.getNumber()).toString();
+            dato = tablaDisponibilidadArticulos.getValueAt(i, TableDisponibilidadArticulosShow.Column.ID.getNumber()).toString();
             System.out.println("dato seleccionado" + " " + " - " + dato + " - ");
             if (dato.equals(String.valueOf(item.getArticuloId()))) {
-                 JOptionPane.showMessageDialog(null, "Ya se encuentra el elemento en la lista  ", "Error", JOptionPane.INFORMATION_MESSAGE);
+                 JOptionPane.showMessageDialog(this, "Ya se encuentra el elemento en la lista  ", "Error", JOptionPane.ERROR_MESSAGE);
                  return;
             }
         }
@@ -167,28 +176,32 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     }
 
     private enum Column {
-        ID(0,"id",20),
-        CODE(1,"Código",20),
-        STOCK(2,"Stock",20),
-        RENT(3,"En renta",20),
-        MISSING(4,"Faltantes",20),
-        REPAIR(5,"Reparación",20),
-        WORK_ACCIDENT(6,"Accidente trabajo",20),
-        RETURN(7,"Devolución",20),
-        SHOPPING(8,"Compras",20),
-        UTILS(9,"Utiles",20),
-        CATEGORY(10,"Categoria",90),
-        DESCRIPTION(11,"Descripción",100),
-        COLOR(12,"Color",100);
+        ID(0,"id",20,String.class, false),
+        CODE(1,"Código",20,String.class, false),
+        STOCK(2,"Stock",20,String.class, false),
+        RENT(3,"En renta",20,String.class, false),
+        MISSING(4,"Faltantes",20,String.class, false),
+        REPAIR(5,"Reparación",20,String.class, false),
+        WORK_ACCIDENT(6,"Accidente trabajo",20,String.class, false),
+        RETURN(7,"Devolución",20,String.class, false),
+        SHOPPING(8,"Compras",20,String.class, false),
+        UTILS(9,"Utiles",20,String.class, false),
+        CATEGORY(10,"Categoria",90,String.class, false),
+        DESCRIPTION(11,"Descripción",100,String.class, false),
+        COLOR(12,"Color",100,String.class, false);
         
         private final Integer number;
         private final String description;
-        private final Integer weigth;
+        private final Integer size;
+        private final Class clazzType;
+        private final Boolean isEditable;
         
-        Column (Integer number, String description, Integer weight) {
+        Column (Integer number, String description, Integer size, Class clazzType, Boolean isEditable) {
             this.number = number;
             this.description = description;
-            this.weigth = weight;
+            this.size = size;
+            this.clazzType = clazzType;
+            this.isEditable = isEditable;
         }
         
         public Integer getNumber () {
@@ -199,53 +212,52 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             return this.description;
         }
         
-        public Integer getWeigt () {
-            return this.weigth;
+        public Integer getSize () {
+            return this.size;
+        }
+        
+        public Class getClazzType() {
+            return clazzType;
+        }
+
+        public Boolean getIsEditable() {
+            return isEditable;
+        }        
+        
+        public static String[] getColumnNames () {
+            List<String> columnNames = new ArrayList<>();
+            for (Column column : Column.values()) {
+                columnNames.add(column.getDescription());
+            }
+            return columnNames.toArray(new String[0]);
         }
                 
     }
     
-    private void formatTable () {
-       Object[][] data = {{"","","","","","","","","","","","",""}};
-        String[] columNames = {
-            Column.ID.getDescription(),
-            Column.CODE.getDescription(),
-            Column.STOCK.getDescription(),
-            Column.RENT.getDescription(),
-            Column.MISSING.getDescription(),
-            Column.REPAIR.getDescription(),
-            Column.WORK_ACCIDENT.getDescription(),
-            Column.RETURN.getDescription(),
-            Column.SHOPPING.getDescription(),
-            Column.UTILS.getDescription(),
-            Column.CATEGORY.getDescription(),
-            Column.DESCRIPTION.getDescription(),
-            Column.COLOR.getDescription()
-        };
-        DefaultTableModel tableModel = new DefaultTableModel(data, columNames);
-        table.setModel(tableModel);
-       TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(tableModel); 
-       table.setRowSorter(ordenarTabla);
-       
-       int[] weights = {
-            Column.ID.getWeigt(),
-            Column.CODE.getWeigt(),
-            Column.STOCK.getWeigt(),
-            Column.RENT.getWeigt(),
-            Column.MISSING.getWeigt(),
-            Column.REPAIR.getWeigt(),
-            Column.WORK_ACCIDENT.getWeigt(),
-            Column.RETURN.getWeigt(),
-            Column.SHOPPING.getWeigt(),
-            Column.UTILS.getWeigt(),
-            Column.CATEGORY.getWeigt(),
-            Column.DESCRIPTION.getWeigt(),
-            Column.COLOR.getWeigt()
-       };
+    private void formatTable () {       
 
-       for (int inn = 0; inn < table.getColumnCount(); inn++) {
-           table.getColumnModel().getColumn(inn).setPreferredWidth(weights[inn]);
-       }
+      table.setModel(
+        new DefaultTableModel(Column.getColumnNames(), 0){
+          @Override
+          public Class getColumnClass(int column) {
+              return Column.values()[column].getClazzType();
+          }
+
+          @Override
+          public boolean isCellEditable (int row, int column) {
+              return Column.values()[column].getIsEditable();
+          }
+      });
+      
+      TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(table.getModel()); 
+      table.setRowSorter(ordenarTabla);   
+       
+
+    for (Column column : Column.values()) {
+         table.getColumnModel()
+                 .getColumn(column.getNumber())
+                 .setPreferredWidth(column.getSize());
+     }
        
        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
        center.setHorizontalAlignment(SwingConstants.CENTER);
@@ -295,6 +307,8 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         lblInfoConsultarDisponibilidad = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
 
+        jPanel1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+
         txtSearch.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -332,7 +346,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 973, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -366,7 +380,9 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Articulos", jPanel1);
+        jTabbedPane1.addTab("Artículos", jPanel1);
+
+        jPanel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
         jLabel10.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel10.setText("Fecha inicial");
@@ -396,7 +412,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         });
 
         jLabel11.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel11.setText("Fecha Final");
+        jLabel11.setText("Fecha final");
 
         buttonGroup1.add(radioBtnTodos);
         radioBtnTodos.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -439,6 +455,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         });
 
         btnAddItem.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnAddItem.setMnemonic('a');
         btnAddItem.setText("Agregar");
         btnAddItem.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnAddItem.addActionListener(new java.awt.event.ActionListener() {
@@ -448,7 +465,9 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         });
 
         jButton6.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jButton6.setMnemonic('q');
         jButton6.setText("Quitar");
+        jButton6.setToolTipText("Eliminar elemento");
         jButton6.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -465,7 +484,8 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             }
         });
 
-        lblInfoConsultarDisponibilidad.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        lblInfoConsultarDisponibilidad.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        lblInfoConsultarDisponibilidad.setForeground(new java.awt.Color(204, 51, 0));
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -490,15 +510,16 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radioBtnFechaEntrega, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(radioBtnFechaDevolucion, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(radioBtnFechaDevolucion, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 24, Short.MAX_VALUE))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(65, 65, 65)
                         .addComponent(btnAddItem)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnShowAvailivity)))
-                .addGap(0, 36, Short.MAX_VALUE))
+                        .addComponent(btnShowAvailivity, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(12, 12, 12))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -678,7 +699,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         for (int i = 0; i < tablaDisponibilidadArticulos.getRowCount(); i++) {
             itemsId.add(Long.parseLong(tablaDisponibilidadArticulos.getValueAt(i, TableDisponibilidadArticulosShow.Column.ID.getNumber()).toString()));
         }
-        VerDisponibilidadArticulos ventanaVerDisponibilidad = new VerDisponibilidadArticulos(
+        VerDisponibilidadArticulos win = new VerDisponibilidadArticulos(
                 null,
                 true,
                 initDate,
@@ -690,8 +711,8 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                 null,
                 null
         );
-        ventanaVerDisponibilidad.setVisible(true);
-        ventanaVerDisponibilidad.setLocationRelativeTo(null);
+        win.setVisible(true);
+        win.setLocationRelativeTo(null);
     }
     
     private void btnShowAvailivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowAvailivityActionPerformed
@@ -699,9 +720,10 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
         int contador = 0;
+        
         if ((txtDisponibilidadFechaInicial.getDate() == null
             || txtDisponibilidadFechaFinal.getDate() == null)) {
-        mensaje.append(++contador).append(". Fecha inicial y final son requeridos.\n");
+            mensaje.append(++contador).append(". Fecha inicial y final son requeridos.\n");
         }else{
             // 2018-12-04 verificamos que la fecha inicial sea menor a la fecha final
             LocalDate initDate = LocalDate.parse(sdf.format(txtDisponibilidadFechaInicial.getDate()),formatter);

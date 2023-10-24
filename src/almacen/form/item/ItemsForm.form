@@ -46,10 +46,15 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
         <Container class="javax.swing.JPanel" name="jPanel1">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Arial" size="12" style="0"/>
+            </Property>
+          </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Articulos">
-                <Property name="tabTitle" type="java.lang.String" value="Articulos"/>
+              <JTabbedPaneConstraints tabName="Art&#xed;culos">
+                <Property name="tabTitle" type="java.lang.String" value="Art&#xed;culos"/>
               </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>
@@ -85,7 +90,7 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jScrollPane1" pref="973" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
-                                  <Component id="txtSearch" min="-2" pref="403" max="-2" attributes="0"/>
+                                  <Component id="txtSearch" min="-2" pref="418" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="lblInfo" max="32767" attributes="0"/>
                               </Group>
@@ -162,6 +167,11 @@
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="jPanel2">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Arial" size="12" style="0"/>
+            </Property>
+          </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Disponibilidad">
@@ -248,6 +258,7 @@
                                       <Component id="radioBtnFechaEntrega" min="-2" pref="183" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="radioBtnFechaDevolucion" min="-2" pref="201" max="-2" attributes="0"/>
+                                      <EmptySpace min="0" pref="24" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="-2" pref="65" max="-2" attributes="0"/>
@@ -255,10 +266,10 @@
                                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                       <Component id="jButton6" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                      <Component id="btnShowAvailivity" min="-2" max="-2" attributes="0"/>
+                                      <Component id="btnShowAvailivity" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace min="0" pref="36" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -346,7 +357,7 @@
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Arial" size="12" style="0"/>
                         </Property>
-                        <Property name="text" type="java.lang.String" value="Fecha Final"/>
+                        <Property name="text" type="java.lang.String" value="Fecha final"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JRadioButton" name="radioBtnTodos">
@@ -432,6 +443,7 @@
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Arial" size="12" style="0"/>
                         </Property>
+                        <Property name="mnemonic" type="int" value="97"/>
                         <Property name="text" type="java.lang.String" value="Agregar"/>
                         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
                           <Color id="Hand Cursor"/>
@@ -446,7 +458,9 @@
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Arial" size="12" style="0"/>
                         </Property>
+                        <Property name="mnemonic" type="int" value="113"/>
                         <Property name="text" type="java.lang.String" value="Quitar"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Eliminar elemento"/>
                         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
                           <Color id="Hand Cursor"/>
                         </Property>
@@ -472,7 +486,10 @@
                     <Component class="javax.swing.JLabel" name="lblInfoConsultarDisponibilidad">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Arial" size="12" style="0"/>
+                          <Font name="Arial" size="12" style="1"/>
+                        </Property>
+                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="0" green="33" red="cc" type="rgb"/>
                         </Property>
                       </Properties>
                       <AuxValues>
