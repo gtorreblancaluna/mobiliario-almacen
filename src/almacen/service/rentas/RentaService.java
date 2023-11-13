@@ -47,12 +47,53 @@ public class RentaService {
         return rentaDao.getByFolio(folio);
     }
     
+    public Renta getById (Integer id) throws DataOriginException, BusinessException {
+        return rentaDao.getById(id);
+    }
+    
     public List<Renta> getByParameters (Map<String,Object> parameters) throws DataOriginException, BusinessException {
         return rentaDao.getByParameters(parameters);
     }
     
     public List<Renta> getByIds (List<String> ids) throws DataOriginException, BusinessException {
         return rentaDao.getByIds(ids);
+    }
+    
+    public void updateChofer (List<String> idsRenta, Usuario user, Usuario choferToUpdate) throws DataOriginException, BusinessException {
+        
+        for (String idRenta : idsRenta) {
+            
+            Map<String,Object> parameters = new HashMap<>();
+            parameters.put("choferId",choferToUpdate.getUsuarioId());
+            parameters.put("rentaId",idRenta);
+            rentaDao.updateChofer(parameters);
+        }
+        
+        new Thread(() -> {
+            for (String idRenta : idsRenta) {
+
+                String messageTaskDeliveryChoferUpdateService;
+                try {
+                    Renta renta = getById(Integer.parseInt(idRenta));
+                    
+                    taskDeliveryChoferUpdateService.saveWhenIsNewEvent(
+                        Long.parseLong(idRenta),
+                        renta.getFolio()+"",
+                        choferToUpdate.getUsuarioId()+"",
+                        user.getUsuarioId().toString(),
+                        true
+                    );
+                    messageTaskDeliveryChoferUpdateService = String.format("Tarea 'entrega chofer' generada, Folio: %s. chofer: %s",renta.getFolio(),choferToUpdate);
+                } catch (Exception e) {
+                    messageTaskDeliveryChoferUpdateService = e.getMessage();
+                    log.error(messageTaskDeliveryChoferUpdateService);
+                }
+
+                Utility.pushNotification(messageTaskDeliveryChoferUpdateService);
+            }
+        }).start();
+        
+        
     }
     
     public void updateStatusFromApartadoToEnRenta (List<String> ids, Usuario user) throws DataOriginException, BusinessException {

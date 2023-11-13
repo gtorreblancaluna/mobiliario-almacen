@@ -21,7 +21,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jPanel1" min="-2" pref="34" max="-2" attributes="0"/>
+              <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -58,7 +58,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="jScrollPane1" pref="515" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="519" max="32767" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="lblInfo" min="-2" pref="23" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -147,30 +147,24 @@
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jSeparator2" alignment="1" max="32767" attributes="0"/>
-                      <Group type="102" attributes="0">
-                          <Component id="jButton1" min="-2" pref="32" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
-                      <Component id="btnAttend" alignment="0" pref="0" max="32767" attributes="0"/>
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <Component id="jSeparator1" min="-2" pref="32" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jSeparator1" alignment="1" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                                  <Component id="btnSearch" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
-                                  <Component id="btnSearchByFolio" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
-                                  <Component id="btnReport" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="btnSearch" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
+                              <Component id="btnAttend" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="btnReload" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="jButton1" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="btnSearchByFolio" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
+                              <Component id="btnReport" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-              </Group>
-              <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="btnReload" pref="34" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
               </Group>
           </Group>
         </DimensionLayout>
@@ -189,16 +183,11 @@
                   <Component id="btnAttend" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jSeparator2" min="-2" pref="15" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="btnReload" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="88" max="32767" attributes="0"/>
-              </Group>
-              <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="195" max="-2" attributes="0"/>
-                      <Component id="btnReload" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="127" max="32767" attributes="0"/>
-                  </Group>
+                  <EmptySpace pref="75" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

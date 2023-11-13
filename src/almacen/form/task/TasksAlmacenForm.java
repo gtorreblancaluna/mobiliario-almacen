@@ -658,26 +658,14 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             LOGGER.error(e);
             throw new BusinessException(e.getMessage(),e);
         }
-    }
-   
-   private List<String> getIdsSelected () {
-       List<String> ids = new ArrayList<>();
-        
-        for (int i = 0; i < table.getRowCount(); i++) {
-            if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
-                ids.add(
-                        table.getValueAt(i, Column.TASK_ID.getNumber()).toString()
-                );
-            }
-        }
-        return ids;
-   }
+    }  
+
    
     
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
         
         try {
-            Utility.validateSelectCheckboxInTable(table,Column.BOOLEAN.getNumber());
+            UtilityCommon.validateSelectCheckboxInTable(table,Column.BOOLEAN.getNumber());
             for (int i = 0; i < table.getRowCount(); i++) {
                 if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
                     String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
@@ -718,9 +706,9 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
 
     private void updateAttendType (String taskTypeCatalogId, String taskTypeCatalogDescription) {
         try{
-            Utility.validateSelectCheckboxInTable(table, Column.BOOLEAN.getNumber());
+            UtilityCommon.validateSelectCheckboxInTable(table, Column.BOOLEAN.getNumber());
             Map<String,Object> parameters = new HashMap<>();
-            List<String> ids = getIdsSelected();
+            List<String> ids = UtilityCommon.getIdsSelected(table, Column.BOOLEAN.getNumber(), Column.TASK_ID.getNumber());
             parameters.put("ids", ids);
             parameters.put("taskTypeCatalogId", taskTypeCatalogId);
             int seleccion = JOptionPane.showOptionDialog(this, "Tareas seleccionadas: "+ids.size()+". Marcar como: "+taskTypeCatalogDescription+", ¿Deseas continuar?", "Mensaje", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Si", "No"}, "Si");

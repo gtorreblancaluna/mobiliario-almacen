@@ -11,39 +11,15 @@ import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import almacen.form.index.IndexForm;
-import common.exceptions.BusinessException;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JTable;
 import javax.swing.WindowConstants;
-import static common.constants.ApplicationConstants.LIMIT_GENERATE_PDF;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 
 public abstract class Utility {
     
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        
-    public static void validateSelectCheckboxInTable(JTable table, Integer columNumber) throws BusinessException {
-        
-        int selectRows = 0;
-        
-        for (int i = 0; i < table.getRowCount(); i++) {
-            if (Boolean.parseBoolean(table.getValueAt(i, columNumber).toString())) {
-                selectRows++;
-            }
-        }
-        
-        if (selectRows > LIMIT_GENERATE_PDF) {
-            throw new BusinessException ("Limite excedido de operaciones ["+ LIMIT_GENERATE_PDF +"]");
-        }
-        
-        if (selectRows <= 0) {
-            throw new BusinessException ("Marca el CHECKBOX de una o mas filas para continuar");
-        }
-    }
     
     public static void pushNotification(final String notification){
         StringBuilder messages = new StringBuilder();

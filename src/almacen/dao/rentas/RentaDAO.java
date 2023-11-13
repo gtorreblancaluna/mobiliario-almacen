@@ -86,6 +86,20 @@ public class RentaDAO {
         }
     }
     
+    public Renta getById (Integer id) throws DataOriginException {
+        SqlSession session = null;
+        try {
+           session = sqlSessionFactory.openSession();
+           return (Renta) session.selectOne("MapperRentas.getById",id);
+        } catch (Exception e) {
+            LOGGER.error(e);
+            throw new DataOriginException(e.getMessage(),e);
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+    
     public Renta getByFolio (Integer folio) throws DataOriginException {
         SqlSession session = null;
         try {
@@ -120,6 +134,22 @@ public class RentaDAO {
         try {
             session = sqlSessionFactory.openSession();
             session.update("MapperRentas.updateStatusFromApartadoToEnRenta",parameters);
+            session.commit();
+        }catch(Exception e){
+            LOGGER.error(e);
+            throw new DataOriginException(e.getMessage(),e);
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void updateChofer(Map<String,Object> parameters) throws DataOriginException{
+        SqlSession session = null;
+        try {
+            session = sqlSessionFactory.openSession();
+            session.update("MapperRentas.updateChofer",parameters);
             session.commit();
         }catch(Exception e){
             LOGGER.error(e);

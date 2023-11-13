@@ -22,27 +22,18 @@ import common.services.UtilityService;
 import common.services.providers.OrderProviderService;
 import common.utilities.UtilityCommon;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
 
 public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
 
@@ -80,15 +71,15 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
         });
         
         tableViewOrdersProviders.addMouseListener(new MouseAdapter() {
-        public void mousePressed(MouseEvent mouseEvent) {
-            JTable table =(JTable) mouseEvent.getSource();
-            Point point = mouseEvent.getPoint();
-            int row = table.rowAtPoint(point);
-            if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-                editOrderProvider();
+            public void mousePressed(MouseEvent mouseEvent) {
+                JTable table =(JTable) mouseEvent.getSource();
+                Point point = mouseEvent.getPoint();
+                int row = table.rowAtPoint(point);
+                if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                    editOrderProvider();
+                }
             }
-        }
-});
+        });
     }
     
     private void search () {
@@ -141,7 +132,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                     parameter.setEndEventDate(UtilityCommon.getStringFromDate(txtSearchEndEventDate.getDate(),formatDate));
                 } catch (ParseException e) {
                     LOGGER.error(e);
-                    JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
                 }
             }
             if(!this.cmbStatus.getModel().getSelectedItem().equals(ApplicationConstants.CMB_SELECCIONE)){
@@ -179,7 +170,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             return;
         }catch(BusinessException e){
             LOGGER.error(e);
-            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         return;
         }finally{
            Toolkit.getDefaultToolkit().beep();
@@ -268,7 +259,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
        } catch (BusinessException e) {
            LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
            return;
        }
        
@@ -295,47 +286,19 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     private void reportPDF(){
        
        String orderId;
+       String pathLocation;
        try {
             orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
-       } catch (BusinessException e) {
-           LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
-         
-        JasperPrint jasperPrint;
-        try {
             connectionDB = ConnectionDB.getInstance();
-            String pathLocation = Utility.getPathLocation();
-            String archivo = pathLocation+ApplicationConstants.RUTA_REPORTE_ORDEN_PROVEEDOR;
-            System.out.println("Cargando desde: " + archivo);
-            if (archivo == null) {
-                JOptionPane.showMessageDialog(rootPane, "No se encuentra el Archivo jasper");
-                return;
-            }
-            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(archivo);  
-           
-            DatosGenerales datosGenerales = systemService.getGeneralData();
-            
-            Map parametros = new HashMap<>();
-            parametros.put("ID_ORDEN",orderId);
-            parametros.put("NOMBRE_EMPRESA",datosGenerales.getCompanyName());
-            parametros.put("DIRECCION_EMPRESA",datosGenerales.getAddress1());
-            parametros.put("TELEFONOS_EMPRESA",datosGenerales.getAddress2());
-            parametros.put("EMAIL_EMPRESA",datosGenerales.getAddress3() != null ? datosGenerales.getAddress3() : "");
-            //guardamos el parámetro
-            parametros.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
-           
-            jasperPrint = JasperFillManager.fillReport(masterReport, parametros, connectionDB.getConnection());
-            JasperExportManager.exportReportToPdfFile(jasperPrint, pathLocation+ApplicationConstants.NOMBRE_REPORTE_ORDEN_PROVEEDOR);
-            File file2 = new File(pathLocation+ApplicationConstants.NOMBRE_REPORTE_ORDEN_PROVEEDOR);
-            Desktop.getDesktop().open(file2);
-            
-        } catch (Exception e) {
-            LOGGER.error(e);
-            System.out.println("Mensaje de Error:" + e.toString());
-            JOptionPane.showMessageDialog(rootPane, "Error cargando el reporte maestro: " + e.getMessage() + "\n" + e);
-        }
+            pathLocation = Utility.getPathLocation();
+       } catch (Exception e) {
+           LOGGER.error(e);
+           JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
+           return;
+       }       
+       DatosGenerales datosGenerales = systemService.getGeneralData();       
+       UtilityCommon.generatePDFOrderProvider(
+               orderId,connectionDB.getConnection(),datosGenerales, pathLocation);
      
      }
     
@@ -352,7 +315,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
          return;
      }catch(BusinessException e){
         LOGGER.error(e);
-        JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         return;
      }finally {
         Toolkit.getDefaultToolkit().beep();
@@ -451,9 +414,9 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             IndexForm.rootPanel.add(form);
             form.show();
         } catch (NumberFormatException numberFormatException) {
-            JOptionPane.showMessageDialog(this, "Introduce un numero valido", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Introduce un numero valido", ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         } catch (BusinessException | DataOriginException dataOriginException) {
-            JOptionPane.showMessageDialog(this, dataOriginException.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, dataOriginException.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         }
    }
     
@@ -467,7 +430,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             IndexForm.rootPanel.add(form);
             form.show();
        } catch (BusinessException businessException) {
-           JOptionPane.showMessageDialog(this, businessException.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(this, businessException.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
        }
        
         
@@ -485,7 +448,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             folio = getValueIdBySelectedRow(ColumnToGetValue.FOLIO);
        } catch (BusinessException e) {
            LOGGER.error(e);
-           JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
            return;
        }
 
