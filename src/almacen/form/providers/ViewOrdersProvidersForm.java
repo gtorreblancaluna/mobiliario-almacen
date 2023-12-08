@@ -194,7 +194,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                 detail.getEventDate(),
                 detail.getUser(),
                 detail.getSupplier(),
-                detail.getOrderComment(),
+                detail.getDetailComment(),
                 detail.getOrderDetailType(),
                 detail.getCreado()
               };
