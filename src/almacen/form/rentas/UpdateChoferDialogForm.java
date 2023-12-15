@@ -2,7 +2,7 @@ package almacen.form.rentas;
 
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
-import almacen.service.rentas.RentaService;
+import common.services.RentaService;
 import common.constants.ApplicationConstants;
 import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;
@@ -186,7 +186,7 @@ public class UpdateChoferDialogForm extends javax.swing.JDialog {
                 throw new BusinessException("Selecciona un chofer.");
             }
 
-            rentaService.updateChofer(idsRenta, IndexForm.globalUser,choferToUpdate);
+            rentaService.updateChofer(idsRenta, IndexForm.globalUser,choferToUpdate,IndexForm.listNotifications,IndexForm.txtAreaNotifications);
             JOptionPane.showMessageDialog(this, "Se actualizó chofer con éxito.", "OK", JOptionPane.INFORMATION_MESSAGE);
             Utility.pushNotification("El usuario: "+IndexForm.globalUser.getNombre()+" "+IndexForm.globalUser.getApellidos()
                     +", actualizó el chofer: "+choferToUpdate.getNombre()+" "+choferToUpdate.getApellidos()+" a los folios: ["+String.join(",", folios)+"]");

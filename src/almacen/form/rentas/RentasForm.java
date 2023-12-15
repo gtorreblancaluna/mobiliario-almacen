@@ -1,6 +1,6 @@
 package almacen.form.rentas;
 
-import almacen.service.rentas.RentaService;
+import common.services.RentaService;
 import almacen.model.rentas.NumberOfWeek;
 import almacen.form.index.IndexForm;
 import common.constants.ApplicationConstants;
@@ -206,7 +206,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
             }
             Map<String,Object> parameters = new HashMap<>();
             parameters.put("ids", ids);
-            rentaService.updateStatusFromApartadoToEnRenta(ids, IndexForm.globalUser);
+            rentaService.updateStatusFromApartadoToEnRenta(ids, IndexForm.globalUser,IndexForm.listNotifications,IndexForm.txtAreaNotifications);
             this.cmbNumberOfWeeks.setSelectedIndex(0);
             getByNumberOfWeeks();
         } catch (DataOriginException | BusinessException e) {

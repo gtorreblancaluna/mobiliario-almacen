@@ -1,7 +1,7 @@
 package almacen.form.providers;
 
 import almacen.form.index.IndexForm;
-import almacen.service.rentas.RentaService;
+import common.services.RentaService;
 import common.constants.ApplicationConstants;
 import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;

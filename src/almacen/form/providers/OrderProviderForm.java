@@ -4,7 +4,7 @@ import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
-import almacen.service.rentas.RentaService;
+import common.services.RentaService;
 import common.constants.ApplicationConstants;
 import common.utilities.UtilityCommon;
 import common.exceptions.BusinessException;

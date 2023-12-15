@@ -5,7 +5,7 @@ import almacen.commons.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
-import almacen.service.rentas.RentaService;
+import common.services.RentaService;
 import common.tables.TableViewOrdersProviders;
 import common.tables.TableViewOrdersProvidersDetail;
 import common.constants.ApplicationConstants;
@@ -329,7 +329,8 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
 
        for(OrdenProveedor orden : list){      
 
-            Object fila[] = {                                          
+            Object fila[] = {
+                false,
                 orden.getId(),
                 orden.getRenta().getFolio(),
                 orden.getUsuario().getNombre()+" "+orden.getUsuario().getApellidos(),
