@@ -1,7 +1,7 @@
 package almacen.form.delivery;
 
 import almacen.commons.enums.FilterEvent;
-import almacen.commons.utilities.ConnectionDB;
+import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.service.delivery.TaskChoferDeliveryRetrieveService;
 import almacen.service.delivery.TaskChoferDeliveryUpdateService;

@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 import almacen.form.index.IndexForm;
 import static almacen.form.index.IndexForm.rootPanel;
 import almacen.service.task.TaskAlmacenRetrieveService;
-import almacen.commons.utilities.ConnectionDB;
+import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.service.task.TaskAlmacenUpdateService;
 import common.exceptions.BusinessException;

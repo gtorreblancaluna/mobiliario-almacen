@@ -1,7 +1,7 @@
 
 package almacen.form.providers;
 
-import almacen.commons.utilities.ConnectionDB;
+import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
@@ -13,9 +13,11 @@ import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;
 import common.exceptions.InvalidDataException;
 import common.exceptions.NoDataFoundException;
+import common.form.provider.OrderProviderCopyFormDialog;
 import common.model.DatosGenerales;
 import common.model.Renta;
 import common.model.providers.OrdenProveedor;
+import common.model.providers.OrderProviderCopyParameter;
 import common.model.providers.ParameterOrderProvider;
 import common.model.providers.queryresult.DetailOrderSupplierQueryResult;
 import common.services.UtilityService;
@@ -30,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -352,7 +355,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
    
    }
     
-        private enum ColumnToGetValue {
+    private enum ColumnToGetValue {
         RENTA_ID,
         ORDER_ID,
         FOLIO;
@@ -489,6 +492,7 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
         txtSearchEndEventDate = new com.toedter.calendar.JDateChooser();
         jbtnAddOrder = new javax.swing.JButton();
         jbtnBitacoraProveedor = new javax.swing.JButton();
+        btnCopyOrders = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         lblInfoGeneral = new javax.swing.JLabel();
         tabGeneral = new javax.swing.JTabbedPane();
@@ -673,6 +677,15 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
             }
         });
 
+        btnCopyOrders.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/copy-24.png"))); // NOI18N
+        btnCopyOrders.setToolTipText("Copiar ordenes a un nuevo folio");
+        btnCopyOrders.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnCopyOrders.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopyOrdersActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -695,7 +708,9 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtnAddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtnBitacoraProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jbtnBitacoraProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCopyOrders, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(txtSearchByNameProvider, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(7, 7, 7)
@@ -766,18 +781,17 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
                             .addComponent(txtSearchFolioRenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtSearchOrderNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jbtnSearch, javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jButton5)
-                                    .addComponent(jButton4)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING))
-                                    .addComponent(jButton2)))
-                            .addComponent(jbtnAddOrder)
-                            .addComponent(jbtnBitacoraProveedor))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jbtnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbtnAddOrder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbtnBitacoraProveedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnCopyOrders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(1, 1, 1)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -959,8 +973,42 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
         showBitacoraProveedores();
     }//GEN-LAST:event_jbtnBitacoraProveedorActionPerformed
 
+    private void btnCopyOrdersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyOrdersActionPerformed
+
+        List<String> orders = new ArrayList<>();
+        for (int i = 0; i < tableViewOrdersProviders.getRowCount(); i++) {
+            if (Boolean.parseBoolean(tableViewOrdersProviders.
+                getValueAt(i, TableViewOrdersProviders.Column.BOOLEAN.getNumber()).toString())) {
+            orders.add(
+                tableViewOrdersProviders.getValueAt(i, TableViewOrdersProviders.Column.ORDER_NUM.getNumber()).toString()
+            );
+        }
+        }
+
+        if (orders.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Selecciona una o mas ordenes al proveedor.");
+            return;
+        }
+
+        OrderProviderCopyParameter orderProviderCopyParameter
+        = new OrderProviderCopyParameter();
+
+        orderProviderCopyParameter.setUsuarioId(IndexForm.globalUser.getUsuarioId());
+        orderProviderCopyParameter.setOrders(orders);
+
+        OrderProviderCopyFormDialog orderProviderCopyFormDialog =
+        new OrderProviderCopyFormDialog(null, true, orderProviderCopyParameter);
+
+        Boolean success = orderProviderCopyFormDialog.showDialog();
+
+        if (success) {
+            this.search();
+        }
+    }//GEN-LAST:event_btnCopyOrdersActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCopyOrders;
     private javax.swing.JComboBox cmbLimit;
     private javax.swing.JComboBox cmbStatus;
     private javax.swing.JButton jButton1;

@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import common.model.TipoAbono;
+import common.model.Usuario;
 import common.model.providers.OrdenProveedor;
 import common.model.providers.PagosProveedor;
 import common.services.providers.OrderProviderService;
@@ -48,8 +49,7 @@ public class PaymentsProvidersForm extends javax.swing.JInternalFrame {
         this.setTitle("Pagos al proveedor");
         tableFormat();
         fillPaymentsType();
-        getPayments();
-        
+        getPayments();        
     }
     
     public void getPayments(){

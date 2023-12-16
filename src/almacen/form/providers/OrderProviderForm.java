@@ -1,6 +1,6 @@
 package almacen.form.providers;
 
-import almacen.commons.utilities.ConnectionDB;
+import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
