@@ -1011,18 +1011,9 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             return;
         }
         formatTable();
-        List<Articulo> filterArticulos = items.stream()
-                    .filter(articulo -> Objects.nonNull(articulo))
-                    .filter(articulo -> Objects.nonNull(articulo.getDescripcion()))
-                    .filter(articulo -> Objects.nonNull(articulo.getColor()))
-                    .filter(articulo -> Objects.nonNull(articulo.getCodigo()))
-                    .filter(articulo -> (
-                            UtilityCommon.removeAccents(articulo.getDescripcion().trim().toLowerCase() + " " + articulo.getColor().getColor().trim().toLowerCase()))
-                            .contains(UtilityCommon.removeAccents(txtSearch.getText().toLowerCase().trim())) 
-                            || UtilityCommon.removeAccents(articulo.getCodigo().trim().toLowerCase())
-                                    .contains(UtilityCommon.removeAccents(txtSearch.getText().toLowerCase().trim())))
-                    .collect(Collectors.toList());
-        fillTable(filterArticulos);
+        List<Articulo> itemsFiltered = 
+                UtilityCommon.applyFilterToItems(items,txtSearch.getText());
+        fillTable(itemsFiltered);
     }//GEN-LAST:event_txtSearchKeyReleased
 
     private void txtDisponibilidadFechaInicialMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtDisponibilidadFechaInicialMouseClicked

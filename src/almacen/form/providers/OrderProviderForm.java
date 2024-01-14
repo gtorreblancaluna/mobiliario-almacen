@@ -1186,24 +1186,25 @@ public class OrderProviderForm extends javax.swing.JInternalFrame {
             return;
         }
 
-        String id = jTableOrderProvider.getValueAt(jTableOrderProvider.getSelectedRow(), HD_ORDEN_PROVEEDOR_ID_ORDEN).toString();
+        String detalleOrdenProveedorId = jTableOrderProvider.getValueAt(jTableOrderProvider.getSelectedRow(), HD_ORDEN_PROVEEDOR_ID_ORDEN).toString();
 
-        if(id == null || id.equals("")){
+        if(detalleOrdenProveedorId == null || detalleOrdenProveedorId.equals("")){
             JOptionPane.showMessageDialog(this, "Ocurrio un error, intenta de nuevo o reinicia la aplicacion ", "Error", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
-        if(id.equals("0")){
+        if(detalleOrdenProveedorId.equals("0")){
             // entonces es primera vez solo eliminamos de la tabla
             DefaultTableModel temp = (DefaultTableModel) this.jTableOrderProvider.getModel();
             temp.removeRow(jTableOrderProvider.getSelectedRow());
 
         }else{
-            if(JOptionPane.showOptionDialog(this, "Se eliminará de la base de datos,  \u00BFContinuar? " ,"Confirme eliminacion", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Si", "No"}, "Si") != 0)
+            if(JOptionPane.showOptionDialog(this, "Se eliminará de la base de datos,  \u00BFContinuar? " ,"Confirme eliminacion", 
+                    JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Si", "No"}, "Si") != 0)
             return;
             
             try {
-                orderProviderService.updateDetailOrderProvider(null,null,null,null,null,"0");
+                orderProviderService.updateDetailOrderProvider(Long.parseLong(detalleOrdenProveedorId),null,null,null,null,"0");
                 DefaultTableModel temp = (DefaultTableModel) this.jTableOrderProvider.getModel();
                 temp.removeRow(jTableOrderProvider.getSelectedRow());
             } catch (Exception e) {
