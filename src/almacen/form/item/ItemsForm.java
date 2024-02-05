@@ -16,14 +16,18 @@ import common.services.ItemService;
 import common.services.TipoEventoService;
 import common.services.UtilityService;
 import common.tables.TableDisponibilidadArticulosShow;
+import common.tables.TableIDetailtems;
 import common.tables.TableItemsByFolio;
 import common.utilities.UtilityCommon;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -31,16 +35,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 public class ItemsForm extends javax.swing.JInternalFrame {
     
@@ -58,13 +56,17 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     private List<EstadoEvento> eventStatus = new ArrayList<>();
     private final EstadoEventoService estadoEventoService = EstadoEventoService.getInstance();
     private final TipoEventoService tipoEventoService = TipoEventoService.getInstance();
+    private final TableIDetailtems tableIDetailtems;
 
     public ItemsForm() {
         initComponents();
+        tableIDetailtems = new TableIDetailtems();
+        UtilityCommon.addJtableToPane(940, 940, panelTableDetailItems, tableIDetailtems);
         init();
         tableItemsByFolio = new TableItemsByFolio();
         UtilityCommon.addJtableToPane(937, 305, panelTableItemsByFolio, tableItemsByFolio);
-        eventListenerTabGeneral();        
+        eventListenerTabGeneral();   
+        
     }
     
     private void setCmbLimit () {
@@ -133,14 +135,20 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         
     }
     
-    private void init () {
+    private void initFillTable () {
         lblInfo.setText("Obteniendo artículos de la base de datos...");
         txtSearch.setEnabled(false);
-        this.setTitle("INVENTARIO");
-        this.setClosable(true);
+        btnUpdateStock.setEnabled(false);
         new Thread(() -> {
             getItemsAndFillTable();
         }).start();
+    }
+    
+    private void init () {
+        
+        initFillTable();
+        this.setTitle("INVENTARIO");
+        this.setClosable(true);        
         
         txtDisponibilidadFechaInicial.getDateEditor().addPropertyChangeListener((PropertyChangeEvent e) -> {
             if ("date".equals(e.getPropertyName())) {
@@ -154,6 +162,29 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         });
         tablaDisponibilidadArticulos = new TableDisponibilidadArticulosShow();
         UtilityCommon.addJtableToPane(950, 400, jPanel6, tablaDisponibilidadArticulos);
+        
+        tableIDetailtems.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {                
+                if (evt.getClickCount() == 2) {
+                    editStock(tableIDetailtems.getSelectedRow());
+                }
+            }
+        });
+        
+        tableIDetailtems.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent evt) {
+                
+                if(evt.getKeyCode() == KeyEvent.VK_ENTER && tableIDetailtems.getRowCount() > 0) {
+                    editStock(tableIDetailtems.getSelectedRow());
+                } else if (evt.getKeyCode() == KeyEvent.VK_UP && tableIDetailtems.getSelectedRow() == 0) {
+                    txtSearch.requestFocus();
+                    txtSearch.selectAll();
+                }
+            }
+        });
+        
     }
     
     private void setLblInfoStatusChange () {
@@ -192,7 +223,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         
         for(Articulo articulo : items){
             
-            DefaultTableModel temp = (DefaultTableModel) table.getModel();
+            DefaultTableModel temp = (DefaultTableModel) tableIDetailtems.getModel();
             Object fila[] = {
                   articulo.getArticuloId(),
                   articulo.getCodigo(),
@@ -206,7 +237,8 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                   articulo.getUtiles() != 0 ? integerFormat.format(articulo.getUtiles()) : ApplicationConstants.EMPTY_STRING,
                   articulo.getCategoria().getDescripcion(),
                   articulo.getDescripcion(),
-                  articulo.getColor().getColor()
+                  articulo.getColor().getColor(),
+                  articulo.getFechaUltimaModificacion()
                };
                temp.addRow(fila);
         }
@@ -255,13 +287,14 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     }
     
     private void getItemsAndFillTable () {
-        formatTable();
+        tableIDetailtems.format();
         
         try {
             items = itemService.obtenerArticulosBusquedaInventario(new HashMap<>());
             txtSearch.setEnabled(true);
             txtSearch.requestFocus();
             fillTable(items);
+            btnUpdateStock.setEnabled(true);
         } catch (Exception e) {
             Logger.getLogger(ItemsForm.class.getName()).log(Level.SEVERE, null, e);
             JOptionPane.showMessageDialog(null, "Ocurrio un inesperado\n "+e, ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
@@ -269,110 +302,8 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         } finally {
             Toolkit.getDefaultToolkit().beep();
         }
-    }
+    }    
 
-    private enum Column {
-        ID(0,"id",20,String.class, false),
-        CODE(1,"Código",20,String.class, false),
-        STOCK(2,"Stock",20,String.class, false),
-        RENT(3,"En renta",20,String.class, false),
-        MISSING(4,"Faltantes",20,String.class, false),
-        REPAIR(5,"Reparación",20,String.class, false),
-        WORK_ACCIDENT(6,"Accidente trabajo",20,String.class, false),
-        RETURN(7,"Devolución",20,String.class, false),
-        SHOPPING(8,"Compras",20,String.class, false),
-        UTILS(9,"Utiles",20,String.class, false),
-        CATEGORY(10,"Categoria",90,String.class, false),
-        DESCRIPTION(11,"Descripción",100,String.class, false),
-        COLOR(12,"Color",100,String.class, false);
-        
-        private final Integer number;
-        private final String description;
-        private final Integer size;
-        private final Class clazzType;
-        private final Boolean isEditable;
-        
-        Column (Integer number, String description, Integer size, Class clazzType, Boolean isEditable) {
-            this.number = number;
-            this.description = description;
-            this.size = size;
-            this.clazzType = clazzType;
-            this.isEditable = isEditable;
-        }
-        
-        public Integer getNumber () {
-            return this.number;
-        }
-        
-        public String getDescription () {
-            return this.description;
-        }
-        
-        public Integer getSize () {
-            return this.size;
-        }
-        
-        public Class getClazzType() {
-            return clazzType;
-        }
-
-        public Boolean getIsEditable() {
-            return isEditable;
-        }        
-        
-        public static String[] getColumnNames () {
-            List<String> columnNames = new ArrayList<>();
-            for (Column column : Column.values()) {
-                columnNames.add(column.getDescription());
-            }
-            return columnNames.toArray(new String[0]);
-        }
-                
-    }
-    
-    private void formatTable () {       
-
-      table.setModel(
-        new DefaultTableModel(Column.getColumnNames(), 0){
-          @Override
-          public Class getColumnClass(int column) {
-              return Column.values()[column].getClazzType();
-          }
-
-          @Override
-          public boolean isCellEditable (int row, int column) {
-              return Column.values()[column].getIsEditable();
-          }
-      });
-      
-      TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(table.getModel()); 
-      table.setRowSorter(ordenarTabla);   
-       
-
-    for (Column column : Column.values()) {
-         table.getColumnModel()
-                 .getColumn(column.getNumber())
-                 .setPreferredWidth(column.getSize());
-     }
-       
-       DefaultTableCellRenderer center = new DefaultTableCellRenderer();
-       center.setHorizontalAlignment(SwingConstants.CENTER);
-       
-       table.getColumnModel().getColumn(0).setMaxWidth(Column.ID.getNumber());
-       table.getColumnModel().getColumn(0).setMinWidth(Column.ID.getNumber());
-       table.getColumnModel().getColumn(0).setPreferredWidth(Column.ID.getNumber());
-       
-       table.getColumnModel().getColumn(Column.CODE.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.STOCK.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.RENT.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.MISSING.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.REPAIR.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.WORK_ACCIDENT.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.RETURN.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.SHOPPING.getNumber()).setCellRenderer(center);
-       table.getColumnModel().getColumn(Column.UTILS.getNumber()).setCellRenderer(center);
-
-    }
         
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -382,10 +313,12 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         tabGeneral = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
+        jPanel10 = new javax.swing.JPanel();
         txtSearch = new javax.swing.JTextField();
         lblInfo = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable();
+        btnUpdateStock = new javax.swing.JButton();
+        btnExportItemTableToExcel = new javax.swing.JButton();
+        panelTableDetailItems = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
@@ -437,24 +370,66 @@ public class ItemsForm extends javax.swing.JInternalFrame {
 
         lblInfo.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
 
-        table.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        table.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                tableKeyPressed(evt);
+        btnUpdateStock.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnUpdateStock.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/edit-24.png"))); // NOI18N
+        btnUpdateStock.setToolTipText("Editar stock");
+        btnUpdateStock.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnUpdateStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateStockActionPerformed(evt);
             }
         });
-        jScrollPane1.setViewportView(table);
+
+        btnExportItemTableToExcel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        btnExportItemTableToExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/excel-24.png"))); // NOI18N
+        btnExportItemTableToExcel.setToolTipText("Exportar Excel");
+        btnExportItemTableToExcel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnExportItemTableToExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportItemTableToExcelActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 368, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 653, Short.MAX_VALUE))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(btnUpdateStock, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnExportItemTableToExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnUpdateStock, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnExportItemTableToExcel, javax.swing.GroupLayout.Alignment.TRAILING)))
+        );
+
+        javax.swing.GroupLayout panelTableDetailItemsLayout = new javax.swing.GroupLayout(panelTableDetailItems);
+        panelTableDetailItems.setLayout(panelTableDetailItemsLayout);
+        panelTableDetailItemsLayout.setHorizontalGroup(
+            panelTableDetailItemsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        panelTableDetailItemsLayout.setVerticalGroup(
+            panelTableDetailItemsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 474, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -463,22 +438,17 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 981, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelTableDetailItems, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1)
+                .addComponent(panelTableDetailItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -495,8 +465,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tabGeneral.addTab("Artículos", jPanel1);
@@ -630,7 +599,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                         .addComponent(radioBtnFechaEntrega, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radioBtnFechaDevolucion, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 32, Short.MAX_VALUE))
+                        .addGap(0, 89, Short.MAX_VALUE))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(65, 65, 65)
                         .addComponent(btnAddItem)
@@ -679,7 +648,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 421, Short.MAX_VALUE)
+            .addGap(0, 427, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -877,7 +846,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
                         .addComponent(jbtnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(288, Short.MAX_VALUE))
+                .addContainerGap(345, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -929,11 +898,11 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         panelTableItemsByFolio.setLayout(panelTableItemsByFolioLayout);
         panelTableItemsByFolioLayout.setHorizontalGroup(
             panelTableItemsByFolioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 981, Short.MAX_VALUE)
+            .addGap(0, 1038, Short.MAX_VALUE)
         );
         panelTableItemsByFolioLayout.setVerticalGroup(
             panelTableItemsByFolioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 387, Short.MAX_VALUE)
+            .addGap(0, 393, Short.MAX_VALUE)
         );
 
         lblInfoGeneral.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
@@ -1001,19 +970,25 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
-        
-    }//GEN-LAST:event_tableKeyPressed
-
     private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
         if (txtSearch.getText().length() > 1000) {
             lblInfo.setText("Longitud de caracteres no validos");
             return;
         }
-        formatTable();
-        List<Articulo> itemsFiltered = 
+        
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER && tableIDetailtems.getRowCount() > 0) {
+            editStock(0);
+        } else if (evt.getKeyCode() == KeyEvent.VK_DOWN && tableIDetailtems.getRowCount() > 0) {
+            tableIDetailtems.requestFocus();
+            tableIDetailtems.changeSelection(0,0,false, false);
+        } else {
+            tableIDetailtems.format();
+            List<Articulo> itemsFiltered = 
                 UtilityCommon.applyFilterToItems(items,txtSearch.getText());
-        fillTable(itemsFiltered);
+            fillTable(itemsFiltered);
+        }
+        
+        
     }//GEN-LAST:event_txtSearchKeyReleased
 
     private void txtDisponibilidadFechaInicialMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtDisponibilidadFechaInicialMouseClicked
@@ -1062,6 +1037,53 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         setLblInfoStatusChange();
     }//GEN-LAST:event_jButton6ActionPerformed
 
+    private void editStock (int selectedRow) {
+                
+        String itemDescription = 
+                tableIDetailtems.getValueAt(selectedRow, TableIDetailtems.Column.DESCRIPTION.getNumber()).toString();
+        String currentStock = 
+                tableIDetailtems.getValueAt(selectedRow, TableIDetailtems.Column.STOCK.getNumber()).toString();
+        StockItemFormDialog dialog = 
+                new StockItemFormDialog(null, true, itemDescription,currentStock);        
+        String stockUpdated = dialog.showDialog();
+              
+        if (stockUpdated == null || stockUpdated.isEmpty()) {
+            return;
+        }
+        
+        try {
+            
+            Integer itemId = 
+                    Integer.parseInt(tableIDetailtems.getValueAt(
+                            selectedRow, TableIDetailtems.Column.ID.getNumber()).toString());
+            
+            Articulo itemUpdate = new Articulo();
+            itemUpdate.setArticuloId(itemId);
+            itemUpdate.setCantidad(Float.parseFloat(stockUpdated));
+            itemUpdate.setFechaUltimaModificacion(new Timestamp(System.currentTimeMillis()));
+            itemService.actualizarArticulo(itemUpdate);
+            tableIDetailtems.setValueAt(stockUpdated, selectedRow, TableIDetailtems.Column.STOCK.getNumber());
+            lblInfo.setText("Se actualizó el stock con éxito.");
+            UtilityCommon.setTimeout(() -> lblInfo.setText(""), 4000);
+            
+            items.stream()
+                    .filter(t -> t.getArticuloId().equals(itemId))
+                    .forEach(item -> {
+                        item.setFechaUltimaModificacion(new Timestamp(System.currentTimeMillis()));
+                        item.setCantidad(Float.parseFloat(stockUpdated));
+                    });                    
+            
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), 
+                    ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
+        } finally {
+            Toolkit.getDefaultToolkit().beep();
+        }
+
+        
+    }
+    
+    
     private SearchItemByFolioParams getParametersToSearchItemsByFolio () throws InvalidDataException{
         
         SearchItemByFolioParams searchItemByFolioParams = new SearchItemByFolioParams();
@@ -1247,10 +1269,28 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_txtSearchLikeItemDescriptionKeyPressed
 
+    private void btnUpdateStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateStockActionPerformed
+        if (tableIDetailtems.getSelectedRow() < 0) {
+            JOptionPane.showMessageDialog(this, ApplicationConstants.SELECT_A_ROW_NECCESSARY,
+                    ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);  
+        } else {
+            editStock(tableIDetailtems.getSelectedRow());
+        }
+        
+        
+    }//GEN-LAST:event_btnUpdateStockActionPerformed
+
+    private void btnExportItemTableToExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportItemTableToExcelActionPerformed
+        utilityService = UtilityService.getInstance();
+        utilityService.exportarExcel(tableIDetailtems);
+    }//GEN-LAST:event_btnExportItemTableToExcelActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddItem;
+    private javax.swing.JButton btnExportItemTableToExcel;
     private javax.swing.JButton btnShowAvailivity;
+    private javax.swing.JButton btnUpdateStock;
     private javax.swing.ButtonGroup buttonGroup1;
     public static javax.swing.JCheckBox check_solo_negativos;
     private javax.swing.JComboBox<Tipo> cmbEventType;
@@ -1268,6 +1308,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1276,17 +1317,16 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jbtnSearch;
     private javax.swing.JLabel lblInfo;
     private static javax.swing.JLabel lblInfoConsultarDisponibilidad;
     private javax.swing.JLabel lblInfoGeneral;
+    private javax.swing.JPanel panelTableDetailItems;
     private javax.swing.JPanel panelTableItemsByFolio;
     public static javax.swing.JRadioButton radioBtnFechaDevolucion;
     public static javax.swing.JRadioButton radioBtnFechaEntrega;
     public static javax.swing.JRadioButton radioBtnTodos;
     private javax.swing.JTabbedPane tabGeneral;
-    public static javax.swing.JTable table;
     private static com.toedter.calendar.JDateChooser txtDisponibilidadFechaFinal;
     private static com.toedter.calendar.JDateChooser txtDisponibilidadFechaInicial;
     private javax.swing.JTextField txtSearch;

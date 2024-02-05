@@ -11,8 +11,6 @@ import common.model.EstadoEvento;
 import common.model.Tipo;
 import common.services.UtilityService;
 import common.utilities.UtilityCommon;
-import java.awt.Desktop;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +22,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
 import org.apache.log4j.Logger;
 import almacen.form.index.IndexForm;
 import static almacen.form.index.IndexForm.rootPanel;
@@ -37,11 +30,14 @@ import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.service.task.TaskAlmacenUpdateService;
 import common.exceptions.BusinessException;
+import common.model.Renta;
 import common.model.TaskAlmacenVO;
 import common.model.Usuario;
+import common.services.RentaService;
 import common.services.UserService;
 import common.utilities.CheckBoxHeader;
 import common.utilities.ItemListenerHeaderCheckbox;
+import common.utilities.JasperPrintUtility;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.swing.table.TableColumn;
@@ -62,6 +58,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private EstadoEventoService estadoEventoService;
     private TipoEventoService tipoEventoService;
     private UserService userService;
+    private RentaService rentaService;
     private final TaskAlmacenUpdateService taskAlmacenUpdateService = TaskAlmacenUpdateService.getInstance();
     private final static Integer LIMIT_RESULTS = 1_000;
     
@@ -71,6 +68,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         this.setClosable(true);
         this.setTitle("TAREAS ALMACEN");
         taskAlmacenRetrieveService = TaskAlmacenRetrieveService.getInstance();
+        rentaService = RentaService.getInstance();
         init();
     }
     
@@ -632,36 +630,7 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         utilityService.exportarExcel(table);
     }//GEN-LAST:event_jButton1ActionPerformed
-    
-    private static void openPDFReportByCategories (String rentaId, String userId, String userName, String folio) throws BusinessException {
-        try {
-            connectionDB = ConnectionDB.getInstance();
-            String pathLocation = Utility.getPathLocation();
-            String reportName = pathLocation+ApplicationConstants.NOMBRE_REPORTE_CATEGORIAS_SIN_EXT+"-"+folio+".pdf";
-            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_CATEGORIAS);
-            
-            Map<String,Object> parameters = new HashMap<>();
-            parameters.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
-            parameters.put("ID_RENTA",rentaId);
-            parameters.put("ID_USUARIO",userId);
-            parameters.put("NOMBRE_ENCARGADO_AREA",userName);
-            
-            JasperPrint jasperPrint = JasperFillManager.fillReport(masterReport, parameters, connectionDB.getConnection());
-            JasperExportManager.exportReportToPdfFile(jasperPrint, reportName);
-
-            Desktop.getDesktop().open(
-                    new File(reportName)
-            );
-            generateLogGeneratePDFPush("reporte por categorías, folio: "+folio);
-
-        } catch (Exception e) {
-            LOGGER.error(e);
-            throw new BusinessException(e.getMessage(),e);
-        }
-    }  
-
-   
-    
+        
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
         
         try {
@@ -672,11 +641,16 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                     String rentaId = table.getValueAt(i, Column.ID.getNumber()).toString();
                     String userId = table.getValueAt(i, Column.USER_ID.getNumber()).toString();
                     String userName = table.getValueAt(i, Column.USER_NAME.getNumber()).toString();
-                    openPDFReportByCategories(rentaId,userId,userName,folio);
+                    
+                    final Renta renta = rentaService.getById(Integer.parseInt(rentaId));
+                    
+                    JasperPrintUtility.openPDFReportByCategories(userId,userName,renta,
+                            connectionDB, Utility.getPathLocation());
+                    generateLogGeneratePDFPush("reporte por categorías, folio: "+folio);
                 }
             }
-        } catch (BusinessException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Reporte", JOptionPane.INFORMATION_MESSAGE);  
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Reporte", JOptionPane.INFORMATION_MESSAGE);  
         }
         
     }//GEN-LAST:event_btnReportActionPerformed

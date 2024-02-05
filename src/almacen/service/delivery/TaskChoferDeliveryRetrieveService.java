@@ -1,6 +1,6 @@
 package almacen.service.delivery;
 
-import almacen.dao.delivery.TaskChoferDeliveryRetrieveDAO;
+import common.dao.TaskChoferDeliveryRetrieveDAO;
 import common.exceptions.DataOriginException;
 import common.model.TaskChoferDeliveryVO;
 import common.utilities.UtilityCommon;

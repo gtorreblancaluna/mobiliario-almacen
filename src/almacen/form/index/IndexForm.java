@@ -266,7 +266,7 @@ public class IndexForm extends javax.swing.JFrame {
         jPanel1.add(jSeparator9, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 0, 10, 90));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel5.setText("Versión 1.0.20240111");
+        jLabel5.setText("Versión 1.0.20240129");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 24, 150, 20));
 
         jLabel6.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N

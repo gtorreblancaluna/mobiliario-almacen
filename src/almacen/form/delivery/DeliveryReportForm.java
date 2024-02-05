@@ -21,11 +21,10 @@ import common.services.UserService;
 import common.services.UtilityService;
 import common.utilities.CheckBoxHeader;
 import common.utilities.ItemListenerHeaderCheckbox;
+import common.utilities.JasperPrintUtility;
 import common.utilities.UtilityCommon;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,31 +106,32 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     
     private enum Column{
         
-        BOOLEAN(0,"",Boolean.class, true),
-        ID(1,"id",String.class, false),
-        FOLIO(2,"Folio",String.class, false),
-        DESCRIPTION_EVENT(3,"Dirección",String.class, false),
-        EVENT_DATE(4,"Fecha evento",String.class, false),
-        DELIVERY_DATE(5,"Fecha entrega",String.class, false),
-        CUSTOMER(6,"Cliente",String.class, false),
-        EVENT_TYPE(7,"Tipo",String.class, false),
-        EVENT_STATUS(8,"Estatus Pedido",String.class, false),
-        TASK_CREATED_AT(9,"Fecha tarea",String.class, false),
-        STATUS_TASK(10,"Descripcion tarea",String.class, false),
-        ATTENDED_TYPE(11,"Atendido",String.class, false),
-        CHOFER(12,"Chofer",String.class, false),
-        CHOFER_ID(13,"ID Chofer",String.class, false),
-        PENDING_TO_PAY(14,"Esta pendiente por pagar",Boolean.class, false),
-        PENDING_TO_PAY_DESCRIPTION(15,"Pendiente por pagar",String.class, false),
-        TASK_ID(16,"task id", String.class,false)
-        ;
+        BOOLEAN(0,30,"",Boolean.class, true),
+        ID(1,30,"id",String.class, false),
+        RENTA_ID(2,30,"id",String.class, false),
+        FOLIO(3,40,"Folio",String.class, false),
+        DESCRIPTION_EVENT(4,240,"Dirección",String.class, false),
+        EVENT_DATE(5,120,"Fecha evento",String.class, false),
+        DELIVERY_DATE(6,120,"Fecha entrega",String.class, false),
+        CUSTOMER(7,220,"Cliente",String.class, false),
+        EVENT_TYPE(8,80,"Tipo",String.class, false),
+        EVENT_STATUS(9,80,"Estatus Pedido",String.class, false),
+        TASK_CREATED_AT(10,80,"Fecha tarea",String.class, false),
+        STATUS_TASK(11,120,"Descripcion tarea",String.class, false),
+        ATTENDED_TYPE(12,120,"Atendido",String.class, false),
+        CHOFER(13,120,"Chofer",String.class, false),
+        CHOFER_ID(14,30,"ID Chofer",String.class, false),
+        PENDING_TO_PAY(15,30,"Esta pendiente por pagar",Boolean.class, false),
+        PENDING_TO_PAY_DESCRIPTION(16,120,"Pendiente por pagar",String.class, false);
         
-        Column (Integer number, String description, Class clazz, Boolean isEditable) {
+        Column (Integer number, int size,String description, Class clazz, Boolean isEditable) {
             this.number = number;
+            this.size = size;
             this.description = description;
             this.clazz = clazz;
             this.isEditable = isEditable;
         }
+        private final int size;
         private final Integer number;
         private final String description;
         private final Class clazz;
@@ -151,6 +151,18 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         
         public String getDescription () {
             return description;
+        }
+        
+        public int getSize () {
+            return size;
+        }
+        
+        public static String[] getColumnNames () {
+            List<String> columnNames = new ArrayList<>();
+            for (Column column : Column.values()) {
+                columnNames.add(column.getDescription());
+            }
+            return columnNames.toArray(new String[0]);
         }
         
     }
@@ -175,6 +187,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             for (TaskChoferDeliveryVO task : tasks) {
                 Object row[] = {
                     false,
+                    task.getId(),
                     task.getRenta().getRentaId(),
                     task.getRenta().getFolio(),
                     task.getRenta().getDescripcion(),
@@ -220,83 +233,19 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
                 }
                 return component;
             }
-        });
-        
-        String[] columnNames = {
-            
-            Column.BOOLEAN.getDescription(),
-            Column.ID.getDescription(),
-            Column.FOLIO.getDescription(), 
-            Column.DESCRIPTION_EVENT.getDescription(),
-            Column.EVENT_DATE.getDescription(), 
-            Column.DELIVERY_DATE.getDescription(),                        
-            Column.CUSTOMER.getDescription(),
-            Column.EVENT_TYPE.getDescription(),
-            Column.EVENT_STATUS.getDescription(),
-            Column.TASK_CREATED_AT.getDescription(),
-            Column.STATUS_TASK.getDescription(),
-            Column.ATTENDED_TYPE.getDescription(),
-            Column.CHOFER.getDescription(),
-            Column.CHOFER_ID.getDescription(),
-            Column.PENDING_TO_PAY.getDescription(),
-            Column.PENDING_TO_PAY_DESCRIPTION.getDescription(),
-            Column.TASK_ID.getDescription() 
-            
-        };
-        Class[] types = {
-            
-            Column.BOOLEAN.getClazz(),
-            Column.ID.getClazz(),
-            Column.FOLIO.getClazz(),
-            Column.DESCRIPTION_EVENT.getClazz(),
-            Column.EVENT_DATE.getClazz(),
-            Column.DELIVERY_DATE.getClazz(),
-            Column.CUSTOMER.getClazz(),
-            Column.EVENT_TYPE.getClazz(),
-            Column.EVENT_STATUS.getClazz(),
-            Column.TASK_CREATED_AT.getClazz(),
-            Column.STATUS_TASK.getClazz(),
-            Column.ATTENDED_TYPE.getClazz(),
-            Column.CHOFER.getClazz(),
-            Column.CHOFER_ID.getClazz(),
-            Column.PENDING_TO_PAY.getClazz(),
-            Column.PENDING_TO_PAY_DESCRIPTION.getClazz(),
-            Column.TASK_ID.getClazz()
-        };
-        
-        boolean[] editable = {
-            
-            Column.BOOLEAN.getIsEditable(),
-            Column.ID.getIsEditable(),
-            Column.FOLIO.getIsEditable(), 
-            Column.DESCRIPTION_EVENT.getIsEditable(),
-            Column.EVENT_DATE.getIsEditable(),
-            Column.DELIVERY_DATE.getIsEditable(),                        
-            Column.CUSTOMER.getIsEditable(),
-            Column.EVENT_TYPE.getIsEditable(),
-            Column.EVENT_STATUS.getIsEditable(),
-            Column.TASK_CREATED_AT.getIsEditable(),
-            Column.STATUS_TASK.getIsEditable(),   
-            Column.ATTENDED_TYPE.getIsEditable(),
-            Column.CHOFER.getIsEditable(),
-            Column.CHOFER_ID.getIsEditable(),
-            Column.PENDING_TO_PAY.getIsEditable(),
-            Column.PENDING_TO_PAY_DESCRIPTION.getIsEditable(),
-            Column.TASK_ID.getIsEditable()
-            
-        };
+        });       
         
         // customize column types
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0){
+        DefaultTableModel tableModel = new DefaultTableModel(Column.getColumnNames(), 0){
             @Override
-            public Class getColumnClass(int column) {
-                return types[column];
-            }
-            
-            @Override
-            public boolean isCellEditable (int row, int column) {
-                return editable[column];
-            }
+                public Class getColumnClass(int column) {
+                    return Column.values()[column].getClazz();
+                }
+
+                @Override
+                public boolean isCellEditable (int row, int column) {
+                    return Column.values()[column].getIsEditable();
+                }
             
         };
        
@@ -306,11 +255,10 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
        table.setRowSorter(ordenarTabla);
        
      
-       int[] anchos = {20,20,30,90,80,80,40,40,60,40,40,60,40,40,40,60,40};
-
-       for (int inn = 0; inn < table.getColumnCount(); inn++) {
-           table.getColumnModel().getColumn(inn).setPreferredWidth(anchos[inn]);
-       }
+        for (Column column : Column.values()) {
+            table.getColumnModel().getColumn(column.getNumber())
+                    .setPreferredWidth(column.getSize());
+        }
 
        try {
            DefaultTableModel temp = (DefaultTableModel) table.getModel();
@@ -328,13 +276,13 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
        table.getColumnModel().getColumn(Column.ID.getNumber()).setMinWidth(0);
        table.getColumnModel().getColumn(Column.ID.getNumber()).setPreferredWidth(0);
        
+       table.getColumnModel().getColumn(Column.RENTA_ID.getNumber()).setMaxWidth(0);
+       table.getColumnModel().getColumn(Column.RENTA_ID.getNumber()).setMinWidth(0);
+       table.getColumnModel().getColumn(Column.RENTA_ID.getNumber()).setPreferredWidth(0);
+       
        table.getColumnModel().getColumn(Column.PENDING_TO_PAY.getNumber()).setMaxWidth(0);
        table.getColumnModel().getColumn(Column.PENDING_TO_PAY.getNumber()).setMinWidth(0);
        table.getColumnModel().getColumn(Column.PENDING_TO_PAY.getNumber()).setPreferredWidth(0);
-       
-       table.getColumnModel().getColumn(Column.TASK_ID.getNumber()).setMaxWidth(0);
-       table.getColumnModel().getColumn(Column.TASK_ID.getNumber()).setMinWidth(0);
-       table.getColumnModel().getColumn(Column.TASK_ID.getNumber()).setPreferredWidth(0);
        
        table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setMaxWidth(0);
        table.getColumnModel().getColumn(Column.CHOFER_ID.getNumber()).setMinWidth(0);
@@ -600,31 +548,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
         LOGGER.info(logMessage);
         Utility.pushNotification(logMessage);
     }
-    private static void openPDFReport (String rentaId, String choferName, String folio) throws BusinessException {
-        try {
-            connectionDB = ConnectionDB.getInstance();
-            String pathLocation = Utility.getPathLocation();
-            String reportName = pathLocation+ApplicationConstants.NOMBRE_REPORTE_ENTREGAS+"-"+folio+".pdf";
-            JasperReport masterReport = (JasperReport) JRLoader.loadObjectFromFile(pathLocation+ApplicationConstants.RUTA_REPORTE_ENTREGAS);
-            
-            Map<String,Object> parameters = new HashMap<>();
-            parameters.put("id_renta", rentaId);
-            parameters.put("chofer", choferName);
-            parameters.put("URL_IMAGEN",pathLocation+ApplicationConstants.LOGO_EMPRESA );
-            
-            JasperPrint jasperPrint = JasperFillManager.fillReport(masterReport, parameters, connectionDB.getConnection());
-            JasperExportManager.exportReportToPdfFile(jasperPrint, reportName);
 
-            Desktop.getDesktop().open(
-                    new File(reportName)
-            );
-            generateLogGeneratePDFPush("reporte por entrega por chofer, folio: "+folio);
-
-        } catch (Exception e) {
-            LOGGER.error(e);
-            throw new BusinessException(e.getMessage(), e);
-        }
-    }
     private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
 
         try {
@@ -632,12 +556,13 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             for (int i = 0; i < table.getRowCount(); i++) {
                 if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
                     String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
-                    String rentaId = table.getValueAt(i, Column.ID.getNumber()).toString();
+                    String rentaId = table.getValueAt(i, Column.RENTA_ID.getNumber()).toString();
                     String choferName = table.getValueAt(i, Column.CHOFER.getNumber()).toString();
-                    openPDFReport(rentaId,choferName,folio);
+                    JasperPrintUtility.openPDFReportDeliveryChofer(rentaId,choferName,folio,connectionDB,Utility.getPathLocation());
+                    generateLogGeneratePDFPush("reporte por entrega por chofer, folio: "+folio);
                 }
             }
-        } catch (BusinessException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Reporte", JOptionPane.INFORMATION_MESSAGE);
         }
 

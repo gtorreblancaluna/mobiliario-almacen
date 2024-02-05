@@ -1,6 +1,6 @@
 package almacen.service.delivery;
 
-import almacen.dao.delivery.TaskChoferDeliveryUpdateDAO;
+import common.dao.TaskDeliveryChoferUpdateDAO;
 import common.exceptions.DataOriginException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,11 +9,11 @@ import java.util.Map;
 
 public class TaskChoferDeliveryUpdateService {
     
-    private final TaskChoferDeliveryUpdateDAO taskChoferDeliveryUpdateDAO;
+    private final TaskDeliveryChoferUpdateDAO taskChoferDeliveryUpdateDAO;
     private static TaskChoferDeliveryUpdateService INSTANCE = null;
     
     private TaskChoferDeliveryUpdateService(){
-        taskChoferDeliveryUpdateDAO = TaskChoferDeliveryUpdateDAO.getInstance();
+        taskChoferDeliveryUpdateDAO = TaskDeliveryChoferUpdateDAO.getInstance();
     }
     
     private synchronized static void createInstance() {
