@@ -50,6 +50,8 @@ public class RentasForm extends javax.swing.JInternalFrame {
         this.setClosable(true);
         this.setTitle("EVENTOS");
         this.getByNumberOfWeeks();
+        this.setMaximizable(true);
+        this.setResizable(true);
     }
     
     private void fillTable (List<Renta> rentas) {

@@ -1,7 +1,6 @@
 package almacen.form.delivery;
 
 import almacen.commons.enums.FilterEvent;
-import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.service.delivery.TaskChoferDeliveryRetrieveService;
 import almacen.service.delivery.TaskChoferDeliveryUpdateService;
@@ -12,10 +11,12 @@ import static common.constants.ApplicationConstants.MESSAGE_UNEXPECTED_ERROR;
 import common.exceptions.BusinessException;
 import common.exceptions.DataOriginException;
 import common.model.EstadoEvento;
+import common.model.Renta;
 import common.model.TaskChoferDeliveryVO;
 import common.model.Tipo;
 import common.model.Usuario;
 import common.services.EstadoEventoService;
+import common.services.RentaService;
 import common.services.TipoEventoService;
 import common.services.UserService;
 import common.services.UtilityService;
@@ -40,11 +41,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
 import org.apache.log4j.Logger;
 
 public class DeliveryReportForm extends javax.swing.JInternalFrame {
@@ -56,7 +52,6 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     private EstadoEventoService estadoEventoService;
     private TipoEventoService tipoEventoService;
     private static UserService userService;
-    private static ConnectionDB connectionDB;
     private final static Integer LIMIT_RESULTS = 1_000;
     private UtilityService utilityService;
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -64,12 +59,16 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     private static final Logger LOGGER = Logger.getLogger(DeliveryReportForm.class.getName());
     private static final TaskChoferDeliveryRetrieveService taskChoferDeliveryRetrieveService = TaskChoferDeliveryRetrieveService.getInstance();
     private static TaskChoferDeliveryUpdateService taskChoferDeliveryUpdateService;
+    private RentaService rentaService;
 
     public DeliveryReportForm() {
         this.setClosable(true);
         this.setTitle("REPORTES CHOFER");
         initComponents();
         init();
+        this.setMaximizable(true);
+        this.setResizable(true);
+        rentaService = RentaService.getInstance();
     }
     
     private Map<String, Object> getInitParameters () {
@@ -555,11 +554,10 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             UtilityCommon.validateSelectCheckboxInTable(table,Column.BOOLEAN.getNumber());
             for (int i = 0; i < table.getRowCount(); i++) {
                 if (Boolean.parseBoolean(table.getValueAt(i, Column.BOOLEAN.getNumber()).toString())) {
-                    String folio = table.getValueAt(i, Column.FOLIO.getNumber()).toString();
                     String rentaId = table.getValueAt(i, Column.RENTA_ID.getNumber()).toString();
-                    String choferName = table.getValueAt(i, Column.CHOFER.getNumber()).toString();
-                    JasperPrintUtility.openPDFReportDeliveryChofer(rentaId,choferName,folio,connectionDB,Utility.getPathLocation());
-                    generateLogGeneratePDFPush("reporte por entrega por chofer, folio: "+folio);
+                    final Renta renta = rentaService.getById(Integer.parseInt(rentaId));
+                    JasperPrintUtility.openPDFReportDeliveryChofer(renta, Utility.getPathLocation());
+                    generateLogGeneratePDFPush("Reporte por entrega por chofer, folio: "+renta.getFolio());
                 }
             }
         } catch (Exception e) {

@@ -171,10 +171,8 @@
                               <Component id="jbtnSearch" alignment="1" max="32767" attributes="0"/>
                               <Component id="jButton5" alignment="1" max="32767" attributes="0"/>
                               <Component id="jButton4" alignment="1" max="32767" attributes="0"/>
-                              <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="jButton1" alignment="1" max="32767" attributes="0"/>
-                                  <Component id="jButton3" alignment="1" max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="jButton1" alignment="1" max="32767" attributes="0"/>
+                              <Component id="jButton3" alignment="1" max="32767" attributes="0"/>
                               <Component id="jButton2" alignment="1" max="32767" attributes="0"/>
                               <Component id="jbtnAddOrder" max="32767" attributes="0"/>
                               <Component id="jbtnBitacoraProveedor" max="32767" attributes="0"/>

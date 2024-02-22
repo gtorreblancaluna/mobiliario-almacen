@@ -4,26 +4,29 @@ import almacen.commons.forms.UpdateSessionDialogForm;
 import common.constants.ApplicationConstants;
 import common.utilities.RequestFocusListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import almacen.form.index.IndexForm;
+import static common.constants.ApplicationConstants.UTILITY_CLASS;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.WindowConstants;
 
 
-public abstract class Utility {
+public class Utility {
     
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private Utility() {
+        throw new IllegalStateException(UTILITY_CLASS);
+    }
+    
     
     public static void pushNotification(final String notification){
         StringBuilder messages = new StringBuilder();
-        
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date = simpleDateFormat.format(new Timestamp(System.currentTimeMillis()));
         IndexForm.listNotifications.add(date+" >> "+notification);
         IndexForm.listNotifications.stream().forEach(t -> {
@@ -74,7 +77,7 @@ public abstract class Utility {
         }
     }
     
-    public static String getPathLocation()throws IOException,URISyntaxException{
+    public static String getPathLocation()throws URISyntaxException{
    
         File file = new File(Utility.class.getProtectionDomain().getCodeSource().getLocation()
                 .toURI()).getParentFile();

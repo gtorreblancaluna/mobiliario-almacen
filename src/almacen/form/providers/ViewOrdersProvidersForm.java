@@ -1,7 +1,6 @@
 
 package almacen.form.providers;
 
-import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
@@ -22,6 +21,7 @@ import common.model.providers.ParameterOrderProvider;
 import common.model.providers.queryresult.DetailOrderSupplierQueryResult;
 import common.services.UtilityService;
 import common.services.providers.OrderProviderService;
+import common.utilities.JasperPrintUtility;
 import common.utilities.UtilityCommon;
 import java.awt.Component;
 import java.awt.Frame;
@@ -50,7 +50,6 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     private static final org.apache.log4j.Logger LOGGER = 
             org.apache.log4j.Logger.getLogger(ViewOrdersProvidersForm.class.getName());
     private final UtilityService utilityService = UtilityService.getInstance();
-    private static ConnectionDB connectionDB;
 
     public ViewOrdersProvidersForm() {
         initComponents();
@@ -61,6 +60,8 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
         this.setClosable(true);
         initComboBox();
         eventListener();
+        this.setMaximizable(true);
+        this.setResizable(true);
     }
     
     private void eventListener () {
@@ -288,20 +289,15 @@ public class ViewOrdersProvidersForm extends javax.swing.JInternalFrame {
     
     private void reportPDF(){
        
-       String orderId;
-       String pathLocation;
        try {
-            orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
-            connectionDB = ConnectionDB.getInstance();
-            pathLocation = Utility.getPathLocation();
+            String orderId = getValueIdBySelectedRow(ColumnToGetValue.ORDER_ID);
+            DatosGenerales datosGenerales = systemService.getGeneralData();       
+            JasperPrintUtility.generatePDFOrderProvider(orderId,datosGenerales, Utility.getPathLocation());
        } catch (Exception e) {
            LOGGER.error(e);
            JOptionPane.showMessageDialog(this, e.getMessage(), ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
-           return;
        }       
-       DatosGenerales datosGenerales = systemService.getGeneralData();       
-       UtilityCommon.generatePDFOrderProvider(
-               orderId,connectionDB.getConnection(),datosGenerales, pathLocation);
+       
      
      }
     

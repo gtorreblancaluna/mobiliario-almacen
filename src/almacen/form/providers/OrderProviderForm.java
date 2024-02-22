@@ -1,6 +1,5 @@
 package almacen.form.providers;
 
-import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.form.index.IndexForm;
 import almacen.service.SystemService;
@@ -31,11 +30,10 @@ import common.model.providers.PagosProveedor;
 import common.model.providers.Proveedor;
 import common.model.providers.DetailOrderProviderType;
 import common.services.providers.OrderProviderService;
+import common.utilities.JasperPrintUtility;
 
 public class OrderProviderForm extends javax.swing.JInternalFrame {
     
-    Object[][] dtconduc;
-    private static ConnectionDB connectionDB;
     private final UtilityService utilityService = UtilityService.getInstance();
     private final OrderProviderService orderProviderService = OrderProviderService.getInstance();
     private final RentaService rentaService = RentaService.getInstance();
@@ -106,12 +104,9 @@ public class OrderProviderForm extends javax.swing.JInternalFrame {
         } 
        
         try {
-            
-            connectionDB = ConnectionDB.getInstance();
-            String pathLocation = Utility.getPathLocation();
             DatosGenerales datosGenerales = systemService.getGeneralData();
-            UtilityCommon.generatePDFOrderProvider(
-               orderId,connectionDB.getConnection(),datosGenerales, pathLocation);
+            JasperPrintUtility.generatePDFOrderProvider(
+               orderId,datosGenerales, Utility.getPathLocation());
             
        } catch (Exception e) {
            LOGGER.error(e);

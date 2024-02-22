@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import almacen.form.index.IndexForm;
 import static almacen.form.index.IndexForm.rootPanel;
 import almacen.service.task.TaskAlmacenRetrieveService;
-import common.utilities.ConnectionDB;
 import almacen.commons.utilities.Utility;
 import almacen.service.task.TaskAlmacenUpdateService;
 import common.exceptions.BusinessException;
@@ -51,7 +50,6 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
     private List<Usuario> usersInCategoriesAlmacen = new ArrayList<>();
     private TasksAlmacenFilterForm ordersFilterForm;
     private final UtilityService utilityService = UtilityService.getInstance();
-    private static ConnectionDB connectionDB;
     private static final Logger LOGGER = Logger.getLogger(TasksAlmacenForm.class.getName());
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private static final String PATTERN_STRING_DATE = "dd/MM/yyyy";
@@ -70,6 +68,8 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
         taskAlmacenRetrieveService = TaskAlmacenRetrieveService.getInstance();
         rentaService = RentaService.getInstance();
         init();
+        this.setMaximizable(true);
+        this.setResizable(true);
     }
     
     private Map<String, Object> getInitParameters () {
@@ -546,17 +546,15 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(117, Short.MAX_VALUE))
             .addComponent(jScrollPane1)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                .addGap(11, 11, 11)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -567,19 +565,12 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(23, 23, 23)))
-                .addContainerGap())
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -643,9 +634,12 @@ public class TasksAlmacenForm extends javax.swing.JInternalFrame {
                     String userName = table.getValueAt(i, Column.USER_NAME.getNumber()).toString();
                     
                     final Renta renta = rentaService.getById(Integer.parseInt(rentaId));
-                    
-                    JasperPrintUtility.openPDFReportByCategories(userId,userName,renta,
-                            connectionDB, Utility.getPathLocation());
+                    List<Usuario> users = new ArrayList<>();
+                    Usuario user = new Usuario();
+                    user.setUsuarioId(Integer.parseInt(userId));
+                    user.setNombre(userName);
+                    users.add(user);
+                    JasperPrintUtility.openPDFReportByCategories(users,renta, Utility.getPathLocation());
                     generateLogGeneratePDFPush("reporte por categorías, folio: "+folio);
                 }
             }
