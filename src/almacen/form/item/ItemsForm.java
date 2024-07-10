@@ -299,7 +299,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
             btnUpdateStock.setEnabled(true);
         } catch (Exception e) {
             Logger.getLogger(ItemsForm.class.getName()).log(Level.SEVERE, null, e);
-            JOptionPane.showMessageDialog(null, "Ocurrio un inesperado\n "+e, ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Ocurrio un inesperado\n "+e, ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
             lblInfo.setText(e.getMessage());
         } finally {
             Toolkit.getDefaultToolkit().beep();
@@ -1030,7 +1030,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void editStock (int selectedRow) {
-                
+        
         String itemDescription = 
                 tableIDetailtems.getValueAt(selectedRow, TableIDetailtems.Column.DESCRIPTION.getNumber()).toString();
         String currentStock = 
@@ -1038,22 +1038,22 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         StockItemFormDialog dialog = 
                 new StockItemFormDialog(null, true, itemDescription,currentStock);        
         String stockUpdated = dialog.showDialog();
-              
+
         if (stockUpdated == null || stockUpdated.isEmpty()) {
             return;
         }
-        
+            
         try {
             
             Integer itemId = 
-                    Integer.parseInt(tableIDetailtems.getValueAt(
-                            selectedRow, TableIDetailtems.Column.ID.getNumber()).toString());
+                        Integer.parseInt(tableIDetailtems.getValueAt(
+                                selectedRow, TableIDetailtems.Column.ID.getNumber()).toString());
             
-            Articulo itemUpdate = new Articulo();
-            itemUpdate.setArticuloId(itemId);
-            itemUpdate.setCantidad(Float.parseFloat(stockUpdated));
-            itemUpdate.setFechaUltimaModificacion(new Timestamp(System.currentTimeMillis()));
-            itemService.actualizarArticulo(itemUpdate);
+            Articulo itemToUpdate = itemService.obtenerArticuloPorId(itemId);
+            
+            itemToUpdate.setCantidad(Float.parseFloat(stockUpdated));
+            itemToUpdate.setFechaUltimaModificacion(new Timestamp(System.currentTimeMillis()));
+            itemService.actualizarArticulo(itemToUpdate);
             tableIDetailtems.setValueAt(stockUpdated, selectedRow, TableIDetailtems.Column.STOCK.getNumber());
             lblInfo.setText("Se actualizó el stock con éxito.");
             UtilityCommon.setTimeout(() -> lblInfo.setText(""), 4000);
