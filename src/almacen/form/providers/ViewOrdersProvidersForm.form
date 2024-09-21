@@ -287,7 +287,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/search-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/search-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Buscar"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -340,7 +340,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/beneficios-money-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/beneficios-money-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Pagos"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -357,7 +357,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/excel-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/excel-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Exportar Excel"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -374,7 +374,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/searching-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/searching-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Detalle"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -391,7 +391,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/truck-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/truck-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Proveedores"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -408,7 +408,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/pdf-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/pdf-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Exportar PDF"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -455,7 +455,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/agregar-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/agregar-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Agregar nueva orden"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -472,7 +472,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/inventario-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/inventario-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Bitacora seguimiento proveedor"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -486,7 +486,7 @@
         <Component class="javax.swing.JButton" name="btnCopyOrders">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/copy-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/copy-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Copiar ordenes a un nuevo folio"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">

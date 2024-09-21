@@ -201,7 +201,7 @@
         <Component class="javax.swing.JLabel" name="jLabel7">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons16/info-16.png"/>
+              <Image iconType="3" name="/almacen/icons/icon16/info-16.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Puedes ingresar varios folios, separados por coma. Ejemplo: (12,13,14)"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -237,7 +237,7 @@
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="368" max="32767" attributes="0"/>
+                  <EmptySpace pref="353" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -275,7 +275,7 @@
                   <Font name="Arial" size="12" style="0"/>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/almacen/icons24/user-attend-24.png"/>
+                  <Image iconType="3" name="/almacen/icons/icon24/user-attend-24.png"/>
                 </Property>
                 <Property name="mnemonic" type="int" value="97"/>
                 <Property name="toolTipText" type="java.lang.String" value="[Alt+A] Marcar como atendido"/>
@@ -339,7 +339,7 @@
             <Component class="javax.swing.JButton" name="btnUpdateStatusRentaToEnRenta1">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/almacen/icons24/truck-24.png"/>
+                  <Image iconType="3" name="/almacen/icons/icon24/truck-24.png"/>
                 </Property>
                 <Property name="mnemonic" type="int" value="98"/>
                 <Property name="toolTipText" type="java.lang.String" value="[Alt+X] Actualizar chofer."/>

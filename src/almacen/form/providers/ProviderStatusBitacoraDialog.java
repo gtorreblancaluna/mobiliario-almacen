@@ -180,7 +180,7 @@ public class ProviderStatusBitacoraDialog extends javax.swing.JDialog {
 
         jLabel2.setText("Estatus:");
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/guardar-24.png"))); // NOI18N
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/guardar-24.png"))); // NOI18N
         jButton1.setToolTipText("Agregar");
         jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton1.addActionListener(new java.awt.event.ActionListener() {

@@ -373,7 +373,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         lblInfo.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
 
         btnExportItemTableToExcel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnExportItemTableToExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/excel-24.png"))); // NOI18N
+        btnExportItemTableToExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/excel-24.png"))); // NOI18N
         btnExportItemTableToExcel.setToolTipText("Exportar Excel");
         btnExportItemTableToExcel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnExportItemTableToExcel.addActionListener(new java.awt.event.ActionListener() {
@@ -383,7 +383,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         });
 
         btnUpdateStock.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnUpdateStock.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/edit-24.png"))); // NOI18N
+        btnUpdateStock.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/edit-24.png"))); // NOI18N
         btnUpdateStock.setToolTipText("Editar stock");
         btnUpdateStock.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnUpdateStock.addActionListener(new java.awt.event.ActionListener() {
@@ -640,7 +640,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 431, Short.MAX_VALUE)
+            .addGap(0, 447, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -684,7 +684,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         tabGeneral.addTab("Disponibilidad", jPanel2);
 
         jbtnSearch.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        jbtnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/search-24.png"))); // NOI18N
+        jbtnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/search-24.png"))); // NOI18N
         jbtnSearch.setToolTipText("Buscar");
         jbtnSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jbtnSearch.addActionListener(new java.awt.event.ActionListener() {
@@ -776,7 +776,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         jLabel19.setText("Tipo de evento:");
 
         jButton7.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/excel-24.png"))); // NOI18N
+        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/excel-24.png"))); // NOI18N
         jButton7.setToolTipText("Exportar Excel");
         jButton7.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -894,7 +894,7 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         );
         panelTableItemsByFolioLayout.setVerticalGroup(
             panelTableItemsByFolioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 397, Short.MAX_VALUE)
+            .addGap(0, 407, Short.MAX_VALUE)
         );
 
         lblInfoGeneral.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N

@@ -412,7 +412,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
         jLabel4.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel4.setText("Fecha final");
 
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons16/info-16.png"))); // NOI18N
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon16/info-16.png"))); // NOI18N
         jLabel7.setToolTipText("Puedes ingresar varios folios, separados por coma. Ejemplo: (12,13,14)");
         jLabel7.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -481,7 +481,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
         );
 
         btnUpdateStatusRentaToEnRenta.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        btnUpdateStatusRentaToEnRenta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/user-attend-24.png"))); // NOI18N
+        btnUpdateStatusRentaToEnRenta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/user-attend-24.png"))); // NOI18N
         btnUpdateStatusRentaToEnRenta.setMnemonic('a');
         btnUpdateStatusRentaToEnRenta.setToolTipText("[Alt+A] Marcar como atendido");
         btnUpdateStatusRentaToEnRenta.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -520,7 +520,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        btnUpdateStatusRentaToEnRenta1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/truck-24.png"))); // NOI18N
+        btnUpdateStatusRentaToEnRenta1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/truck-24.png"))); // NOI18N
         btnUpdateStatusRentaToEnRenta1.setMnemonic('b');
         btnUpdateStatusRentaToEnRenta1.setToolTipText("[Alt+X] Actualizar chofer.");
         btnUpdateStatusRentaToEnRenta1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -581,7 +581,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(368, Short.MAX_VALUE))
+                .addContainerGap(353, Short.MAX_VALUE))
         );
 
         table.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N

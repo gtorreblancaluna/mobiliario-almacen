@@ -20,9 +20,9 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="jPanel1" min="-2" pref="34" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+              <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jPanel2" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -40,41 +40,24 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="btnAttend" alignment="0" pref="0" max="32767" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="btnSearch" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
-                                      <Component id="btnSearchByFolio" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
-                                      <Component id="btnReport" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                              <Component id="jSeparator2" alignment="0" min="-2" pref="31" max="-2" attributes="0"/>
-                              <Component id="jSeparator1" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Component id="jButton1" min="-2" pref="32" max="-2" attributes="0"/>
-                              <Component id="btnReload" min="-2" pref="32" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="lblCountTable" min="-2" pref="32" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-              </Group>
+              <Component id="btnSearchByFolio" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
+              <Component id="btnSearch" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
+              <Component id="btnAttend" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
+              <Component id="lblCountTable" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
+              <Component id="btnReport" min="-2" pref="34" max="-2" attributes="0"/>
+              <Component id="jSeparator1" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
+              <Component id="btnReload" min="-2" pref="32" max="-2" attributes="0"/>
+              <Component id="jSeparator2" alignment="0" min="-2" pref="31" max="-2" attributes="0"/>
+              <Component id="jButton1" alignment="1" min="-2" pref="32" max="-2" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
                   <Component id="btnReport" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="btnSearchByFolio" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="btnSearch" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jSeparator2" min="-2" pref="9" max="-2" attributes="0"/>
@@ -86,7 +69,7 @@
                   <Component id="btnReload" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="lblCountTable" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -100,7 +83,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/refresh-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/refresh-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Recargar"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -117,7 +100,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/search-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/search-24.png"/>
             </Property>
             <Property name="mnemonic" type="int" value="98"/>
             <Property name="toolTipText" type="java.lang.String" value="[Alt+B] Busqueda"/>
@@ -135,7 +118,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/searching-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/searching-24.png"/>
             </Property>
             <Property name="mnemonic" type="int" value="102"/>
             <Property name="toolTipText" type="java.lang.String" value="[Alt+F] Buscar por folio"/>
@@ -153,7 +136,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/pdf-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/pdf-24.png"/>
             </Property>
             <Property name="mnemonic" type="int" value="112"/>
             <Property name="toolTipText" type="java.lang.String" value="[Alt+P] Generar PDF"/>
@@ -171,7 +154,7 @@
               <Font name="Arial" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/excel-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/excel-24.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Exportar a excel"/>
             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -185,7 +168,7 @@
         <Component class="javax.swing.JButton" name="btnAttend">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/almacen/icons24/user-attend-24.png"/>
+              <Image iconType="3" name="/almacen/icons/icon24/user-attend-24.png"/>
             </Property>
             <Property name="mnemonic" type="int" value="97"/>
             <Property name="toolTipText" type="java.lang.String" value="[Alt+A] Marcar como atendido"/>
@@ -206,6 +189,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Arial" size="14" style="1"/>
             </Property>
+            <Property name="text" type="java.lang.String" value="lblCountTable"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="10"/>
@@ -220,7 +204,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="117" max="32767" attributes="0"/>
+                  <EmptySpace pref="46" max="32767" attributes="0"/>
               </Group>
               <Component id="jScrollPane1" alignment="0" max="32767" attributes="0"/>
           </Group>
@@ -228,7 +212,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="jScrollPane1" pref="566" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="570" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
               </Group>

@@ -146,7 +146,7 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel4.setText("Tareas almacen");
         panelEvents.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/lista-de-quehaceres-24.png"))); // NOI18N
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/lista-de-quehaceres-24.png"))); // NOI18N
         panelEvents.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelEvents, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 180, 30));
@@ -165,7 +165,7 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel8.setText("Reportes entregas");
         panelMenuChoferDelivery.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/delivery-24.png"))); // NOI18N
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/delivery-24.png"))); // NOI18N
         panelMenuChoferDelivery.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuChoferDelivery, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 180, 40));
@@ -184,7 +184,7 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel10.setText("Inventario");
         panelMenuInventory.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/warehouse-24.png"))); // NOI18N
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/warehouse-24.png"))); // NOI18N
         panelMenuInventory.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuInventory, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 180, 40));
@@ -203,7 +203,7 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel12.setText("Folios");
         panelMenuRentas.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/folder-24.png"))); // NOI18N
+        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/folder-24.png"))); // NOI18N
         panelMenuRentas.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuRentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 140, 180, 40));
@@ -222,7 +222,7 @@ public class IndexForm extends javax.swing.JFrame {
         jLabel14.setText("Proveedores");
         panelMenuProviders.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons24/proveedor-24.png"))); // NOI18N
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/almacen/icons/icon24/proveedor-24.png"))); // NOI18N
         panelMenuProviders.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
         jPanel2.add(panelMenuProviders, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 180, 180, 40));
@@ -266,7 +266,7 @@ public class IndexForm extends javax.swing.JFrame {
         jPanel1.add(jSeparator9, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 0, 10, 90));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel5.setText("Versión 1.0.20240527");
+        jLabel5.setText("Versión 1.0.20240717");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 24, 150, 20));
 
         jLabel6.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N

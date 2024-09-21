@@ -144,7 +144,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel7">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/almacen/icons24/lista-de-quehaceres-24.png"/>
+                          <Image iconType="3" name="/almacen/icons/icon24/lista-de-quehaceres-24.png"/>
                         </Property>
                       </Properties>
                       <Constraints>
@@ -194,7 +194,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel9">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/almacen/icons24/delivery-24.png"/>
+                          <Image iconType="3" name="/almacen/icons/icon24/delivery-24.png"/>
                         </Property>
                       </Properties>
                       <Constraints>
@@ -244,7 +244,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel11">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/almacen/icons24/warehouse-24.png"/>
+                          <Image iconType="3" name="/almacen/icons/icon24/warehouse-24.png"/>
                         </Property>
                       </Properties>
                       <Constraints>
@@ -294,7 +294,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel13">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/almacen/icons24/folder-24.png"/>
+                          <Image iconType="3" name="/almacen/icons/icon24/folder-24.png"/>
                         </Property>
                       </Properties>
                       <Constraints>
@@ -344,7 +344,7 @@
                     <Component class="javax.swing.JLabel" name="jLabel15">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/almacen/icons24/proveedor-24.png"/>
+                          <Image iconType="3" name="/almacen/icons/icon24/proveedor-24.png"/>
                         </Property>
                       </Properties>
                       <Constraints>
@@ -508,7 +508,7 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="12" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Versi&#xf3;n 1.0.20240527"/>
+                    <Property name="text" type="java.lang.String" value="Versi&#xf3;n 1.0.20240717"/>
                   </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
