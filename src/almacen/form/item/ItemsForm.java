@@ -246,46 +246,62 @@ public class ItemsForm extends javax.swing.JInternalFrame {
         }
     }
     
+    private boolean checkIfItemIdExist (Integer itemId) {
+        
+        boolean existItemId = false;
+        
+        for (int i = 0; i < tablaDisponibilidadArticulos.getRowCount(); i++) {            
+            Integer itemIdInTable = Integer.parseInt(
+                    tablaDisponibilidadArticulos.getValueAt(
+                            i, TableDisponibilidadArticulosShow.Column.ID.getNumber()).toString());
+            if (itemIdInTable.equals(itemId)) {
+                existItemId = true;
+                break;
+            }
+        }
+            
+        return existItemId;
+    }
+    
+    private void addItemFromDisponibilidadDialog (List<Integer> itemsId) {
+        
+        for (Integer itemId : itemsId) {
+            if (!checkIfItemIdExist(itemId)) {
+                
+                Articulo item = itemService.obtenerArticuloPorId(itemId);
+        
+                if(item == null){
+                    return;
+                }
+        
+                DefaultTableModel temp = (DefaultTableModel) tablaDisponibilidadArticulos.getModel();
+                Object row[] = {
+                      false,
+                      item.getArticuloId(),
+                      item.getCodigo(),
+                      item.getCategoria().getDescripcion(),
+                      item.getDescripcion(),
+                      item.getColor().getColor(),
+                      item.getPrecioRenta(),
+                      item.getCantidad()
+                };
+                temp.addRow(row);
+                setLblInfoStatusChange();
+            }
+        }
+    }
+    
     private void showAndSelectItems () {
         
         AgregarArticuloDisponibilidadDialog dialog = 
                 new AgregarArticuloDisponibilidadDialog(null, true, items);
-        String itemId = dialog.showDialog();
+        List<Integer> items = dialog.showDialog();
         
-        if (itemId == null) {
-            return;
+        if (items != null) {
+            addItemFromDisponibilidadDialog(items);
         }
 
-        Articulo item = itemService.obtenerArticuloPorId(Integer.parseInt(itemId));
         
-        if(item == null)
-            return;
-
-        String dato;
-         
-         // verificamos que el elemento no se encuentre en la lista
-        for (int i = 0; i < tablaDisponibilidadArticulos.getRowCount(); i++) {
-            dato = tablaDisponibilidadArticulos.getValueAt(i, TableDisponibilidadArticulosShow.Column.ID.getNumber()).toString();
-            System.out.println("dato seleccionado" + " " + " - " + dato + " - ");
-            if (dato.equals(String.valueOf(item.getArticuloId()))) {
-                 JOptionPane.showMessageDialog(this, "Ya se encuentra el elemento en la lista  ", ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
-                 return;
-            }
-        }
-        
-         DefaultTableModel temp = (DefaultTableModel) tablaDisponibilidadArticulos.getModel();
-         Object row[] = {
-               false,
-               item.getArticuloId(),
-               item.getCodigo(),
-               item.getCategoria().getDescripcion(),
-               item.getDescripcion(),
-               item.getColor().getColor(),
-               item.getPrecioRenta(),
-               item.getCantidad()
-         };
-         temp.addRow(row);
-         setLblInfoStatusChange();
     }
     
     private void getItemsAndFillTable () {

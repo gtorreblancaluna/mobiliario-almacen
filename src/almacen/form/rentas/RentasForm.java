@@ -94,7 +94,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
         String endDate = txtEndDate.getDate() != null ? new SimpleDateFormat(FORMAT_DATE).format(txtEndDate.getDate()) : null;
         
         if (initDate == null || endDate == null) {
-            JOptionPane.showMessageDialog(this, "Ingresa fecha inicial y final", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Ingresa fecha inicial y final", ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -111,7 +111,9 @@ public class RentasForm extends javax.swing.JInternalFrame {
             lblInfo.setText("Total de eventos: "+rentas.size());
             fillTable(rentas);
         } catch (Exception e) {
-             JOptionPane.showMessageDialog(this, "Ocurrio un inesperado\n "+e, "Error", JOptionPane.ERROR_MESSAGE);
+             JOptionPane.showMessageDialog(this, 
+                     ApplicationConstants.MESSAGE_UNEXPECTED_ERROR, 
+                     ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         } finally {
             Toolkit.getDefaultToolkit().beep();
         }
@@ -154,7 +156,9 @@ public class RentasForm extends javax.swing.JInternalFrame {
             lblInfo.setText("Total de eventos: "+rentas.size());
             fillTable(rentas);
         } catch (Exception e) {
-             JOptionPane.showMessageDialog(this, "Ocurrio un inesperado\n "+e, "Error", JOptionPane.ERROR_MESSAGE);
+             JOptionPane.showMessageDialog(this, 
+                     ApplicationConstants.MESSAGE_UNEXPECTED_ERROR, 
+                     ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         } finally {
             Toolkit.getDefaultToolkit().beep();
         }
@@ -164,7 +168,9 @@ public class RentasForm extends javax.swing.JInternalFrame {
     
     private void updateChofer () {
         if (!IndexForm.globalUser.getAdministrador().equals("1")) {
-            JOptionPane.showMessageDialog(this, ApplicationConstants.MESSAGE_ACTION_DENIED, ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, 
+                    ApplicationConstants.MESSAGE_ACTION_DENIED, 
+                    ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -213,7 +219,9 @@ public class RentasForm extends javax.swing.JInternalFrame {
             getByNumberOfWeeks();
         } catch (DataOriginException | BusinessException e) {
             LOGGER.error(e);
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.INFORMATION_MESSAGE);   
+            JOptionPane.showMessageDialog(this, e.getMessage(), 
+                    ApplicationConstants.MESSAGE_TITLE_ERROR, 
+                    JOptionPane.ERROR_MESSAGE);   
         }
     }
     
@@ -238,7 +246,7 @@ public class RentasForm extends javax.swing.JInternalFrame {
             lblInfo.setText("Total de eventos: "+rentas.size());
             fillTable(rentas);
         } catch (Exception e) {
-             JOptionPane.showMessageDialog(this, "Ocurrio un inesperado\n "+e, "Error", JOptionPane.ERROR_MESSAGE);
+             JOptionPane.showMessageDialog(this, ApplicationConstants.MESSAGE_UNEXPECTED_ERROR+e, ApplicationConstants.MESSAGE_TITLE_ERROR, JOptionPane.ERROR_MESSAGE);
         }
         
         
