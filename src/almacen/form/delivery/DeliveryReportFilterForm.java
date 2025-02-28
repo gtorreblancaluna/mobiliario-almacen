@@ -422,14 +422,14 @@ public class DeliveryReportFilterForm extends javax.swing.JInternalFrame {
 
             List<String> attendAlmacenTasks = new ArrayList<>();
             if (checkAttend.isSelected()) {
-                attendAlmacenTasks.add(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
+                attendAlmacenTasks.add(String.valueOf(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG));
             }
             if (checkUnAttend.isSelected()) {
-                attendAlmacenTasks.add(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
+                attendAlmacenTasks.add(String.valueOf(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG));
             }
             if (!checkUnAttend.isSelected() && !checkAttend.isSelected()) {
-                attendAlmacenTasks.add(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
-                attendAlmacenTasks.add(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString());
+                attendAlmacenTasks.add(String.valueOf(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG));
+                attendAlmacenTasks.add(String.valueOf(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG));
             }
             parameters.put(ATTEND_TYPE.getKey(), attendAlmacenTasks);
             

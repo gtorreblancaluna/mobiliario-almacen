@@ -11,17 +11,19 @@ import almacen.form.task.TasksAlmacenForm;
 import almacen.commons.utilities.Utility;
 import static almacen.commons.utilities.Utility.getCloseWindowAction;
 import almacen.form.delivery.DeliveryReportForm;
-import almacen.form.providers.ViewOrdersProvidersForm;
 import almacen.form.rentas.RentasForm;
 import almacen.form.item.ItemsForm;
+import almacen.service.SystemService;
 import common.constants.ApplicationConstants;
 import static common.constants.ApplicationConstants.ALREADY_AVAILABLE;
 import common.exceptions.InvalidDataException;
+import common.form.provider.ViewOrdersProviders;
 import common.model.DatosGenerales;
 import common.services.PropertiesService;
 import common.services.UserService;
 import common.utilities.InactivityListener;
 import common.utilities.RequestFocusListener;
+import java.net.URISyntaxException;
 import javax.swing.JPasswordField;
 
 public class IndexForm extends javax.swing.JFrame {
@@ -33,6 +35,7 @@ public class IndexForm extends javax.swing.JFrame {
     private ItemsForm itemsForm;
     private RentasForm eventsForm;
 
+    private final SystemService systemService = SystemService.getInstance();
     private static final UserService userService = UserService.getInstance();
     private static final PropertiesService propertiesService = PropertiesService.getInstance();
     private static final Logger LOGGER = Logger.getLogger(IndexForm.class.getName());
@@ -361,10 +364,20 @@ public class IndexForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage());
             return;
         }
-        ViewOrdersProvidersForm form = new ViewOrdersProvidersForm();
-        form.setLocation(this.getWidth() / 2 - form.getWidth() / 2, this.getHeight() / 2 - form.getHeight() / 2 - 20);
-        rootPanel.add(form);
-        form.show();
+        
+        try {
+        ViewOrdersProviders form = new ViewOrdersProviders(
+                globalUser,
+                systemService.getGeneralData(),
+                rootPanel,Utility.getPathLocation());
+                form.setLocation(this.getWidth() / 2 - form.getWidth() / 2, this.getHeight() / 2 - form.getHeight() / 2 - 20);
+            
+                rootPanel.add(form);
+                form.show();
+        } catch (URISyntaxException uRISyntaxException){
+            JOptionPane.showMessageDialog(this, uRISyntaxException.getMessage());
+        }
+
         
     }
     

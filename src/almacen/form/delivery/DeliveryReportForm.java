@@ -75,7 +75,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
 
         Map<String,Object> map = new HashMap<>();
         map.put(FilterEvent.LIMIT.getKey(), LIMIT_RESULTS);
-        map.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
+        map.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(String.valueOf(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG)));
         return map;
     }
     
@@ -528,7 +528,8 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("folio", number);
             parameters.put("limit", 1);
-            parameters.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString()));
+            parameters.put(FilterEvent.ATTEND_TYPE.getKey(), Arrays.asList(String.valueOf(ApplicationConstants.UN_ATTEND_ALMACEN_TASK_TYPE_CATALOG),
+                    String.valueOf(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG)));
             searchAndFillTable(parameters);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Folio no válido, ingresa un número válido para continuar ", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -587,7 +588,7 @@ public class DeliveryReportForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btnAttendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAttendActionPerformed
-        updateAttendType(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG.toString(),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
+        updateAttendType(String.valueOf(ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG),ApplicationConstants.ATTEND_ALMACEN_TASK_TYPE_CATALOG_DESCRIPTION);
     }//GEN-LAST:event_btnAttendActionPerformed
 
     private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
