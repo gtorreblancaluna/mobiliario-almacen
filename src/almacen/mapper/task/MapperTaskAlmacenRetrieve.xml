@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MapperTaskAlmacenRetrieve">
+  
+    <resultMap id="resultMapTaskAlmacen" type="common.model.TaskAlmacenVO">
+        <result property="id" column="task_almacen_id"/>
+        <result property="createdAt" column="task_almacen_created_at"/>
+        <result property="statusAlmacenTaskCatalogVO.description" column="status_almacen_task_catalog_description"/>
+        <result property="attendAlmacenTaskTypeCatalogVO.description" column="attend_almacen_task_type_catalog_description"/>
+        <result property="renta.rentaId" column="event_id"/>
+        <result property="renta.folio" column="folio"/>
+        <result property="renta.fechaEvento" column="event_date"/>
+        <result property="renta.fechaDevolucion" column="delivery_date"/>
+        <result property="renta.horaDevolucion" column="delivery_hour"/>
+        <result property="renta.descripcion" column="address_event"/>
+        <result property="renta.estado.descripcion" column="event_status"/>
+        <result property="renta.cliente.nombre" column="customer_name"/>
+        <result property="renta.cliente.apellidos" column="customer_last_name"/>
+        <result property="renta.tipo.tipo" column="event_type"/>
+        <result property="userByCategory.nombre" column="user_by_category_name"/>
+        <result property="userByCategory.apellidos" column="user_by_category_last_name"/>
+        <result property="userByCategory.usuarioId" column="user_by_category_id"/>
+    </resultMap>
+    
+    <select id="getByParameters" resultMap="resultMapTaskAlmacen" parameterType="java.util.Map">
+        SELECT
+         tasks_almacen.id AS task_almacen_id,
+         tasks_almacen.created_at AS task_almacen_created_at,
+         status_almacen_tasks_catalog.description AS status_almacen_task_catalog_description,
+         attend_almacen_tasks_type_catalog.description AS attend_almacen_task_type_catalog_description,
+         renta.id_renta AS event_id,
+         renta.folio AS folio,
+         renta.fecha_evento AS event_date,
+         renta.fecha_entrega AS delivery_date,
+         renta.hora_entrega AS delivery_hour,
+         renta.descripcion AS address_event,
+         c.nombre AS customer_name,
+         c.apellidos AS customer_last_name,
+         estado.descripcion AS event_status,
+         tipo.tipo AS event_type,
+         usuarios_by_category.nombre AS user_by_category_name,
+         usuarios_by_category.apellidos AS user_by_category_last_name,
+         usuarios_by_category.id_usuarios AS user_by_category_id
+         FROM tasks_almacen tasks_almacen
+         INNER JOIN attend_almacen_tasks_type_catalog attend_almacen_tasks_type_catalog ON (tasks_almacen.attend_almacen_tasks_type_catalog_id = attend_almacen_tasks_type_catalog.id)
+         INNER JOIN status_almacen_tasks_catalog status_almacen_tasks_catalog ON (tasks_almacen.status_almacen_tasks_catalog_id = status_almacen_tasks_catalog.id)
+         INNER JOIN renta renta ON (renta.id_renta = tasks_almacen.renta_id)
+         INNER JOIN tipo tipo ON (tipo.id_tipo = renta.id_tipo)
+         INNER JOIN estado estado ON (estado.id_estado = renta.id_estado)
+         INNER JOIN clientes c ON (c.id_clientes = renta.id_clientes)
+         INNER JOIN usuarios usuarios_by_category ON (usuarios_by_category.id_usuarios = tasks_almacen.user_by_category_id)
+         WHERE tasks_almacen.fg_active = '1'
+            <if test="systemDate != null and systemDate != '' ">
+                AND STR_TO_DATE(renta.fecha_entrega, '%d/%m/%Y') <![CDATA[ >= ]]> STR_TO_DATE(#{systemDate}, '%d/%m/%Y' )
+            </if>
+            <if test="folio != null and folio != '' ">
+                AND renta.folio = #{folio}
+            </if>
+            <if test="initEventDate != null and endEventDate != null ">
+                AND STR_TO_DATE(renta.fecha_evento,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initEventDate},'%d/%m/%Y') AND STR_TO_DATE(#{endEventDate},'%d/%m/%Y')
+            </if>
+            <if test="initCreatedDate != null and endCreatedDate != null ">
+                AND STR_TO_DATE(renta.fecha_pedido,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initCreatedDate},'%d/%m/%Y') AND STR_TO_DATE(#{endCreatedDate},'%d/%m/%Y')
+            </if>
+            <if test="initDeliveryDate != null and endDeliveryDate != null ">
+                AND STR_TO_DATE(renta.fecha_entrega,'%d/%m/%Y') BETWEEN STR_TO_DATE(#{initDeliveryDate},'%d/%m/%Y') AND STR_TO_DATE(#{endDeliveryDate},'%d/%m/%Y')
+            </if>
+            <if test="statusId != null">
+                <foreach item="item" index="index" collection="statusId"
+                    open="AND renta.id_estado IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+            </if>
+            <if test="type != null">
+                <foreach item="item" index="index" collection="type"
+                    open="AND tipo.id_tipo IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+            </if>
+            <if test="customer != null and customer != '' ">
+                AND CONCAT(c.nombre," ",c.apellidos) LIKE CONCAT('%',#{customer},'%')
+            </if>
+            <if test="userByCategoryId != null and userByCategoryId != '' ">
+                AND tasks_almacen.user_by_category_id = #{userByCategoryId}
+            </if>
+            <if test="attendType != null">
+                <foreach item="item" index="index" collection="attendType"
+                    open="AND tasks_almacen.attend_almacen_tasks_type_catalog_id IN (" separator="," close=")" >
+                        #{item}
+                </foreach>
+            </if>
+            ORDER BY tasks_almacen.id DESC LIMIT #{limit}
+    </select>
+</mapper>
